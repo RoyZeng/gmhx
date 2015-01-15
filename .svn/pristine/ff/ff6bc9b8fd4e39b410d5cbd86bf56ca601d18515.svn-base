@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process key="SP06" name="SP06" xmlns="http://jbpm.org/4.4/jpdl">
+   <start g="292,28,48,48" name="start">
+      <transition to="exclusive1"/>
+   </start>
+   <decision g="295,121,48,48" name="exclusive1">
+   <handler class="com.gome.gmhx.jbpm.handler.ServiceBarCodeMachineReview" />
+      <transition g="-9,-19" name="T2" to="exclusive2"/>
+      <transition g="-16,-13" name="T3" to="S3"/>
+   </decision>
+   <decision expr="${dataSource}" g="134,215,48,48" name="exclusive2">
+      <transition g="3,-22" name="1" to="S3"/>
+      <transition g="-27,-22" name="0" to="MSM"/>
+   </decision>
+   <task g="277,209,92,52" name="S3">
+  	  <assignment-handler class="com.gome.gmhx.jbpm.JbpmAuthorityService"/>   
+      <transition g="6,-7" name="T3" to="end1"/>
+      <transition g="-30,-17" name="T2" to="S4"/>
+      <transition g="-64,-22" name="T6" to="cancel1"/>
+   </task>
+   <custom class="com.gome.gmhx.jbpm.activityBehaviour.ModifySuccessMarkBehaviour" g="285,417,92,52" name="MSM">
+      <transition to="end1"/>
+   </custom>
+   <task g="281,308,92,52" name="S4">
+   	   <assignment-handler class="com.gome.gmhx.jbpm.JbpmAuthorityService"/>  
+      <transition g="-18,-20" name="T3" to="end1"/>
+      <transition g="-34,-2" name="T6" to="cancel1"/>
+      <transition to="MSM" name="T2" g="9,-16"/>
+   </task>
+   <end g="485,309,48,48" name="end1"/>
+   <end-cancel g="486,211,48,48" name="cancel1"/>
+</process>

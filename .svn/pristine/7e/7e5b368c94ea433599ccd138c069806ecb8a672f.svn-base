@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gome.gmhx.dao.sysconfig.HxUserDao" >
+  <resultMap id="BaseResultMap" type="com.gome.gmhx.entity.HxUser" >
+    <id column="user_login_name" property="userLoginName" jdbcType="VARCHAR" />
+    <result column="user_name" property="userName" jdbcType="VARCHAR" />
+    <result column="user_org_id" property="userOrgId" jdbcType="VARCHAR" />
+    <result column="user_login_password" property="userLoginPassword" jdbcType="VARCHAR" />
+    <result column="user_login_date" property="userLoginDate" jdbcType="TIMESTAMP" />
+    <result column="user_phone" property="userPhone" jdbcType="VARCHAR" />
+    <result column="user_mobile" property="userMobile" jdbcType="VARCHAR" />
+    <result column="user_email" property="userEmail" jdbcType="VARCHAR" />
+    <result column="user_work_no" property="userWorkNo" jdbcType="VARCHAR" />
+    <result column="user_sex" property="userSex" jdbcType="CHAR" />
+    <result column="user_birthday" property="userBirthday" jdbcType="TIMESTAMP" />
+    <result column="user_worked" property="userWorked" jdbcType="VARCHAR" />
+    <result column="user_education" property="userEducation" jdbcType="CHAR" />
+    <result column="user_origin" property="userOrigin" jdbcType="CHAR" />
+    <result column="user_title" property="userTitle" jdbcType="VARCHAR" />
+    <result column="user_work_limit" property="userWorkLimit" jdbcType="VARCHAR" />
+    <result column="user_indent_no" property="userIndentNo" jdbcType="VARCHAR" />
+    <result column="user_in_date" property="userInDate" jdbcType="TIMESTAMP" />
+    <result column="user_area" property="userArea" jdbcType="CHAR" />
+    <result column="user_address" property="userAddress" jdbcType="VARCHAR" />
+    <result column="user_post_code" property="userPostCode" jdbcType="VARCHAR" />
+    <result column="user_active" property="userActive" jdbcType="VARCHAR" />
+    <result column="user_create_id" property="userCreateId" jdbcType="VARCHAR" />
+    <result column="user_create_date" property="userCreateDate" jdbcType="TIMESTAMP" />
+    <result column="user_update_id" property="userUpdateId" jdbcType="VARCHAR" />
+    <result column="user_update_date" property="userUpdateDate" jdbcType="TIMESTAMP" />
+    <result column="user_password_change_date" property="userPasswordChangeDate" jdbcType="TIMESTAMP" />
+    <result column="user_unlock_date" property="userUnlockDate" jdbcType="TIMESTAMP" />
+    <result column="user_note" property="userNote" jdbcType="VARCHAR" />
+    <result column="user_org_name" property="userOrgName" jdbcType="VARCHAR" />
+    <result column="from_type" property="fromType" jdbcType="INTEGER" />
+  </resultMap>
+  
+  <resultMap id="roleResultMap" type="com.gome.gmhx.entity.HxRole" >
+    <result column="role_name" property="roleName" jdbcType="VARCHAR" />
+    <result column="role_desc" property="roleDesc" jdbcType="VARCHAR" />
+    <result column="role_type" property="roleType" jdbcType="CHAR" />
+    <result column="code_value" property="codeValue" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <resultMap id="positionResultMap" type="com.gome.gmhx.entity.HxPosition" >
+    <id column="position_code" property="positionCode" jdbcType="VARCHAR" />
+    <result column="position_name" property="positionName" jdbcType="VARCHAR" />
+    <result column="position_type" property="positionType" jdbcType="VARCHAR" />
+    <result column="from_type" property="fromType" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    user_login_name,user_name, user_org_id,user_login_password, user_login_date, 
+    user_phone, user_mobile, user_email, user_work_no, user_sex, user_birthday, user_worked, 
+    user_education,user_origin, user_title, user_work_limit, user_indent_no, user_in_date, 
+    user_area, user_address, user_post_code, user_active, user_create_id, user_create_date, 
+    user_update_id, user_update_date, user_password_change_date, user_unlock_date, user_note
+  </sql>
+ 
+ <select id="getUserPageList" parameterType="com.gome.common.page.Page" resultMap="BaseResultMap">
+	select u.user_login_name,u.user_name,u.user_org_id,u.user_mobile,u.user_email,u.user_active,u.user_phone,u.fromType,u.user_org_name,u.org_parent_id 
+	from hx_user_unload u where 1=1
+		<if test="param.userName != null and param.userName != ''">
+		   and u.user_name like CONCAT('%',#{param.userName},'%')
+		</if>
+		<if test="param.userLoginName != null and param.userLoginName != ''">
+		   and u.user_login_name like CONCAT('%',#{param.userLoginName},'%')
+		</if>
+		<if test="param.userOrgId != null and param.userOrgId != ''">
+		   and u.user_org_id = #{param.userOrgId,jdbcType=VARCHAR}
+		</if>
+		<if test="param.userOrgName != null and param.userOrgName != ''">
+		   and u.user_org_name = #{param.userOrgName,jdbcType=VARCHAR}
+		</if>
+		<if test="param.orgCode != null and param.orgCode != ''">
+		   and u.user_org_id like CONCAT('%',#{param.orgCode},'%')
+		</if>
+		<if test="param.orgParentId != null and param.orgParentId != ''">
+		   and u.org_parent_id like CONCAT('%',#{param.orgParentId},'%')
+		</if>
+		<if test="param.userActive != null and param.userActive != ''">
+		   and u.user_active like CONCAT('%',#{param.userActive},'%')
+		</if>
+		<if test="param.origin == 'gome'">
+		   and u.fromType = '1'
+		</if>
+		<if test="param.origin == 'hx'">
+		  <![CDATA[ and u.fromType <> '1' ]]>
+		</if>
+  </select>
+  <select id="getShowById" resultMap="BaseResultMap" parameterType="java.lang.String">
+    select
+        hx_user.user_login_name,
+        hx_user.user_name,
+        o.name as user_org_id,
+        hx_user.user_login_password,
+        hx_user.user_login_date,
+        hx_user.user_phone,
+        hx_user.user_mobile,
+        hx_user.user_email,
+        hx_user.user_work_no,
+        sex.code_value AS user_sex,
+        hx_user.user_birthday,
+        hx_user.user_worked,
+        edu.code_value as user_education,
+        hx_user.user_origin,
+        hx_user.user_title,
+        hx_user.user_work_limit,
+        hx_user.user_indent_no,
+        hx_user.user_in_date,
+        hx_user.user_area,
+        hx_user.user_address,
+        hx_user.user_post_code,
+        sf.code_value as user_active,
+        hx_user.user_create_id,
+        hx_user.user_create_date,
+        hx_user.user_update_id,
+        hx_user.user_update_date,
+        hx_user.user_password_change_date,
+        hx_user.user_unlock_date,
+        hx_user.user_note
+    from
+        hx_user
+    left join hx_code_setting sex on hx_user.user_sex = sex.code_key and sex.code_id = 'xb'
+    left join hx_code_setting edu  on hx_user.user_education = edu.code_key and edu.code_id='xl'
+    left join hx_organization_unload o on hx_user.user_org_id = o.id 
+    left join hx_code_setting sf  on hx_user.user_active = sf.code_key and sf.code_id='sf'
+    where
+        user_login_name = #{userLoginName,jdbcType=VARCHAR}
+  </select>
+  <select id="getUserById" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select <include refid="Base_Column_List"/>
+    from hx_user
+    WHERE 
+      user_login_name = #{userLoginName,jdbcType=VARCHAR}
+  </select>
+ 
+  <insert id="addUser" parameterType="com.gome.gmhx.entity.HxUser" >
+    insert into hx_user (user_name, user_org_id, 
+      user_login_name, user_login_password, user_login_date, 
+      user_phone, user_mobile, user_email, 
+      user_work_no, user_sex, user_birthday, 
+      user_worked, user_education, user_origin, 
+      user_title, user_work_limit, user_indent_no, 
+      user_in_date, user_area, user_address, 
+      user_post_code, user_active, user_create_id, 
+      user_create_date, user_update_id, user_update_date, 
+      user_password_change_date, user_unlock_date, 
+      user_note)
+    values (#{userName,jdbcType=VARCHAR}, #{userOrgId,jdbcType=VARCHAR}, 
+      #{userLoginName,jdbcType=VARCHAR}, #{userLoginPassword,jdbcType=VARCHAR}, #{userLoginDate,jdbcType=TIMESTAMP}, 
+      #{userPhone,jdbcType=VARCHAR}, #{userMobile,jdbcType=VARCHAR}, #{userEmail,jdbcType=VARCHAR}, 
+      #{userWorkNo,jdbcType=VARCHAR}, #{userSex,jdbcType=CHAR}, #{userBirthday,jdbcType=TIMESTAMP}, 
+      #{userWorked,jdbcType=VARCHAR}, #{userEducation,jdbcType=CHAR}, #{userOrgId,jdbcType=CHAR}, 
+      #{userTitle,jdbcType=VARCHAR}, #{userWorkLimit,jdbcType=VARCHAR}, #{userIndentNo,jdbcType=VARCHAR}, 
+      #{userInDate,jdbcType=TIMESTAMP}, #{userArea,jdbcType=CHAR}, #{userAddress,jdbcType=VARCHAR}, 
+      #{userPostCode,jdbcType=VARCHAR}, #{userActive,jdbcType=VARCHAR}, #{userCreateId,jdbcType=VARCHAR}, 
+      #{userCreateDate,jdbcType=TIMESTAMP}, #{userUpdateId,jdbcType=VARCHAR}, #{userUpdateDate,jdbcType=TIMESTAMP}, 
+      #{userPasswordChangeDate,jdbcType=TIMESTAMP}, #{userUnlockDate,jdbcType=TIMESTAMP}, 
+      #{userNote,jdbcType=VARCHAR})
+  </insert>
+
+
+  <update id="updateUser" parameterType="com.gome.gmhx.entity.HxUser">
+    update hx_user
+    <set>
+      user_login_name = #{userLoginName,jdbcType=VARCHAR},
+      user_name = #{userName,jdbcType=VARCHAR},
+      user_org_id = #{userOrgId,jdbcType=VARCHAR},
+      user_phone = #{userPhone,jdbcType=VARCHAR},
+      user_mobile = #{userMobile,jdbcType=VARCHAR},
+      user_email = #{userEmail,jdbcType=VARCHAR},
+      user_work_no = #{userWorkNo,jdbcType=VARCHAR},
+      user_sex = #{userSex,jdbcType=CHAR},
+      user_birthday = #{userBirthday,jdbcType=TIMESTAMP},
+      user_worked = #{userWorked,jdbcType=VARCHAR},
+      user_education = #{userEducation,jdbcType=CHAR},
+      user_origin = #{userOrigin,jdbcType=CHAR},
+      user_title = #{userTitle,jdbcType=VARCHAR},
+      user_work_limit = #{userWorkLimit,jdbcType=VARCHAR},
+      user_indent_no = #{userIndentNo,jdbcType=VARCHAR},
+      user_in_date = #{userInDate,jdbcType=TIMESTAMP},
+      user_area = #{userArea,jdbcType=CHAR},
+      user_address = #{userAddress,jdbcType=VARCHAR},
+      user_post_code = #{userPostCode,jdbcType=VARCHAR},
+      user_update_date = #{userUpdateDate,jdbcType=TIMESTAMP},
+      user_note = #{userNote,jdbcType=VARCHAR},
+      
+      <if test="userLoginPassword != null">
+        user_login_password = #{userLoginPassword},
+      </if>
+      <if test="userLoginDate != null">
+        user_login_date = #{userLoginDate},
+      </if>
+      <if test="userActive != null">
+        user_active = #{userActive},
+      </if>
+      <if test="userCreateId != null">
+        user_create_id = #{userCreateId},
+      </if>
+      <if test="#{userCreateDate} != null">
+        user_create_date = #{userCreateDate},
+      </if>
+      <if test="userUpdateId != null">
+        user_update_id = #{userUpdateId},
+      </if>
+      <if test="userPasswordChangeDate != null">
+        user_password_change_date = #{userPasswordChangeDate},
+      </if>
+      <if test="userUnlockDate != null">
+        user_unlock_date = #{userUnlockDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where user_login_name = #{oldUserLoginName,jdbcType=VARCHAR}
+  </update>
+  
+    <update id="updateUserPwd" parameterType="com.gome.gmhx.entity.HxUser">
+         update hx_user
+    <set>
+      <if test="userLoginPassword != null">
+        user_login_password = #{userLoginPassword},
+      </if>
+      <if test="userPasswordChangeDate != null">
+        user_password_change_date = #{userPasswordChangeDate},
+      </if>
+    </set>
+    where user_login_name = #{userLoginName,jdbcType=VARCHAR}
+        
+     </update>
+  
+  <select id="getRolePageListByUserId" parameterType="com.gome.common.page.Page" resultMap="roleResultMap">
+		select r.role_id, r.role_name, r.role_desc, r.role_type,c.code_value from hx_user_role ur left join hx_role r on ur.role_id = r.role_id  
+		left join hx_code_setting c on r.role_type = c.code_key  where 1=1 and c.code_id = 'jslx'
+		<if test="param.userLoginName != null">
+		   and ur.user_id like CONCAT('%',#{param.userLoginName},'%')
+		</if>
+  </select>
+ 
+ <select id="getUserByUserLoginName" resultType="com.gome.gmhx.entity.SysUser" parameterType="java.lang.String" >
+    select t.user_login_name userAccount, t.user_name userName, t.user_login_password userPassword, 3 fromType, t.user_org_id companyId,t.user_active as userState,
+    	(SELECT name FROM hx_organization_unload WHERE id=t.user_org_id) companyName, t1.position_id sysPositionId,
+    	t2.position_name sysPositionName,t2.org_id as orgId
+    from hx_user t left join hx_user_position t1 on t.user_login_name = t1.user_login_name and t1.from_type=3
+    LEFT JOIN hx_position t2 ON t1.position_id=t2.position_code
+    where t.user_login_name = #{indexLoginId,jdbcType=VARCHAR} limit 1
+  </select>
+  
+  <select id="getPositionPageListByUserLoginName" parameterType="com.gome.common.page.Page" resultMap="positionResultMap">
+		select t.position_code,t.position_name,t.position_type,t.from_type from 
+		(select hup.position_id,hup.user_login_name, hup.from_type from hx_user_position  hup
+		union select emp.position_id,emp.user_login_name,emp.from_type from hx_emp_unload emp)
+		 up,
+		(select hp.position_code, hp.position_name, '0' as from_type,hp.position_type from hx_position hp
+		union select distinct(ep.positioncode) as position_code, ep.positionname as position_name,'1' as from_type,'0' as position_type  from emp_empposition  ep ) t
+		where up.position_id = t.position_code 
+		<if test="param.userLoginName != null">
+		   and up.user_login_name = #{param.userLoginName,jdbcType=VARCHAR}
+		</if>
+		<if test="param.fromType != null">
+		   and up.from_type = #{param.fromType,jdbcType=VARCHAR}
+		</if>
+  </select>
+  
+   <select id="getPositionPageListByUserLoginName_gome" parameterType="com.gome.common.page.Page" resultMap="positionResultMap">
+		select t.position_code,t.position_name,t.position_type,t.from_type from emp_account a,emp_empposition emp,
+		(select hup.position_id,hup.user_login_name, hup.from_type from hx_user_position  hup
+		union select emp.position_id,emp.user_login_name,emp.from_type from hx_emp_unload emp)
+		 up,
+		(select hp.position_code, hp.position_name, '0' as from_type,hp.position_type from hx_position hp
+		union select distinct(ep.positioncode) as position_code, ep.positionname as position_name,'1' as from_type,'0' as position_type  from emp_empposition  ep ) t
+		where up.position_id = t.position_code  and a.empno=emp.empno and emp.positioncode=t.position_code and a.ap_account=up.user_login_name
+		<if test="param.userLoginName != null">
+		   and up.user_login_name = #{param.userLoginName,jdbcType=VARCHAR}
+		</if>
+		<if test="param.fromType != null">
+		   and up.from_type = #{param.fromType,jdbcType=VARCHAR}
+		</if>
+  </select>
+  
+  <select id="getFittingPosition" parameterType="com.gome.gmhx.entity.SysUser" resultType="hashmap">
+  		SELECT t.position_id positionId, t1.position_name positionName, concat(t1.position_type,'') as positionType, t1.org_id orgId, t2.name orgName
+  		FROM hx_user_position t
+		LEFT JOIN hx_position t1 ON t.position_id = t1.position_code
+		LEFT JOIN hx_organization_unload t2 ON t1.org_id = t2.id
+		WHERE t.user_login_name = #{userAccount,jdbcType=VARCHAR} AND t.from_type=#{fromType,jdbcType=INTEGER}
+		AND t.position_id = t1.position_code AND t1.position_type IN(1,2,3)
+		ORDER BY t1.position_type
+  </select>
+  
+  <select id="getPositionUserPageList" parameterType="com.gome.common.page.Page" resultMap="BaseResultMap">
+		select u.user_login_name,u.user_name,u.user_org_id,u.user_mobile,u.user_email,u.user_active,u.user_phone,u.fromType,u.user_org_name,u.org_parent_id from (  
+			select user_login_name,from_type,position_id  from hx_user_position
+			union select emp.user_login_name,emp.from_type,emp.position_id from hx_emp_unload emp) t,
+		    hx_user_unload u where t.user_login_name = u.user_login_name  and t.position_id = #{param.positionId}
+  </select>
+  
+  <select id="getPositionUserPageList_gome" parameterType="com.gome.common.page.Page" resultMap="BaseResultMap">
+		select u.user_login_name,u.user_name,u.user_org_id,u.user_mobile,u.user_email,u.user_active,u.user_phone,u.fromType,u.user_org_name,u.org_parent_id from (  
+			select user_login_name,from_type,position_id  from hx_user_position
+			union select emp.user_login_name,emp.from_type,emp.position_id from hx_emp_unload emp) t,
+		    hx_user_unload u,emp_account a,emp_empposition emp where t.user_login_name = u.user_login_name and a.empno=emp.empno and emp.positioncode=t.position_id 
+		    and a.ap_account=t.user_login_name and t.position_id = #{param.positionId}
+  </select>
+  
+  <delete id="delUserUnload" parameterType="com.gome.gmhx.entity.HxUserUnload">
+    delete from hx_user_unload
+    where user_login_name = #{userLoginName,jdbcType=VARCHAR}
+  </delete>
+  
+  <select id="queryAllUserList" resultType="hashmap">
+  	select u.user_login_name,u.user_name,u.user_org_id,u.user_mobile,u.user_email,u.user_active,u.user_phone,u.fromType,v.`name` as user_org_name,v.pid as org_parent_id from v_all_user u left join v_organization v on u.user_org_id = v.id
+  </select>
+  
+  <insert id="addUserUnload" parameterType="com.gome.gmhx.entity.HxUserUnload" >
+    insert into hx_user_unload (user_login_name,user_name,user_org_id,
+    user_mobile,user_email,user_active,user_phone,user_org_name,org_parent_id,fromType)
+    values (#{userLoginName,jdbcType=VARCHAR}, #{userName,jdbcType=VARCHAR}, #{userOrgId,jdbcType=VARCHAR}, #{userMobile,jdbcType=VARCHAR},
+      #{userEmail,jdbcType=VARCHAR},#{userActive,jdbcType=VARCHAR},#{userPhone,jdbcType=VARCHAR},#{userOrgName,jdbcType=VARCHAR},#{orgParentId,jdbcType=VARCHAR},#{fromType,jdbcType=VARCHAR})
+  </insert>
+  
+  <select id="queryUserByUserLoginName" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select u.user_login_name,u.user_name,u.user_org_id,u.user_mobile,u.user_email,u.user_active,u.user_phone,u.fromType as from_type,u.user_org_name,u.org_parent_id
+    from hx_user_unload u WHERE
+    u.user_login_name = #{userLoginName,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="getAllUserList" resultType="hashmap">
+  	select u.user_login_name,u.user_name,u.user_org_id,u.user_mobile,u.user_email,u.user_active,u.user_phone,u.fromType,u. user_org_name,u.org_parent_id from hx_user_unload u 
+  </select>
+  
+  <update id="updateUserUnload" parameterType="com.gome.gmhx.entity.HxUserUnload" >
+    update hx_user_unload 
+    set user_name = #{userName,jdbcType=VARCHAR},
+    user_org_id = #{userOrgId,jdbcType=VARCHAR},
+    user_mobile = #{userMobile,jdbcType=VARCHAR},
+    user_email = #{userEmail,jdbcType=VARCHAR},
+    user_active = #{userActive,jdbcType=VARCHAR},
+    user_phone = #{userPhone,jdbcType=VARCHAR},
+    user_org_name = #{userOrgName,jdbcType=VARCHAR},
+    org_parent_id = #{orgParentId,jdbcType=VARCHAR},
+    fromType = #{fromType,jdbcType=VARCHAR}
+    where user_login_name = #{userLoginName,jdbcType=VARCHAR}   
+  </update>
+  
+  <select id="queryHxUserList" resultType="hashmap">
+	select u . user_login_name AS user_login_name,
+	u . user_name AS user_name,
+	u . user_org_id AS user_org_id,
+	u . user_mobile AS user_mobile,
+	u . user_email AS user_email,
+	u . user_active AS user_active,
+	u . user_phone AS user_phone,
+	3 AS fromType,
+	v.`name` as user_org_name,v.pid as org_parent_id
+	from hx_user u left join v_organization v on u.user_org_id = v.id
+   </select>
+  
+  <select id="getHxUserList" resultType="hashmap">
+  	select u.user_login_name,u.user_name,u.user_org_id,u.user_mobile,u.user_email,u.user_active,u.user_phone,u.fromType,u. user_org_name,u.org_parent_id from hx_user_unload u where u.fromType='3'
+  </select>
+  
+  
+  <delete id="delEmpUserUnload" parameterType="com.gome.gmhx.entity.HxUserUnload">
+    delete from hx_emp_unload
+    where position_id = #{positionId,jdbcType=VARCHAR} 
+  </delete>
+  
+  <select id="queryAllEmpUserList" resultType="hashmap">
+  	select emp.positioncode as position_id,ema.ap_account as user_login_name,'1' as from_type from emp_empposition emp left join emp_account ema on emp.empno = ema.empno 
+  </select>
+  
+  <insert id="addEmpUserUnload" parameterType="com.gome.gmhx.entity.HxUserUnload" >
+    insert into hx_emp_unload (user_login_name,position_id,from_type)
+    values (#{userLoginName,jdbcType=VARCHAR}, #{positionId,jdbcType=VARCHAR},#{fromType,jdbcType=VARCHAR})
+  </insert>
+  
+  <select id="getAllEmpUserList" resultType="hashmap">
+  	select emp.position_id,emp.user_login_name,emp.from_type from hx_emp_unload emp  
+  </select>
+  
+  <update id="updateEmpUserUnload" parameterType="com.gome.gmhx.entity.HxUserUnload" >
+    update hx_emp_unload 
+    set user_login_name = #{userLoginName,jdbcType=VARCHAR},
+    from_type = #{fromType,jdbcType=VARCHAR}
+    where position_id = #{positionId,jdbcType=VARCHAR}   
+  </update>
+  
+  <select id="getPositionInfoBySysUser" resultType="com.gome.gmhx.entity.SysUser" parameterType="com.gome.gmhx.entity.SysUser">
+		select t.sysPositionId,t.sysPositionName,t.companyId,t.companyName,t.orgId from (
+		select distinct(t.ap_account) userAccount,0 positionType,t.compcode companyId,
+		(select name from hx_organization_unload where id=t.compcode) companyName,
+		t1.positioncode sysPositionId,t1.positionname sysPositionName,left(t1.positioncode,length(t1.positioncode)-10) orgId
+    	from emp_account t left join emp_empposition t1
+    	ON t.empno=t1.empno where t.ap_account=#{userAccount} and t1.positioncode=#{sysPositionId}
+		union all 
+		select t.user_login_name userAccount,t2.position_type as positionType, t.user_org_id companyId,
+    	(SELECT name FROM hx_organization_unload WHERE id=t.user_org_id) companyName, t1.position_id sysPositionId,
+    	t2.position_name sysPositionName,t2.org_id as orgId
+    	from hx_user t left join hx_user_position t1 on t.user_login_name = t1.user_login_name and t1.from_type=3
+    	LEFT JOIN hx_position t2 ON t1.position_id=t2.position_code where t.user_login_name=#{userAccount}
+    	and t2.position_code=#{sysPositionId}
+		union all 
+		SELECT t.CZY01 userAccount, t2.position_type as positionType,t.GSXX01 companyId,
+  		(SELECT name FROM hx_organization_unload WHERE id=AZWD01) companyName,
+  		t1.position_id sysPositionId,t2.position_name sysPositionName,t2.org_id as orgId
+		FROM jl_account t LEFT JOIN hx_user_position t1 ON t1.from_type=2 AND t.CZY01=t1.user_login_name
+		LEFT JOIN hx_position t2 ON t1.position_id=t2.position_code where t.CZY01=#{userAccount}
+		and t2.position_code=#{sysPositionId}
+		) t 
+	</select>
+	
+	<select id="getUserExport" parameterType="com.gome.gmhx.entity.HxUser" resultType="hashmap">
+	select u.user_login_name as userLoginName,u.user_name as userName,
+	(case when (u.user_org_name is null) then ''  else u.user_org_name end) as userOrgName,
+	(case when (u.user_org_id is null) then ''  else u.user_org_id end) as userOrgId,
+	(case when (u.user_mobile is null) then ''  else u.user_mobile end) as userMobile,
+	(case when (u.user_email is null) then ''  else u.user_email end) as userEmail,
+	if(u.user_active = 1, '是', '否') as userActive, 
+	(case when (u.user_phone is null) then ''  else u.user_phone end) as userPhone,
+	(case when (u.fromType = '3') then '系统自建用户' when (u.fromType = '2') then '第三方网点用户' when (u.fromType = '1') then '国美用户' else '' end) as fromType ,
+	'' as action
+	from hx_user_unload u where 1=1
+		<if test="userName != null and userName != ''">
+		   and u.user_name like CONCAT('%',#{param.userName},'%')
+		</if>
+		<if test="userLoginName != null and userLoginName != ''">
+		   and u.user_login_name like CONCAT('%',#{param.userLoginName},'%')
+		</if>
+		
+		<if test="userOrgId != null and userOrgId != ''">
+		   and u.user_org_id = #{param.userOrgId,jdbcType=VARCHAR}
+		</if>
+		<if test="userOrgName != null and userOrgName != ''">
+		   and u.user_org_name = #{param.userOrgName,jdbcType=VARCHAR}
+		</if>
+		<if test="orgCode != null and orgCode != ''">
+		   and u.user_org_id like CONCAT('%',#{param.orgCode},'%')
+		</if>
+		<if test="orgParentId != null and orgParentId != ''">
+		   and u.org_parent_id like CONCAT('%',#{param.orgParentId},'%')
+		</if>
+		<if test="userActive != null and userActive != ''">
+		   and u.user_active like CONCAT('%',#{param.userActive},'%')
+		</if>
+		<if test="origin == 'gome'">
+		   and u.fromType = '1'
+		</if>
+		<if test="origin == 'hx'">
+		  <![CDATA[ and u.fromType <> '1' ]]>
+		</if>
+  </select>
+</mapper>

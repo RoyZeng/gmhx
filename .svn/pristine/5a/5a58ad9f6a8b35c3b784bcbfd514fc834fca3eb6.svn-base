@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process key="SP03" name="SP03" xmlns="http://jbpm.org/4.4/jpdl">
+   <start g="300,75,48,48" name="start">
+      <transition to="S3"/>
+   </start>
+   <task g="278,175,92,52" name="S3">
+   	  <assignment-handler class="com.gome.gmhx.jbpm.JbpmAuthorityService"/>   
+      <transition g="-38,-36" name="T3" to="end1"/>
+      <transition g="-30,-17" name="T2" to="S4"/>
+      <transition g="-20,-25" name="T6" to="cancel1"/>
+   </task>
+   <task g="277,298,92,52" name="S4">
+      <assignment-handler class="com.gome.gmhx.jbpm.JbpmAuthorityService"/>   
+      <transition g="-50,-22" name="T3" to="end1"/>
+      <transition g="-21,2" name="T6" to="cancel1"/>
+      <transition g="-21,-16" name="T2" to="MSM"/>
+   </task>
+   <end g="490,309,48,48" name="end1"/>
+   <end-cancel g="134,304,48,48" name="cancel1"/>
+   <custom class="com.gome.gmhx.jbpm.activityBehaviour.ModifySuccessMarkBehaviour" g="278,436,92,52" name="MSM">
+      <transition to="end1"/>
+   </custom>
+</process>

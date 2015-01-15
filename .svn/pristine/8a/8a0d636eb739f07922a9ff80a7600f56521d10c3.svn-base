@@ -1,0 +1,143 @@
+package com.gome.gmhx.service.basicdata.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.gome.common.annotation.MaintenanceCode;
+import com.gome.common.page.Page;
+import com.gome.gmhx.dao.basicdata.HxCodeDao;
+import com.gome.gmhx.entity.HxCode;
+import com.gome.gmhx.entity.HxOrganizationUnload;
+import com.gome.gmhx.service.basicdata.HxCodeService;
+
+@Service("hxCodeService")
+public class HxCodeServiceImpl implements HxCodeService {
+	@Resource
+	private HxCodeDao hxCodeDao;
+
+	@Override
+	public List<HxCode> getAll() {
+		return hxCodeDao.getAll();
+	}
+
+	@Override
+	public List<Map<String, Object>> getHxCodePageList(Page page) {
+		return hxCodeDao.getHxCodePageList(page);
+	}
+
+	@Override
+	public List<Map<String, Object>> getHxCodeSettingByCodeId(String codeId) {
+		return hxCodeDao.getHxCodeSettingByCodeId(codeId);
+	}
+
+	@Override
+	@MaintenanceCode
+	public void insertSetting(String codeId, HxCode hxCode) {
+		hxCodeDao.insertSetting(hxCode);
+	}
+
+	@Override
+	public List<Map<String, String>> getOrgCombobox() {
+		return hxCodeDao.getOrgCombobox();
+	}
+
+	@Override
+	public List<Map<String, String>> getFittingMenu(String fittingPositionId) {
+		return hxCodeDao.getFittingMenu(fittingPositionId);
+	}
+
+	@Override
+	public List<Map<String, String>> getWdOrgCombobox() {
+		return hxCodeDao.getWdOrgCombobox();
+	}
+
+	@Override
+	public List<Map<String, String>> getFbOrgCombobox() {
+		return hxCodeDao.getFbOrgCombobox();
+	}
+
+	@Override
+	public List<Map<String, String>> getZbOrgCombobox() {
+		return hxCodeDao.getZbOrgCombobox();
+	}
+
+	@Override
+	public List<Map<String, String>> getPositions(String userAccount) {
+		return hxCodeDao.getPositions(userAccount);
+	}
+
+	@Override
+	public List<Map<String, String>> getFittingMenuNoPosition() {
+		return hxCodeDao.getFittingMenuNoPosition();
+	}
+
+	@Override
+	public List<Map<String, String>> getRoleCombobox() {
+		return hxCodeDao.getRoleCombobox();
+	}
+
+	@Override
+	public List<Map<String, String>> getECCombobox() {
+		return hxCodeDao.getECCombobox();
+	}
+
+	@Override
+	public List<Map<String, String>> getStoreCombobox(String center) {
+		return hxCodeDao.getStoreCombobox(center);
+	}
+
+	@Override
+	public List<Map<String, String>> getWebsiteCombobox(String serviceUnit) {
+		return hxCodeDao.getWebsiteCombobox(serviceUnit);
+	}
+
+	@Override
+	public List<Map<String, String>> getAftermarketCombobox() {
+		return hxCodeDao.getAftermarketCombobox();
+	}
+
+	@Override
+	public List<Map<String, Object>> getModelCombobox(String category,String type) {
+		return hxCodeDao.getModelCombobox(category,type);
+	}
+
+	@Override
+	public List<Map<String, Object>> getServiceUnit(String wd) {
+		return hxCodeDao.getServiceUnit(wd);
+	}
+
+	@Override
+	public Map<String, Object> getHxFittingByFittingCode(String fittingId) {
+		return hxCodeDao.getHxFittingByFittingCode(fittingId);
+	}
+
+	@Override
+	public List<Map<String, Object>> getCategoryCombobox(String position) {
+		return hxCodeDao.getCategoryCombobox(position);
+	}
+
+	@Override
+	public HxOrganizationUnload getOrganizationUnloadById(String id) {
+		return hxCodeDao.getOrganizationUnloadById(id);
+	}
+
+	@Override
+	public List<Map<String, Object>> getFittingBySuit(String suitModel,String str) {
+		return hxCodeDao.getFittingBySuit(suitModel,str);
+	}
+
+	@Override
+	public List<Map<String, String>> getBrandCombobox() {
+		return hxCodeDao.getBrandCombobox();
+	}
+
+	@Override
+	public List<Map> getRegionCombobox() {
+		return hxCodeDao.getRegionCombobox();
+	}
+
+}

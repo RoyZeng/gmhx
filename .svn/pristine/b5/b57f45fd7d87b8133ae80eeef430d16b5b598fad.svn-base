@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gome.jbpm.service">
+	<!-- 入参为物料申请单的单号id，和要查询的岗位代码positions<List> -->
+	
+	<!--查询指定岗位下的人，用于查询恒信总部和国美总部下的人 -->
+	<select id="queryHeadParticipantsByPositionIds" resultType="com.gome.gmhx.jbpm.JbpmParticipant"
+		parameterType="map">
+		select t.userAccount,t.positionId  from (
+		select hul.user_login_name as userAccount,t.position_id as positionId
+		from hx_user_unload hul inner join (
+		select user_login_name,position_id from hx_emp_unload heu
+		union
+		select user_login_name,position_id from hx_user_position
+		) t on hul.user_login_name=t.user_login_name and hul.user_active='1' 
+		where 1=1
+		<if test="positions != null">
+			and t.position_id in
+			<foreach item="item" index="index" collection="positions"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		) t
+	</select>
+
+	<!--申请中的网点的售后公司指定岗位的人员 -->
+	<select id="queryParticipantsByCustomerCompany" resultType="com.gome.gmhx.jbpm.JbpmParticipant"
+		parameterType="map">
+		select t.userAccount,t.positionId from (
+		select hul.user_login_name as userAccount,t2.position_id as positionId
+		from hx_user_unload hul inner join (
+		select heu.user_login_name,heu.position_id,left(ee.positioncode,(length(ee.positioncode)-10)) as org_id from hx_emp_unload heu,emp_empposition ee where heu.position_id=ee.positioncode
+		union
+		select hup.user_login_name,hup.position_id,hp.org_id from hx_user_position hup,hx_position hp where hup.position_id=hp.position_code
+		) t2 on hul.user_login_name=t2.user_login_name and hul.user_active='1' 
+		where 1=1
+		<if test="positions != null">
+			and t2.position_id in
+			<foreach item="item" index="index" collection="positions"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		and hul.user_org_id = (select service_unit
+			from (select service_unit,service_id as id from hx_service_ticket
+			union
+			select service_unit,apply_id as id from hx_service_long_distance
+			union
+			select service_unit,apply_id as id from hx_service_retreat_replacement
+			union
+			select service_unit,settlement_id as id from hx_examine_settlement_ticket
+			) t1 where t1.id = #{id} )
+		) t
+	</select>
+
+	<!--根据售后公司查询对应大库 -->
+	<select id="queryHXStockParticipantsByCustomerCompany"
+		resultType="com.gome.gmhx.jbpm.JbpmParticipant" parameterType="map">
+		select t.userAccount,t.positionId from (
+		select hul.user_login_name as userAccount,t2.position_id as positionId
+		from hx_user_unload hul inner join (
+		select heu.user_login_name,heu.position_id,left(ee.positioncode,(length(ee.positioncode-10))) as org_id from hx_emp_unload heu,emp_empposition ee where heu.position_id=ee.positioncode
+		union
+		select hup.user_login_name,hup.position_id,hp.org_id from hx_user_position hup,hx_position hp where hup.position_id=hp.position_code
+		) t2 on hul.user_login_name=t2.user_login_name and hul.user_active='1' 
+		where 1=1
+		<if test="positions != null">
+			and t2.position_id in
+			<foreach item="item" index="index" collection="positions"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		and hul.user_org_id in  (
+		SELECT DISTINCT hfp.org_code FROM hx_fittingstock_part hfp WHERE hfp.part_id IN
+		(SELECT hcsm.dqgsdm FROM hx_custom_sale_mapping hcsm WHERE
+		hcsm.shgsdm in  (SELECT t.gsxx01 FROM 
+			(SELECT cw.azwd01 AS org_code, cw.gsxx01
+					FROM crm_website cw
+					UNION
+					SELECT ho.org_code, ho.org_parent_id AS gsxx01
+					FROM hx_organization ho
+					WHERE ho.org_type = '02'
+						OR ho.org_type = '03'
+					UNION
+					SELECT es.WERKS AS org_code, es.VKORG AS gsxx01
+					FROM ecc_store es
+					WHERE es.VKORG LIKE 'S%'
+			) t where t.org_code= (select service_unit
+		from (select service_unit,service_id as id from hx_service_ticket
+		union
+		select service_unit,apply_id as id from hx_service_long_distance
+		union
+		select service_unit,apply_id as id from hx_service_retreat_replacement
+		union
+		select service_unit,settlement_id as id from hx_examine_settlement_ticket
+		) t1 where t1.id = #{id}
+		))))) t
+	</select>
+	
+	<!-- 结算单根据申请网点下普通岗的人 -->
+	<select id="queryWebSiteParticipantsForServiceBill" resultType="com.gome.gmhx.jbpm.JbpmParticipant"
+		parameterType="map">
+		select t.userAccount,t.positionId from (
+		select hul.user_login_name as userAccount,t2.position_id as positionId
+		from  hx_examine_settlement_ticket hest,hx_user_unload hul inner join (
+		select heu.user_login_name,heu.position_id,left(ee.positioncode,(length(ee.positioncode-10))) as org_id from hx_emp_unload heu,emp_empposition ee where heu.position_id=ee.positioncode
+		union
+		select hup.user_login_name,hup.position_id,hp.org_id from hx_user_position hup,hx_position hp where hup.position_id=hp.position_code
+		) t2 on hul.user_login_name=t2.user_login_name and hul.user_active='1' 
+		where 1=1
+		<if test="positions != null">
+			and t2.position_id in
+			<foreach item="item" index="index" collection="positions"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		and  hul.user_org_id  = hest.service_unit  and hest.settlement_id=#{id}
+		) t
+	</select>
+	
+	<!--查询国美总部具有某个品类权限的售后主管 -->
+	<select id="queryHeadAuthCategoryParticipantsByPositionIds" resultType="com.gome.gmhx.jbpm.JbpmParticipant"
+		parameterType="map">
+		select t.userAccount,t.positionId  from (
+		select hul.user_login_name as userAccount,t.position_id as positionId
+		from hx_user_unload hul inner join (
+		select user_login_name,position_id from hx_emp_unload heu
+		union
+		select user_login_name,position_id from hx_user_position
+		) t on hul.user_login_name=t.user_login_name and hul.user_active='1' 
+		where 1=1
+		<if test="positions != null">
+			and t.position_id in
+			<foreach item="item" index="index" collection="positions"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		 	and position_id in ( select hpr.position_id from hx_position_role hpr,hx_role_category hrc,hx_product_detail hpd,hx_service_retreat_replacement hsrr
+		 	  where hpr.role_id=hrc.role_id and hrc.role_category=hpd.classify_code and hpd.model=hsrr.old_machine_type and hsrr.apply_id=#{id} )
+		) t 
+	</select>
+</mapper>

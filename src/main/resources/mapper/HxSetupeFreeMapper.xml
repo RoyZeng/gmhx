@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gome.gmhx.dao.basicdata.HxSetupeFreeDao">
+	<resultMap id="BaseResultMap" type="com.gome.gmhx.entity.HxSetupeFree">
+	    <result property="freeCode" column="free_code" jdbcType="VARCHAR" />
+		<result property="model" column="model" jdbcType="VARCHAR" />
+		<result property="freeOrganization" column="free_organization" jdbcType="VARCHAR" />
+		<result property="freeCost" column="free_cost" jdbcType="VARCHAR" />
+		<result property="managerCost" column="manager_cost" jdbcType="VARCHAR" />
+		<result property="founderDate" column="founder_date" jdbcType="TIMESTAMP" />
+		<result property="founders" column="founders" jdbcType="VARCHAR" />
+		<result property="brand" column="brand" jdbcType="VARCHAR" />
+		<result property="modifiedDate" column="modified_date" jdbcType="TIMESTAMP" />
+		<result property="modified" column="modified" jdbcType="VARCHAR" />
+	</resultMap>
+  
+  
+	<sql id="Base_Column_List">
+	free_code,model,free_organization,free_cost,manager_cost,brand,founders,founder_date
+	</sql>
+
+	<select id="getSetupFreePageList" parameterType="com.gome.common.page.Page" resultType="hashmap">
+	   select t.free_code, t.model, t.free_organization,v.code_value model1 ,t.free_cost ,
+	   t.manager_cost  ,t.brand ,v2.code_value brand1, v1.code_value free_organization1
+       from hx_setup_cost t
+        LEFT JOIN v_code v 
+        on v.code_id='jx' and v.code_key = t.model
+        LEFT JOIN v_code v1
+	      on v1.code_id='jg' and v1.code_key=t.free_organization
+        LEFT JOIN v_code v2
+	      on v2.code_id='pp' and v2.code_key=t.brand
+        where brand in('001','002','003')	
+      	<if test="param.model != null">
+			and model like CONCAT('%',#{param.model},'%')
+		</if>
+		<if test="param.brand != null">
+			and brand like CONCAT('%',#{param.brand},'%')
+		</if>
+		<if test="param.freeOrganization != null">
+			and free_organization like CONCAT('%',#{param.freeOrganization},'%')
+		</if>
+		<if test="param.managerCost != null">
+			and manager_cost like CONCAT('%',#{param.managerCost},'%')
+		</if>
+		<if test="param.freeCost != null">
+			and free_cost like CONCAT('%',#{param.freeCost},'%')
+		</if>
+	</select>
+	
+	<select id="getHxSetupeFreeById" resultMap="BaseResultMap" parameterType="java.lang.String">
+		select free_code,free_cost, free_organization,manager_cost,model,
+         brand,modified,modified_date,founders,founder_date 
+         from hx_setup_cost where free_code=#{freeCode,jdbcType=VARCHAR}
+	</select>
+
+	<!-- 显示界面查询 -->
+	<select id="getShowById"  resultMap="BaseResultMap" resultType="hashmap">
+		select *  from hx_setup_cost where free_code=#{freeCode,jdbcType=VARCHAR}
+	</select>
+
+	<!-- 导出查询 -->
+	<select id="getHxSetupeFreeExport" parameterType="com.gome.gmhx.entity.HxSetupeFree" resultType="hashmap" >
+	   select  t.model , v.code_value model1, t.free_organization,v1.code_value free_organization1,t.free_cost ,
+	   t.manager_cost  ,t.brand ,v2.code_value brand1
+       from hx_setup_cost t
+     LEFT JOIN v_code v
+	      on v.code_id='jx' and v.code_key=t.model
+        LEFT JOIN v_code v1
+	      on v1.code_id='jg' and v1.code_key=t.free_organization
+        LEFT JOIN v_code v2
+	      on v2.code_id='pp' and v2.code_key=t.brand
+        where brand in('001','002','003')	
+	</select>
+
+	<insert id="addHxSetupeFree" parameterType="com.gome.gmhx.entity.HxSetupeFree">
+		insert into hx_setup_cost (free_code,model,free_organization, free_cost, manager_cost,founder_date,brand)
+		values (#{freeCode,jdbcType=VARCHAR},#{model,jdbcType=VARCHAR} ,#{freeOrganization,jdbcType=VARCHAR},
+		#{freeCost,jdbcType=VARCHAR},
+		#{managerCost,jdbcType=VARCHAR},now(),'001')
+	</insert>
+
+   <insert id="insertSetupeFreeBatch" parameterType="java.util.List">
+     INSERT INTO hx_setup_cost (
+    <include refid="Base_Column_List" />
+    )
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+     (#{item.freeCode,jdbcType=VARCHAR}, #{item.model,jdbcType=VARCHAR}, #{item.freeOrganization,jdbcType=VARCHAR}, #{item.freeCost,jdbcType=VARCHAR}, 
+      #{item.managerCost,jdbcType=VARCHAR}, #{item.brand,jdbcType=VARCHAR}, #{item.founders,jdbcType=VARCHAR}, 
+      #{item.founderDate,jdbcType=TIMESTAMP})
+    </foreach>
+  </insert>
+
+	<update id="updateHxSetupeFree" parameterType="com.gome.gmhx.entity.HxSetupeFree">
+		update hx_setup_cost
+	    set	free_organization = #{freeOrganization,jdbcType=VARCHAR},
+		free_cost = #{freeCost,jdbcType=VARCHAR},
+		manager_cost = #{managerCost,jdbcType=VARCHAR},
+		model= #{model,jdbcType=VARCHAR},
+		modified_date = now()
+		where free_code=#{freeCode,jdbcType=VARCHAR}
+	</update>
+
+</mapper>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process key="SP05" name="SP05" xmlns="http://jbpm.org/4.4/jpdl">
+   <start g="297,26,48,48" name="start">
+      <transition to="js"/>
+   </start>
+   <end g="481,293,48,48" name="end"/>
+   <end-cancel g="124,271,48,48" name="cancel"/>
+   <custom name="js" g="275,113,92,52" class="com.gome.gmhx.jbpm.activityBehaviour.ServiceBarCodeMachineBehaviour">
+      <transition to="S3"/>
+   </custom>
+   <task name="S3" g="277,205,92,52">
+   	  <assignment-handler class="com.gome.gmhx.jbpm.JbpmAuthorityService"/>  
+      <transition name="T2" to="S4" g="-17,-14"/>
+      <transition name="T6" to="cancel" g="-28,-26"/>
+      <transition name="T3" to="end" g="-18,-26"/>
+   </task>
+   <task name="S4" g="279,312,92,52">
+      <assignment-handler class="com.gome.gmhx.jbpm.JbpmAuthorityService"/>  
+      <transition name="T2" to="MSM" g="-22,-10"/>
+      <transition name="T6" to="cancel" g="-26,-11"/>
+      <transition name="T3" to="end" g="-28,-22"/>
+   </task>
+   <custom name="MSM" g="284,416,92,52" class="com.gome.gmhx.jbpm.activityBehaviour.ModifySuccessMarkBehaviour">
+      <transition to="end"/>
+   </custom>
+</process>

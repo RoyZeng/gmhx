@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gome.gmhx.dao.servicemanage.HxInstallProjectServiceDao" >
+	<select id="getServiceInstallReceiptPageList" parameterType="com.gome.common.page.Page" resultType="hashmap">
+	SELECT 
+		T.customer_id, T.customer_name, T.customer_type, T.customer_sex, T.member_num, T.province, T.area_code, 
+		T.phone, T.telephone, T.e_mail, T.postcode, T.address, T.note,
+		T1.product_id, T1.install_card_num, T1.delivery_order_num, T1.install_num, T1.machine_type, 
+		T1.gome_code, T1.brand, T1.machine_code, T1.internal_machine_code1, T1.internal_machine_code2, T1.external_machine_code, 
+		T1.ticket_num, T1.invoice_num, T1.buyer, T1.buy_date, T1.install_date, T1.install_unit, T1.sale_center, 
+		T1.sale_market, T1.sale_price, T1.is_sale, T1.warranty, T1.install_province, T1.install_detail_address, T1.project_name,
+		T1.bargain_code, T1.product_note, T1.create_man_p, T1.create_organization_p, T1.create_time_p, T1.alter_man_p, 
+		T1.alter_organization_p, T1.alter_time_p,
+		T2.service_id, T2.category, T2.service_type, T2.urgency_degree, T2.appointment_time, 
+		T2.link_man, T2.appointment_date, T2.link_phone, T2.customer_describe, T2.comment_a, T2.machine_check_fault_reason, 
+		T2.check_result, T2.center_check_traffic_fee, T2.center_check_delay_fee, T2.center_check_other_fee, 
+		T2.center_check_result, T2.center_check_comment, T2.center_check_organization, T2.center_check_man, 
+		T2.center_check_time, T2.headquarters_check_traffic_fee, T2.headquarters_check_delay_fee, 
+		T2.headquarters_check_other_fee, T2.headquarters_check_result, T2.headquarters_check_comment, 
+		T2.headquarters_check_organization, T2.headquarters_check_man, T2.headquarters_check_time, 
+		T2.recall_man, T2.recall_result, T2.recall_time,
+		T3.install_id, T3.sequence, T3.distance_apply_num, T3.service_card_num, T3.installer, T3.
+		product_exterior_satisfaction, T3.product_exterior_significance, T3.price_satisfaction, T3.
+		price_significance, T3.service_satisfaction, T3.service_significance, T3.quality_satisfaction, T3.
+		quality_significance, T3.physiology_satisfaction, T3.physiology_significance, T3.is_double_install, T3.
+		warranty_policy, T3.comment_i, T3.create_man_i, T3.create_organization_i, T3.create_time_i, T3.alter_man_i, T3.
+		alter_organization_i, T3.alter_time_i
+		FROM hx_service_customer T 
+		LEFT JOIN hx_service_product T1 ON T.customer_id = T1.customer_id
+		LEFT JOIN hx_service_appointment T2 ON T2.product_id = T2.product_id
+		LEFT JOIN hx_service_install_receipt T3 ON T3.service_id = T2.service_id
+		WHERE T.customer_type='02'
+		AND T2.service_id !='' AND T3.install_id!=''
+		<if test="param.installNum != null and param.installNum != ''">and T1.install_num like CONCAT('%',#{param.installNum},'%')</if>
+		<if test="param.machineType != null and param.machineType != ''">and T1.machine_type like CONCAT('%',#{param.machineType},'%')</if>
+		<if test="param.gomeCode != null and param.gomeCode != ''">and T1.gome_code like CONCAT('%',#{param.gomeCode},'%')</if>
+		<if test="param.brand != null and param.brand != ''">and T1.brand like CONCAT('%',#{param.brand},'%')</if>
+		<if test="param.deliveryOrderNum != null and param.deliveryOrderNum != ''">and T1.delivery_order_num like CONCAT('%',#{param.deliveryOrderNum},'%')</if>
+		<if test="param.ticketNum != null and param.ticketNum != ''">and T1.ticket_num like CONCAT('%',#{param.ticketNum},'%')</if>
+		<if test="param.externalMachineCode != null and param.externalMachineCode != ''">and T1.external_machine_code like CONCAT('%',#{param.externalMachineCode},'%')</if>
+		<if test="param.internalMachineCode1 != null and param.internalMachineCode1 != ''">and T1.internal_machine_code1 like CONCAT('%',#{param.internalMachineCode1},'%')</if>
+		<if test="param.internalMachineCode2 != null and param.internalMachineCode2 != ''">and T1.internal_machine_code2 like CONCAT('%',#{param.internalMachineCode2},'%')</if>
+		<if test="param.machineCode != null and param.machineCode != ''">and T1.machine_code like CONCAT('%',#{param.machineCode},'%')</if>
+		<if test="param.customerName != null and param.customerName != ''">and T.customer_name like CONCAT('%',#{param.customerName},'%')</if>
+		<if test="param.phone != null and param.phone != ''">and T.phone like CONCAT('%',#{param.phone},'%')</if>
+		<if test="param.createManI != null and param.createManI != ''">and T3.create_man_i like CONCAT('%',#{param.createManI},'%')</if>
+		<if test="param.createOrganizationI != null and param.createOrganizationI != ''">and T3.create_organization_i like CONCAT('%',#{param.createOrganizationI},'%')</if>
+		<if test="param.category != null and param.category != ''">and T2.category like CONCAT('%',#{param.category},'%')</if>
+		<if test="param.mod_createTime_st !=null and param.mod_createTime_st != '' "><![CDATA[ and T3.create_time_i >=#{param.mod_createTime_st} ]]></if>  
+		<if test="param.mod_createTime_end !=null and param.mod_createTime_end != '' "><![CDATA[ and T3.create_time_i <=#{param.mod_createTime_end} ]]></if>  
+		<if test="param.mod_installDate_st !=null and param.mod_installDate_st != '' "><![CDATA[ and T1.install_date >=#{param.mod_installDate_st} ]]></if>  
+		<if test="param.mod_installDate_end !=null and param.mod_installDate_end != '' "><![CDATA[ and T1.install_date <=#{param.mod_installDate_end} ]]></if>  
+		GROUP BY T2.service_id
+	</select>
+	<select id="selectInstallProjectById" resultType="hashmap" parameterType="java.lang.String"> 
+		SELECT 
+		T.customer_id, T.customer_name, T.customer_type, T.customer_sex, T.member_num, T.province, T.area_code, 
+		T.phone, T.telephone, T.e_mail, T.postcode, T.address, T.note,
+		T1.product_id, T1.install_card_num, T1.delivery_order_num, T1.install_num, T1.machine_type, 
+		T1.gome_code, T1.brand, T1.machine_code, T1.internal_machine_code1, T1.internal_machine_code2, T1.external_machine_code, 
+		T1.ticket_num, T1.invoice_num, T1.buyer, T1.buy_date, T1.install_date, T1.install_unit, T1.sale_center, 
+		T1.sale_market, T1.sale_price, T1.is_sale, T1.warranty, T1.install_province, T1.install_detail_address, T1.project_name,
+		T1.bargain_code, T1.product_note, T1.create_man_p, T1.create_organization_p, T1.create_time_p, T1.alter_man_p, 
+		T1.alter_organization_p, T1.alter_time_p,
+		T2.service_id, T2.category, T2.service_type, T2.urgency_degree, T2.appointment_time, 
+		T2.link_man, T2.appointment_date, T2.link_phone, T2.customer_describe, T2.comment_a, T2.machine_check_fault_reason, 
+		T2.check_result, T2.center_check_traffic_fee, T2.center_check_delay_fee, T2.center_check_other_fee, 
+		T2.center_check_result, T2.center_check_comment, T2.center_check_organization, T2.center_check_man, 
+		T2.center_check_time, T2.headquarters_check_traffic_fee, T2.headquarters_check_delay_fee, 
+		T2.headquarters_check_other_fee, T2.headquarters_check_result, T2.headquarters_check_comment, 
+		T2.headquarters_check_organization, T2.headquarters_check_man, T2.headquarters_check_time, 
+		T2.recall_man, T2.recall_result, T2.recall_time,
+		T3.install_id, T3.sequence, T3.distance_apply_num, T3.service_card_num, T3.installer, T3.
+		product_exterior_satisfaction, T3.product_exterior_significance, T3.price_satisfaction, T3.
+		price_significance, T3.service_satisfaction, T3.service_significance, T3.quality_satisfaction, T3.
+		quality_significance, T3.physiology_satisfaction, T3.physiology_significance, T3.is_double_install, T3.
+		warranty_policy, T3.comment_i, T3.create_man_i, T3.create_organization_i, T3.create_time_i, T3.alter_man_i, T3.
+		alter_organization_i, T3.alter_time_i
+		FROM hx_service_customer T 
+		LEFT JOIN hx_service_product T1 ON T.customer_id = T1.customer_id
+		LEFT JOIN hx_service_appointment T2 ON T2.product_id = T2.product_id
+		LEFT JOIN hx_service_install_receipt T3 ON T3.service_id = T2.service_id
+		WHERE T.customer_type='02'
+		AND T2.service_id !='' 
+		AND T3.install_id!=''
+		AND T2.service_id=#{serviceId,jdbcType=VARCHAR}
+		GROUP BY T2.service_id
+	</select>
+	<delete id="deleteServiceInstallProjectByPrimaryKey" parameterType="java.lang.String">
+		delete from hx_service_appointment
+   	 	where service_id = #{serviceId,jdbcType=VARCHAR}
+	</delete>
+</mapper>

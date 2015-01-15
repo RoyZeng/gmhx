@@ -1,0 +1,299 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ include file="../../inc/header.jsp"%>
+<%@ include file="../../inc/resource.inc"%>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<style type="text/css">
+td {white-space: nowrap;}
+</style>
+<script type="text/javascript">
+	$(function(){
+		onStart(document.body.clientHeight - 340);
+		$('#dataGrid').datagrid('cancelCellTip');
+    	$('#dataGrid').datagrid('doCellTip',{'max-width':'300px'});
+		$(".combo").attr("style","width: 85%; height: 20px;" );
+		$(".combo-text").attr("style","width: 85%; height: 20px; line-height: 20px;" );
+		$(".combo-panel").attr("style","width: 100%; height: auto;" );
+	});
+	
+	function clos(){
+    	onStart(document.body.clientHeight - 28);
+    	$('#dataGrid').datagrid('cancelCellTip');
+    	$('#dataGrid').datagrid('doCellTip',{'max-width':'300px'});
+    }
+    
+    function ope(){
+    	onStart(document.body.clientHeight - 340);
+    	$('#dataGrid').datagrid('cancelCellTip');
+    	$('#dataGrid').datagrid('doCellTip',{'max-width':'300px'});
+    }
+	
+	function onStart(heigh){
+        dataGrid = $('#dataGrid').datagrid({
+            title : "服务单",
+            url : "${ctx}/historyTicketQuery/getHistoryTicket",
+            striped : true,
+            height : heigh,
+            collapsible : true,
+            autoRowHeight : true,
+            remoteSort : false,
+            idField : 'serviceId',
+            rownumbers : true,
+            fitColumns : true,
+            nowrap : true,
+            pagination : true,
+            checkOnSelect : false,
+            selectOnCheck : false,
+            fit : true,
+            queryParams : {
+                currentPage : 1,
+                pageCount : 10
+            },
+            columns : [ [ 
+              {field : 'serviceId',title :'服务单号',width : 40,align:'center'
+            },{field : 'machineType',title : '机<br/>型',width : 6,align:'center'
+            },{field : 'gomeCode',title : '国美<br/>代码',width : 10,align:'center'
+            },{field : 'brand',title : '品<br/>牌',width : 6,align:'center'
+            },{field : 'machineCode',title : '机器<br/>条码',width : 10,align:'center'	
+            },{field : 'internalMachineCode1',title : '内机<br/>条码1',width : 12,align:'center'
+            },{field : 'internalMachineCode2',title : '内机<br/>条码2',width : 12,align:'center'
+            },{field : 'externalMachineCode',title : '外机<br/>条码',width : 10,align:'center'
+            },{field : 'deliveryOrderNum',title : '提货<br/>单号',width : 10,align:'center'
+            },{field : 'customerName',title : '客户<br/>姓名',width : 10,align:'center'
+            },{field : 'customerType',title : '客户<br/>类别',width : 10,align:'center'
+            },{field : 'telephone',title : '客户<br/>电话',width : 10,align:'center'
+            },{field : 'phone',title : '手<br/>机',width : 6,align:'center'
+            },{field : 'installUnit',title : '安装<br/>单位',width : 10,align:'center'
+            },{field : 'installDate',title : '安装<br/>日期',width : 10,align:'center'
+            },{field : 'invoiceNum',title : '发票<br/>号',width : 10,align:'center'
+            },{field : 'buyer',title : '购买<br/>者姓名',width : 14,align:'center'
+            },{field : 'salePrice',title : '销售<br/>价格',width : 10,align:'center'
+            },{field : 'saleCenter',title : '销售<br/>分部',width : 10,align:'center'
+            },{field : 'saleMarket',title : '销售<br/>门店',width : 10,align:'center'
+            },{field : 'buyDate',title : '销售<br/>日期',width : 10,align:'center'
+            },{field : 'installProvince',title : '安装<br/>省份',width : 10,align:'center'
+            },{field : 'installDetailAddress',title : '安装详<br/>细地址',width : 14,align:'center'
+            },{field : 'serviceType',title : '单据<br/>类型',width : 10,align:'center'
+            },{field : 'center',title : '接收<br/>分部',width : 10,align:'center'	
+            },{field : 'serviceDate',title : '服务<br/>日期',width : 10,align:'center'
+            },{field : 'serviceStatus',title : '单据<br/>状态',width : 10,align:'center',
+            	formatter:function(value, row, index){ 
+                	return statusVal(row.service_status);
+                }
+            },{field : 'checkResult',title : '审核<br/>结果',width : 10,align:'center'
+            },{field : 'checkFaultReason',title : '机审无<br/>效原因',width : 14,align:'center'
+            },{field : 'centerCheckComment',title : '分部审<br/>核意见',width : 14,align:'center'
+            },{field : 'headquartersCheckComment',title : '总部审<br/>核意见',width : 14,align:'center'
+            },{field : 'createOrganizationS',title : '创建<br/>机构',width : 10,align:'center'
+            },{field : 'createTimeS',title : '创建<br/>时间',width : 10,align:'center'
+            },{field : 'invalidCode',title : '故障<br/>代码',width : 10,align:'center'
+            },{field : 'invalidName',title : '故障<br/>名称',width : 10,align:'center'
+            },{field : 'invalidReason',title : '故障<br/>原因',width : 10,align:'center'
+            },{field : 'distanceApplyNum',title : '远程申<br/>请单号',width : 14,align:'center'
+            },{field : 'maintainWay',title : '维修<br/>方式',width : 10,align:'center'
+            },{field : 'partsCode',title : '配件<br/>编码',width : 10,align:'center'
+            },{field : 'partsName',title : '配件<br/>名称',width : 10,align:'center'
+            },{field : 'partsPrice',title : '配件<br/>价格',width : 10,align:'center'
+            },{field : 'partsNum',title : '配件<br/>数量',width : 10,align:'center'
+            },{field : 'oldPartsCode',title : '旧配<br/>件编码',width : 14,align:'center'
+            },{field : 'oldPartsName',title : '旧配<br/>件名称',width : 14,align:'center'
+            },{field : 'oldPartsPrice',title : '旧配<br/>件价格',width : 14,align:'center'
+            },{field : 'callbackResult',title : '回访<br/>结果',width : 10,align:'center'
+            }, {field : 'action',title : '操作',width : 40,align:'center',
+				formatter : function(value, row, index) {     
+					/* if(row.service_status=="S1"){
+						return '<a href="#" onclick="showService(\'' + row.service_id + '\');">查看</a>|<a href="#" onclick="update(\'' 
+								+ row.service_id + '\');">修改</a>|<a href="#" onclick="deleteTicket(\'' + row.service_id + '\');">删除</a>';
+					}else{ */
+						return '<a href="#" onclick="show(\'' + row.service_id + '\');">查看</a>';
+					/* } */
+				}
+			}] ], 
+            toolbar : '#toolbar',
+            onLoadSuccess : function() {
+                $('#searchForm table').show();
+                $(this).datagrid('doCellTip',{'max-width':'300px','delay':500});
+                parent.$.messager.progress('close');
+            }
+        });
+        $('.datagrid-pager').pagination({
+        	onSelectPage : function(pageNumber, pageSize) {
+				$(this).pagination('loading');
+				var queryParams = $.serializeObject($('#searchForm'));
+				queryParams.currentPage = pageNumber;
+				queryParams.pageCount = pageSize;
+				$('#dataGrid').datagrid("options").queryParams = queryParams;
+				$('#dataGrid').datagrid("reload");
+				$(this).pagination('loaded');
+			}
+        });
+        
+    	$.serializeObject = function(form) {
+    		var o = {
+    			currentPage : 1,
+    			pageCount : 10
+    		};
+    		$.each(form.serializeArray(), function(index) {
+    			if (o[this['name']]) {
+    				o[this['name']] = o[this['name']] + "," + this['value'];
+    			} else {
+    				o[this['name']] = this['value'];
+    			}
+    		});
+    		return o;
+    	};
+        
+        $("#query").on("click", function() {
+            dataGrid.datagrid('load', $.serializeObject($('#searchForm')));
+        });
+    };
+    
+    function statusVal(status) {
+		if (status == 'S0') {
+			return '流程结束';
+		} else if (status == 'S1') {
+			return '暂存';
+		} else if (status == 'S2') {
+			return '提交';
+		} else if (status == 'S3') {
+			return '分部审核';
+		} else if (status == 'S4') {
+			return '总部审核';
+		} else if (status == 'S5') {
+			return '填写出库数量';
+		} else if (status == 'S6') {
+			return '出库';
+		} else if (status == 'S7') {
+			return '邮包发货';
+		} else if (status == 'S8') {
+			return '邮包收货';
+		} else if (status == 'S9') {
+			return '网店确认';
+		}else if(status=='S10'){
+			return "退回修改";
+		}else if(status=='S11'){
+			return "发货";
+		}else if(status=='S12'){
+			return "收货";
+		}else if(status=='S13'){
+			return "检测";
+		}else if(status=='S14'){
+			return "入库";
+		}else if(status=='S15'){
+			return "移库";
+		}
+	}
+</script>
+</head>
+<body>
+    <div class="easyui-layout" data-options="fit:true,border:false">
+        <div data-options="region:'north',title:'查询条件',border:false,collapsible:true,onBeforeCollapse:function(){clos();},onExpand:function(){ope();}"  style="height: 380px; overflow: hidden;">
+            <form id="searchForm">
+            	<table style="width:100%; padding: 10px 10px 10px 10px;">
+            		<tr>
+            			<td width="8%">安装日期:</td>
+                       	<td width="12%">
+                        	<input id="azks" style="width:85%" placeholder="起始安装日期"  name="mod_installDate_st" type="text" readonly="readonly" onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'azjs\')}'})"/><br/>
+							<input id="azjs" style="width:85%"  placeholder="结束安装日期"  name="mod_installDate_end" type="text" readonly="readonly" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'azks\')||\'%y-%M-%d\'}'})"/> 
+                       	</td>
+                       	<td width="8%">销售日期:</td>
+                        <td width="12%">
+                        	<input id="xsks" style="width:85%"  placeholder="起始销售日期"  name="mod_saleDate_st" type="text" readonly="readonly" onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'xsjs\')}'})"/><br/>
+							<input id="xsjs" style="width:85%"  placeholder="结束销售日期"  name="mod_saleDate_end" type="text" readonly="readonly" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'xsks\')||\'%y-%M-%d\'}'})"/>
+                        </td>
+                        <td width="8%">服务日期:</td>
+                        <td width="12%">
+                        	<input id="fwks" style="width:85%"  placeholder="起始服务日期"  name="mod_serviceDate_st" type="text" readonly="readonly" onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'fwjs\')}'})"/><br/>
+							<input id="fwjs" style="width:85%"  placeholder="结束服务日期"  name="mod_serviceDate_end" type="text" readonly="readonly" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'fwks\')||\'%y-%M-%d\'}'})"/>
+                        </td>
+                        <td width="8%">审核时间:</td>
+                        <td width="12%">
+                       		<input id="shks" style="width:85%"  placeholder="起始审核时间"  name="mod_checkDate_st" type="text" readonly="readonly" onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'shjs\')}'})"/><br/>
+							<input id="shjs" style="width:85%"  placeholder="结束审核时间"  name="mod_checkDate_end" type="text" readonly="readonly" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'shks\')||\'%y-%M-%d\'}'})"/>
+                        </td>
+                        <td width="8%">创建时间:</td>
+                        <td width="12%">
+                        	<input id="cjks" style="width:85%"  placeholder="起始创建时间"  name="mod_createDate_st" type="text" readonly="readonly" onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'cjjs\')}'})"/><br/>
+							<input id="cjjs" style="width:85%"  placeholder="结束创建时间"  name="mod_createDate_end" type="text" readonly="readonly" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'cjks\')||\'%y-%M-%d\'}'})"/>
+                        </td>
+            		</tr>
+                    <tr>
+                        <td>服务单号:</td><td><input style="width:85%" name="serviceTicket.serviceId" class="span2"/></td>
+                        <td>机型:</td><td><input class="easyui-combobox" data-options="url:'${ctx}/hxCode/getModelCombobox?type=',panelHeight:'100',editable:true"/></td>
+                        <td>国美代码:</td><td><input id="gomeCode" name="serviceProduct.gomeCode" class="easyui-combobox" data-options="url:'${ctx}/hxCode/getCombobox/gmdm',panelHeight:'auto',editable:false"/></td>
+                        <td>品牌:</td><td><input name="serviceProduct.brand" class="easyui-combobox"  data-options="url:'${ctx}/hxCode/getCombobox/pp',panelHeight:'auto',editable:false "/></td>
+                        <td>条码(非空):</td><td><input style="width:85%" name="serviceProduct.machineCode" class="span2"/></td>
+                    </tr>
+                    <tr>
+                        <td>内机条码1:</td><td><input style="width:85%" name="serviceProduct.internalMachineCode1" class="span2"/></td>
+                        <td>内机条码2:</td><td><input style="width:85%" name="serviceProduct.internalMachineCode2" class="span2"/></td>
+                        <td>外机条码:</td><td><input style="width:85%" name="serviceProduct.externalMachineCode" class="span2"/></td>
+                        <td>提货单号:</td><td><input style="width:85%" name="serviceProduct.deliveryOrderNum" class="span2"/></td>
+                        <td>是否售前机:</td><td><input name="serviceProduct.isSale" class="easyui-combobox"  data-options="url:'${ctx}/hxCode/getCombobox/sf',panelHeight:'auto',editable:false"/></td>
+                    </tr>
+                    <tr>
+                        <td>客户姓名:</td><td><input style="width:85%" name="serviceCustomer.customerName" class="span2"/></td>
+                        <td>客户类别:</td><td><input name="serviceCustomer.customerType" class="easyui-combobox"  data-options="url:'${ctx}/hxCode/getCombobox/khlb',panelHeight:'auto',editable:false"/></td>
+                        <td>客户电话:</td><td><input style="width:85%" name="serviceCustomer.phone" class="span2"/></td>
+                        <td>安装单位:</td><td><input name="serviceProduct.installUnit" class="easyui-combobox" data-options="url:'${ctx}/hxCode/getWebsiteCombobox',hasDownArrow:false"/></td>
+                        <td>购买者姓名:</td><td><input style="width:85%" name="serviceProduct.buyer" class="span2"/></td>
+                    </tr>
+                 	<tr>
+                        <td>销售分部:</td><td><input name="serviceProduct.saleCenter" class="easyui-combobox" data-options="url:'${ctx}/hxCode/getECCombobox',hasDownArrow:false"/></td>
+                        <td>销售门店:</td><td><input name="serviceProduct.saleMarket" class="easyui-combobox" data-options="url:'${ctx}/hxCode/getStoreCombobox',hasDownArrow:false"/></td>
+                        <td>安装省份:</td><td><input name="serviceProduct.installProvince" class="easyui-combobox" data-options="url:'${ctx}/hxCode/getRegionCombobox',hasDownArrow:false,panelHeight:'200', editable:true"/></td>
+                        <td>安装详细地址:</td><td><input style="width:85%" name="serviceProduct.installDetailAddress" class="span2"/></td>
+                        <td>单据类型:</td><td><input name="serviceTicket.serviceType" class="easyui-combobox"  data-options="url:'${ctx}/hxCode/getCombobox/djlx',panelHeight:'auto',editable:false "/></td>
+                    <tr>
+                   	</tr>
+                        <td>联系人:</td><td><input style="width:85%" name="serviceTicket.linkMan" class="span2"/></td>
+                        <td>联系电话:</td><td><input style="width:85%" name="serviceTicket.linkPhone" class="span2"/></td>
+                        <td>接收分部:</td><td><input name="serviceTicket.center" class="easyui-combobox" data-options="url:'${ctx}/hxCode/getECCombobox',hasDownArrow:false"/></td>
+                        <td>接收网点:</td><td><input name="serviceTicket.website" class="easyui-combobox" data-options="url:'${ctx}/hxCode/getWebsiteCombobox'"/></td>
+                        <!-- <td>（网点名称）:</td><td><input style="width:85%" name="websiteName" class="span2"/></td> -->
+                	</tr>
+                    <tr>
+                        <td>单据状态:</td><td><input name="serviceTicket.serviceStatus" class="easyui-combobox"  data-options="url:'${ctx}/hxCode/getCombobox/djzt',panelHeight:'auto',editable:false "/></td>
+                        <td>审核结果:</td><td><input name="serviceTicket.checkResult" class="easyui-combobox"  data-options="url:'${ctx}/hxCode/getCombobox/shjg',panelHeight:'auto',editable:false "/></td>
+                        <td>机审无效原因:</td><td><input style="width:85%" name="serviceTicket.machineCheckFaultReason" class="span2"/></td>
+                        <td>分部审核意见:</td><td><input style="width:85%" name="serviceTicket.centerCheckComment" class="span2"/></td>
+                        <td>总部审核意见:</td><td><input style="width:85%" name="serviceTicket.headquartersCheckComment" class="span2"/></td>
+                    </tr>
+                    <tr>
+                        <td>创建机构:</td><td><input name="serviceTicket.createOrganizationS" class="easyui-combobox" data-options="url:'${ctx}/hxCode/getOrgCombobox',hasDownArrow:false,panelHeight:'200',editable:true"/></td>
+                        <td>机型分类:</td><td><input id="serviceProduct." class="easyui-combobox"  data-options="url:'${ctx}/hxCode/getCombobox/cpfl',panelHeight:'100',editable:false "/></td>
+                        <td>故障代码:</td><td><input style="width:85%" name="invalidCode" class="span2"/></td>
+                        <td>故障原因:</td><td><input style="width:85%" name="invalidReason" class="span2"/></td>
+                        <td>是否远程:</td><td><input name="isDistance" class="easyui-combobox"  data-options="url:'${ctx}/hxCode/getCombobox/sf',panelHeight:'auto',editable:false "/></td>
+                    </tr>
+                    <tr>
+                        <td>远程申请单号:</td><td><input style="width:85%" name="serviceTicket.distanceApplyNum" class="span2"/></td>
+                        <td>是否充氟:</td><td><input name="isChargeFluor" class="easyui-combobox"  data-options="url:'${ctx}/hxCode/getCombobox/sf',panelHeight:'auto',editable:false "/></td>
+                        <td>是否更换配件:</td><td><input name="serviceTicket.isReplaceParts" class="easyui-combobox"  data-options="url:'${ctx}/hxCode/getCombobox/sf',panelHeight:'auto',editable:false "/></td>
+                        <td>维修方式:</td><td><input name="serviceTicket.repairMode" class="easyui-combobox"  data-options="url:'${ctx}/hxCode/getCombobox/wxfs',panelHeight:'auto',editable:false "/></td>
+                        <td>配件编码:</td><td><input style="width:85%" name="partsCode" class="span2"/></td>
+                    </tr>
+                    <tr>
+                        <td>配件名称:</td><td><input style="width:85%" name="partsName" class="span2"/></td>
+                        <td>配件价格:</td><td><input style="width:85%" name="partsPrice" class="span2"/></td>
+                        <td>配件数量:</td><td><input style="width:85%" name="partsNum" class="span2"/></td>
+                        <td>旧配件编码:</td><td><input style="width:85%" name="oldPartsCode" class="span2"/></td>
+                        <td>旧配件名称:</td><td><input style="width:85%" name="oldPartsName" class="span2"/></td>
+                    </tr> 
+                    <tr>
+                        <td>旧配件价格:</td><td><input style="width:85%" name="oldPartsPrice" class="span2"/></td>
+                        <td>回访结果:</td><td><input name="serviceTicket.recallResult" class="easyui-combobox"  data-options="url:'${ctx}/hxCode/getCombobox/hfjg',panelHeight:'auto',editable:false "/></td>
+                        <td></td><td></td>
+                        <td></td><td></td>
+                        <td></td><td align="center"><a href="#" id="query" class="easyui-linkbutton" iconCls="icon-search">查询</a></td>
+                    </tr> 
+                </table>
+            </form>
+        </div>
+        <div data-options="region:'center',border:false">
+        	<table id="dataGrid"></table>
+        </div>
+    </div>
+</body>
+</html>

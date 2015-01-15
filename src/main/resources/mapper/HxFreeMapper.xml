@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gome.gmhx.dao.basicdata.HxFreeDao">
+	<resultMap id="BaseResultMap" type="com.gome.gmhx.entity.HxFree">
+	    <result property="freeId" column="free_id" jdbcType="VARCHAR" />
+		<result property="model" column="model" jdbcType="VARCHAR" />
+		<result property="expenseStandard" column="expense_standard" jdbcType="VARCHAR" />
+		<result property="managerFee" column="manager_fee" jdbcType="VARCHAR" />
+		<result property="monthlyBonus" column="monthly_bonus" jdbcType="VARCHAR" />
+		<result property="createDate" column="create_date" jdbcType="TIMESTAMP" />
+		<result property="founder" column="founder" jdbcType="VARCHAR" />
+		<result property="brand" column="brand" jdbcType="VARCHAR" />
+		<result property="modifiedDate" column="modified_date" jdbcType="TIMESTAMP" />
+		<result property="modified" column="modified" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="Base_Column_List">
+	free_id,model,expense_standard,manager_fee,monthly_bonus,brand,founder,create_date
+	</sql>
+
+
+	<select id="getFreePageList" parameterType="com.gome.common.page.Page" resultType="hashmap">
+	   select t.free_id, t.model, v.code_value model1 ,t.expense_standard ,t.manager_fee ,t.monthly_bonus ,t.brand ,v1.code_value brand1
+       from hx_standard_fee t
+        LEFT JOIN v_code v 
+       on v.code_id='jx' and v.code_key = t.model
+       LEFT JOIN v_code v1
+	   on v1.code_id='pp' and v1.code_key=t.brand
+       where 1=1
+      	<if test="param.model != null">
+			and model like CONCAT('%',#{param.model},'%')
+		</if>
+		<if test="param.brand != null">
+			and brand like CONCAT('%',#{param.brand},'%')
+		</if>
+		<if test="param.ExpenseStandard != null">
+			and expense_standard like CONCAT('%',#{param.expenseStandard},'%')
+		</if>
+		<if test="param.ManagerFee != null">
+			and manager_fee like CONCAT('%',#{param.managerFee},'%')
+		</if>
+		<if test="param.MonthlyBonus != null">
+			and monthly_bonus like CONCAT('%',#{param.monthlyBonus},'%')
+		</if>
+	</select>
+	
+	<select id="getHxFreeById" resultMap="BaseResultMap" parameterType="java.lang.String">
+		select free_id,model,expense_standard,manager_fee,Monthly_bonus,create_date,founder,brand,
+		modified_date,modified
+		 from hx_standard_fee where free_id=#{freeId,jdbcType=VARCHAR}
+	</select>
+
+	<!-- 显示界面查询 -->
+	<select id="getShowById"  resultMap="BaseResultMap" resultType="hashmap">
+		select * from hx_standard_fee where free_id=#{freeId,jdbcType=VARCHAR}
+	</select>
+
+	<!-- 导出查询 -->
+	<select id="getHxFreeExport" parameterType="com.gome.gmhx.entity.HxFree" resultType="hashmap" >
+	        select t.model,v.code_value model ,t.expense_standard ,t.manager_fee ,t.monthly_bonus ,t.brand ,v1.code_value brand1
+       from hx_standard_fee t
+       LEFT JOIN v_code v
+       on v.code_id ='jx' and v.code_key = t.model
+       LEFT JOIN v_code v1
+	     on v1.code_id='pp' and v1.code_key=t.brand
+	</select>
+
+	<insert id="addHxFree" parameterType="com.gome.gmhx.entity.HxFree">
+		insert into hx_standard_fee (free_id,model,expense_standard, manager_fee, monthly_bonus,create_date,brand)
+		values (#{freeId,jdbcType=VARCHAR},#{model,jdbcType=VARCHAR} ,#{expenseStandard,jdbcType=VARCHAR},
+		#{managerFee,jdbcType=VARCHAR},
+		#{monthlyBonus,jdbcType=VARCHAR},now(),'001')
+	</insert>
+  
+    <insert id="insertFreeBatch" parameterType="java.util.List">
+     INSERT INTO hx_standard_fee (
+    <include refid="Base_Column_List" />
+    )
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+     (#{item.freeId,jdbcType=VARCHAR}, #{item.model,jdbcType=VARCHAR}, #{item.expenseStandard,jdbcType=VARCHAR}, #{item.managerFee,jdbcType=VARCHAR}, 
+      #{item.monthlyBonus,jdbcType=VARCHAR}, #{item.brand,jdbcType=VARCHAR}, #{item.founder,jdbcType=VARCHAR}, 
+      #{item.createDate,jdbcType=TIMESTAMP})
+    </foreach>
+  </insert>
+     
+	<update id="updateHxFree" parameterType="com.gome.gmhx.entity.HxFree">
+		update hx_standard_fee
+	    set	expense_standard = #{expenseStandard,jdbcType=VARCHAR},
+		manager_fee = #{managerFee,jdbcType=VARCHAR},
+		monthly_bonus = #{monthlyBonus,jdbcType=VARCHAR},
+		model= #{model,jdbcType=VARCHAR},
+		modified_date = now()
+		where free_id=#{freeId,jdbcType=VARCHAR}
+	</update>
+
+</mapper>

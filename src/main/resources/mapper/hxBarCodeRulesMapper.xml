@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gome.gmhx.dao.basicdata.HxBarCodeRulesDao">
+  <resultMap id="BaseResultMap" type="com.gome.gmhx.entity.HxBarCodeRules">
+    <id property="rulesId" column="rules_id" jdbcType="INTEGER"/>
+    <result property="gomeCode"                 column="gome_code"                    jdbcType="VARCHAR"/>
+	<result property="category"                 column="category"                     jdbcType="VARCHAR"/>
+	<result property="barCodeNumber"            column="bar_code_number"              jdbcType="INTEGER"/>
+	<result property="insideMachine"            column="inside_machine"               jdbcType="INTEGER"/>
+	<result property="insideMachineOne"         column="inside_machine_one"           jdbcType="INTEGER"/>
+	<result property="insideMachineTwo"         column="inside_machine_two"           jdbcType="INTEGER"/>
+	<result property="insideMachineContent"     column="inside_machine_content"       jdbcType="VARCHAR"/>
+	<result property="insideMachineContentOne"  column="inside_machine_content_one"   jdbcType="VARCHAR"/>
+	<result property="insideMachineContentTwo"  column="inside_machine_content_two"   jdbcType="VARCHAR"/>
+	<result property="outsideMachine"           column="outside_machine"              jdbcType="INTEGER"/>
+	<result property="outsideMachineOne"        column="outside_machine_one"          jdbcType="INTEGER"/>
+	<result property="outsideMachineTwo"        column="outside_machine_two"          jdbcType="INTEGER"/>
+	<result property="outsideMachineContent"    column="outside_machine_content"      jdbcType="VARCHAR"/>
+	<result property="outsideMachineContentOne" column="outside_machine_content_one"  jdbcType="VARCHAR"/>
+	<result property="outsideMachineContentTwo" column="outside_machine_content_two"  jdbcType="VARCHAR"/>
+	<result property="note"                     column="note"                         jdbcType="VARCHAR"/>
+	<result property="createDate"               column="create_date"                  jdbcType="TIMESTAMP"/>
+	<result property="modifieDate"              column="modifie_date"                 jdbcType="TIMESTAMP"/>
+  </resultMap>
+
+	<select id="getHxBarCodeRulesPageList" parameterType="com.gome.common.page.Page" resultType="hashmap">
+	select a.rules_id, (select code_value from v_code where code_id='gmdm' and a.gome_code=code_key )gome_code,
+	       (select code_value from v_code where code_id='wxpl' and a.category=code_key )category,
+	       a.bar_code_number, a.inside_machine, a.inside_machine_one, 
+           a.inside_machine_two, a.inside_machine_content, a.inside_machine_content_one, 
+           a.inside_machine_content_two, a.outside_machine, a.outside_machine_one, a.outside_machine_two,
+           a.outside_machine_content, a.outside_machine_content_one, a.outside_machine_content_two,
+           a.note, a.create_date, a.modifie_date
+     from hx_bar_code_rules a where 1=1      
+        <if test="param.gomeCode!= null and param.gomeCode!= '' ">
+		   and gome_code like CONCAT('%',#{param.gomeCode},'%')</if>
+	    <if test="param.category!= null and param.category!= '' ">
+		   and category like CONCAT('%',#{param.category},'%')</if>
+		<if test="param.modifieDate_sta !=null and param.modifieDate_sta != '' ">
+		   <![CDATA[ and modifie_date >=#{param.modifieDate_sta} ]]>   </if>        
+		<if test="param.modifieDate_end !=null and param.modifieDate_end != '' ">
+		   <![CDATA[ and modifie_date <=#{param.modifieDate_end} ]]>   </if>        
+	</select>
+	
+	<insert id="addHxBarCodeRules" parameterType="com.gome.gmhx.entity.HxBarCodeRules">
+	     insert into hx_bar_code_rules (rules_id, gome_code, category, 
+      bar_code_number, inside_machine, inside_machine_one, 
+      inside_machine_two, inside_machine_content, 
+      inside_machine_content_one, inside_machine_content_two, 
+      outside_machine, outside_machine_one, outside_machine_two, 
+      outside_machine_content, outside_machine_content_one, 
+      outside_machine_content_two, note, create_date)
+    values (#{rulesId}, #{gomeCode}, #{category}, 
+      #{barCodeNumber}, #{insideMachine}, #{insideMachineOne}, 
+      #{insideMachineTwo}, #{insideMachineContent}, 
+      #{insideMachineContentOne}, #{insideMachineContentTwo}, 
+      #{outsideMachine}, #{outsideMachineOne}, #{outsideMachineTwo}, 
+      #{outsideMachineContent}, #{outsideMachineContentOne}, 
+      #{outsideMachineContentTwo}, #{note},now())
+	</insert>
+	
+	<insert id="insertBatch" parameterType="java.util.List">
+	     insert into hx_bar_code_rules (rules_id, gome_code, category, 
+	      bar_code_number, inside_machine, inside_machine_one, 
+	      inside_machine_two, inside_machine_content, 
+	      inside_machine_content_one, inside_machine_content_two, 
+	      outside_machine, outside_machine_one, outside_machine_two, 
+	      outside_machine_content, outside_machine_content_one, 
+	      outside_machine_content_two, note, create_date)
+	    VALUES
+	    <foreach collection="list" item="item" separator=",">
+	   	  (#{item.rulesId}, #{item.gomeCode}, #{item.category}, 
+	      #{item.barCodeNumber}, #{item.insideMachine}, #{item.insideMachineOne}, 
+	      #{item.insideMachineTwo}, #{item.insideMachineContent}, 
+	      #{item.insideMachineContentOne}, #{item.insideMachineContentTwo}, 
+	      #{item.outsideMachine}, #{item.outsideMachineOne}, #{item.outsideMachineTwo}, 
+	      #{item.outsideMachineContent}, #{item.outsideMachineContentOne}, 
+	      #{item.outsideMachineContentTwo}, #{item.note},now())
+    </foreach>
+	</insert>
+	<select id="getHxBarCodeRulesById" parameterType="string" resultMap="BaseResultMap">
+	    select a.rules_id, a.gome_code, a.category, a.bar_code_number, a.inside_machine, a.inside_machine_one, 
+           a.inside_machine_two, a.inside_machine_content, a.inside_machine_content_one, 
+           a.inside_machine_content_two, a.outside_machine, a.outside_machine_one, a.outside_machine_two,
+           a.outside_machine_content, a.outside_machine_content_one, a.outside_machine_content_two,
+           a.note, a.create_date, a.modifie_date
+     from hx_bar_code_rules a WHERE rules_id=#{rulesId}
+	</select>
+	
+	<update id="updateHxBarCodeRules" parameterType="com.gome.gmhx.entity.HxBarCodeRules">
+	 UPDATE hx_bar_code_rules SET gome_code=#{gomeCode},category=#{category},bar_code_number=#{barCodeNumber},
+	    inside_machine=#{insideMachine},inside_machine_one=#{insideMachineOne},inside_machine_two=#{insideMachineTwo},
+	    inside_machine_content=#{insideMachineContent},inside_machine_content_one=#{insideMachineContentOne},
+	    inside_machine_content_two=#{insideMachineContentTwo},outside_machine=#{outsideMachine},
+	    outside_machine_one=#{outsideMachineOne},outside_machine_two=#{outsideMachineTwo},
+		outside_machine_content=#{outsideMachineContent},outside_machine_content_one=#{outsideMachineContentOne},
+		outside_machine_content_two=#{outsideMachineContentTwo},modifie_date=now()
+	    where rules_id=#{rulesId}
+	</update>
+	
+	<select id="getHxBarCodeRulesExport" parameterType="com.gome.gmhx.entity.HxBarCodeRules" resultType="hashmap">
+      select a.rules_id, (select code_value from v_code where code_id='gmdm' and a.gome_code=code_key )gome_code,
+	       (select code_value from v_code where code_id='wxpl' and a.category=code_key )category,
+	       a.bar_code_number, a.inside_machine, a.inside_machine_one, 
+           a.inside_machine_two, a.inside_machine_content, a.inside_machine_content_one, 
+           a.inside_machine_content_two, a.outside_machine, a.outside_machine_one, a.outside_machine_two,
+           a.outside_machine_content, a.outside_machine_content_one, a.outside_machine_content_two,
+           a.note, a.create_date, a.modifie_date
+     from hx_bar_code_rules a 
+    </select>
+	 
+    <select id="getShowById" parameterType="string" resultMap="BaseResultMap">
+     select a.rules_id, (select code_value from v_code where code_id='gmdm' and a.gome_code=code_key )gome_code,
+	       (select code_value from v_code where code_id='wxpl' and a.category=code_key )category,
+	       a.bar_code_number, a.inside_machine, a.inside_machine_one, 
+           a.inside_machine_two, a.inside_machine_content, a.inside_machine_content_one, 
+           a.inside_machine_content_two, a.outside_machine, a.outside_machine_one, a.outside_machine_two,
+           a.outside_machine_content, a.outside_machine_content_one, a.outside_machine_content_two,
+           a.note, a.create_date, a.modifie_date
+     from hx_bar_code_rules a WHERE rules_id=#{rulesId}
+    </select>
+	   
+	   
+	  <select id="getHxBarCodeRulesByGomeCode"  parameterType="string" resultMap="BaseResultMap">
+	    select a.rules_id, a.gome_code, a.category, a.bar_code_number, a.inside_machine, a.inside_machine_one, 
+           a.inside_machine_two, a.inside_machine_content, a.inside_machine_content_one, 
+           a.inside_machine_content_two, a.outside_machine, a.outside_machine_one, a.outside_machine_two,
+           a.outside_machine_content, a.outside_machine_content_one, a.outside_machine_content_two,
+           a.note, a.create_date, a.modifie_date
+    	 from hx_bar_code_rules a WHERE  a.gome_code=#{gomecode}
+	</select>
+	
+</mapper>

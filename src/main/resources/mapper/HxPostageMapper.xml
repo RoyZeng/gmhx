@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gome.gmhx.dao.basicdata.HxPostageDao">
+	<resultMap id="BaseResultMap" type="com.gome.gmhx.entity.HxPostage">
+	    <id property="posId" column="pos_id" jdbcType="INTEGER"/>
+	    <result property="posNum"          column="pos_num"          jdbcType="VARCHAR"/>
+		<result property="posContent"      column="pos_content"      jdbcType="VARCHAR"/>
+		<result property="posSendUnit"     column="pos_send_unit"    jdbcType="VARCHAR"/>
+		<result property="posPayUnit"      column="pos_pay_unit"     jdbcType="VARCHAR"/>
+		<result property="posWeight"       column="pos_weight"       jdbcType="VARCHAR"/>
+		<result property="posUpdateDate"   column="pos_update_date"  jdbcType="TIMESTAMP"/>
+		<result property="posReceiptUnit"  column="pos_receipt_unit" jdbcType="VARCHAR"/>
+		<result property="posMoney"        column="pos_money"        jdbcType="DECIMAL"/>
+		<result property="posRecipient"    column="pos_recipient"    jdbcType="VARCHAR"/>
+		<result property="posAddress"      column="pos_address"      jdbcType="VARCHAR"/>
+		<result property="posWay"          column="pos_way"          jdbcType="VARCHAR"/>
+		<result property="posHandlers"     column="pos_handlers"     jdbcType="VARCHAR"/>
+		<result property="posUnit"         column="pos_unit"         jdbcType="VARCHAR"/>
+		<result property="posNote"         column="pos_note"         jdbcType="VARCHAR"/>
+		<result property="posDate"         column="pos_date"         jdbcType="TIMESTAMP"/>
+		<result property="posCreateDate"   column="pos_create_date"  jdbcType="TIMESTAMP"/>
+		
+	</resultMap>
+	<select id="getHxPostagePageList" parameterType="com.gome.common.page.Page" resultType="hashmap">
+		SELECT a.pos_id,a.pos_num,a.pos_content,a.pos_weight,a.pos_update_date,
+		a.pos_receipt_unit,a.pos_money,a.pos_recipient,a.pos_address,a.pos_handlers,a.pos_unit,
+		a.pos_note,a.pos_date,a.pos_create_date,
+		(select code_value from v_code where code_id='jg' and a.pos_pay_unit=code_key )pos_pay_unit,
+		(select code_value from v_code where code_id='jg' and a.pos_send_unit=code_key )pos_send_unit,  
+		(select code_value from v_code where code_id='yjfs' and a.pos_way=code_key )pos_way 
+		FROM hx_postage a where 1=1 
+	    <if test="param.posNum!= null and param.posNum!= '' ">
+		   and pos_num like CONCAT('%',#{param.posNum},'%')</if>
+	    <if test="param.posContent != null and param.posContent != '' ">
+		   and pos_content like CONCAT('%',#{param.posContent},'%')</if> 
+	    <if test="param.posSendUnit != null and param.posSendUnit != '' ">
+		   and pos_send_unit like CONCAT('%',#{param.posSendUnit},'%')</if>	
+	    <if test="param.posPayUnit != null and param.posPayUnit != '' ">
+		   and pos_pay_unit like CONCAT('%',#{param.posPayUnit},'%')</if>
+	    <if test="param.posReceiptUnit != null and param.posReceiptUnit != '' ">
+		   and pos_receipt_unit like CONCAT('%',#{param.posReceiptUnit},'%')</if>
+	    <if test="param.posRecipient != null and param.posRecipient != '' ">
+		   and pos_recipient like CONCAT('%',#{param.posRecipient},'%')</if>	
+	    <if test="param.posWay != null and param.posWay != '' ">
+	       and pos_way like CONCAT('%',#{param.posWay},'%')</if>
+	    <if test="param.posHandlers != null and param.posHandlers != '' ">
+		   and pos_handlers like CONCAT('%',#{param.posHandlers},'%')</if>
+        <if test="param.posUnit != null and param.posUnit != '' ">
+		   and pos_unit like CONCAT('%',#{param.posUnit},'%')</if>  
+ 	    <if test="param.posDate_sta !=null and param.posDate_sta != '' ">
+		   <![CDATA[ and pos_date >=#{param.posDate_sta} ]]>   </if>       
+		<if test="param.posDate_end !=null and param.posDate_end != '' ">
+		   <![CDATA[ and pos_date <=#{param.posDate_end} ]]>   </if>   
+		<if test="param.posCreateDate_sta !=null and param.posCreateDate_sta != '' ">
+		   <![CDATA[ and pos_create_date >=#{param.posCreateDate_sta} ]]>   </if>        
+		<if test="param.posCreateDate_end !=null and param.posCreateDate_end != '' ">
+		   <![CDATA[ and pos_create_date <=#{param.posCreateDate_end} ]]>   </if>       
+
+	</select>
+	
+	<insert id="addHxPostage" parameterType="com.gome.gmhx.entity.HxPostage">
+		insert into hx_postage(pos_id,pos_num,pos_content,pos_send_unit,pos_pay_unit,pos_weight,pos_receipt_unit,
+		            pos_money,pos_recipient,pos_address,pos_way,pos_handlers,pos_unit,pos_note,
+		            pos_date,pos_create_date)
+		     values(#{posId},#{posNum},#{posContent},#{posSendUnit},#{posPayUnit},#{posWeight},#{posReceiptUnit},
+		            #{posMoney},#{posRecipient},#{posAddress},#{posWay},#{posHandlers},#{posUnit},#{posNote},
+		            #{posDate},now())
+	</insert>
+	
+	<insert id="insertPostageBatch" parameterType="java.util.List">
+    INSERT INTO hx_postage 
+    (pos_id,pos_num,pos_content,pos_send_unit,pos_pay_unit,pos_weight,pos_receipt_unit,
+		            pos_money,pos_recipient,pos_address,pos_way,pos_handlers,pos_unit,pos_note,
+		            pos_date,pos_create_date)
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+     (#{item.posId,jdbcType=VARCHAR},#{item.posNum,jdbcType=VARCHAR},#{item.posContent,jdbcType=VARCHAR},#{item.posSendUnit,jdbcType=VARCHAR},#{item.posPayUnit,jdbcType=VARCHAR},
+     #{item.posWeight,jdbcType=VARCHAR},#{item.posReceiptUnit,jdbcType=VARCHAR},#{item.posMoney,jdbcType=DECIMAL},#{item.posRecipient,jdbcType=REAL},#{item.posAddress,jdbcType=REAL},
+     #{item.posWay,jdbcType=REAL},#{item.posHandlers,jdbcType=REAL},#{item.posUnit,jdbcType=VARCHAR},#{item.posNote,jdbcType=INTEGER},#{item.posDate,jdbcType=INTEGER},
+     #{item.posCreateDate,jdbcType=TIMESTAMP})
+    </foreach>
+  </insert>
+	
+	<select id="getHxPostageById" parameterType="string" resultMap="BaseResultMap">
+		SELECT * FROM hx_postage where pos_id=#{posId}
+	</select>
+	
+	<update id="updateHxPostage" parameterType="com.gome.gmhx.entity.HxPostage">
+		UPDATE hx_postage SET pos_content=#{posContent},pos_num=#{posNum},pos_send_unit=#{posSendUnit},pos_pay_unit=#{posPayUnit},
+		pos_weight=#{posWeight},pos_receipt_unit=#{posReceiptUnit},pos_money=#{posMoney},pos_recipient=#{posRecipient},
+		pos_address=#{posAddress},pos_way=#{posWay},pos_handlers=#{posHandlers},pos_unit=#{posUnit},pos_note=#{posNote},
+		pos_date=#{posDate},pos_update_date=now()
+	    where pos_id=#{posId}
+	</update>
+	
+	 <select id="getHxPostageExport" parameterType="com.gome.gmhx.entity.HxPostage" resultType="hashmap">
+	  SELECT a.pos_num,a.pos_content,a.pos_send_unit,a.pos_pay_unit,a.pos_weight,a.pos_update_date,
+		   a.pos_receipt_unit,a.pos_money,a.pos_recipient,a.pos_address,a.pos_handlers,a.pos_unit,
+		   a.pos_note,a.pos_date,a.pos_create_date,
+		   (select code_value from v_code where code_id='yjfs' and a.pos_way=code_key )pos_way 
+	  FROM hx_postage a where 1=1
+	 </select>
+	 
+	 <select id="getShowById" parameterType="string" resultMap="BaseResultMap">
+	 SELECT a.pos_id,a.pos_num,a.pos_content,a.pos_weight,a.pos_update_date,
+		a.pos_receipt_unit,a.pos_money,a.pos_recipient,a.pos_address,a.pos_handlers,a.pos_unit,
+		a.pos_note,a.pos_date,a.pos_create_date,
+		(select code_value from v_code where code_id='jg' and a.pos_pay_unit=code_key )pos_pay_unit,
+		(select code_value from v_code where code_id='jg' and a.pos_send_unit=code_key )pos_send_unit,  
+		(select code_value from v_code where code_id='yjfs' and a.pos_way=code_key )pos_way 
+		FROM hx_postage a  WHERE a.pos_id=#{posId}
+	 </select>
+	 
+	  <delete id="deleteHxPostage" parameterType="string" >
+      delete from hx_postage where pos_id=#{posId}
+      </delete>
+      
+      <select id="validatePosNum" parameterType="string" resultType="int">
+    	select count(*) from hx_postage where pos_num = #{posNum}
+      </select>
+      
+	
+</mapper>

@@ -1,0 +1,534 @@
+package com.gome.gmhx.service.common.impl;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.stereotype.Service;
+
+import com.gome.common.util.BeanTool;
+import com.gome.common.util.UUIDGenerator;
+import com.gome.gmhx.dao.basicdata.HxCodeDao;
+import com.gome.gmhx.dao.storeinfo.HxCurrentStockDao;
+import com.gome.gmhx.dao.sysconfig.HxPositionDao;
+import com.gome.gmhx.dao.sysconfig.HxRoleDao;
+import com.gome.gmhx.dao.wsdl.EccDao;
+import com.gome.gmhx.entity.BarCode;
+import com.gome.gmhx.entity.Brand;
+import com.gome.gmhx.entity.EccGoods;
+import com.gome.gmhx.entity.HxBarCodeRules;
+import com.gome.gmhx.entity.HxCode;
+import com.gome.gmhx.entity.HxCodeBar;
+import com.gome.gmhx.entity.HxCurrentStock;
+import com.gome.gmhx.entity.HxFeeMoveMachine;
+import com.gome.gmhx.entity.HxFitting;
+import com.gome.gmhx.entity.HxFittingFaultCode;
+import com.gome.gmhx.entity.HxFittingLocation;
+import com.gome.gmhx.entity.HxFittingModel;
+import com.gome.gmhx.entity.HxFree;
+import com.gome.gmhx.entity.HxGoodbill;
+import com.gome.gmhx.entity.HxMaintenance;
+import com.gome.gmhx.entity.HxPostage;
+import com.gome.gmhx.entity.HxProductDetail;
+import com.gome.gmhx.entity.HxRole;
+import com.gome.gmhx.entity.HxSetupeFree;
+import com.gome.gmhx.entity.vo.HxPositionJbpmVO;
+import com.gome.gmhx.entity.vo.HxRoleAuthorityVO;
+import com.gome.gmhx.service.common.ExcelImportService;
+@Service("excelImportService")
+public class ExcelImportServiceImpl implements ExcelImportService {
+	
+	public  Map<String, String> CODEMAP = new HashMap<String, String>();
+	@Resource
+	private  HxCodeDao hxCodeDao;
+	
+	@Resource
+	private  HxRoleDao hxRoleDao;
+	
+	@Resource
+	private HxPositionDao hxPositionDao;
+	
+	@Resource
+	private EccDao eccDao;
+	
+	public void getAllCode(){
+		List<HxCode> list=hxCodeDao.getAll();
+		for(HxCode code:list){
+			CODEMAP.put(code.getCodeId()+"_"+code.getCodeValue(), code.getCodeKey());
+		}
+	}
+	
+    public Map<String, String> getCODEMAP() {
+		return CODEMAP;
+	}
+
+	public void setCODEMAP(Map<String, String> cODEMAP) {
+		CODEMAP = cODEMAP;
+	}
+	
+	@Resource
+	SqlSessionTemplate sqlSessionTemplate;
+	@Resource
+	private HxCurrentStockDao hxCurrentStockDao;
+	private String[] productDetailPropery = { "classifyCode", "productCode",
+			"matnr", "productName", "englishName", "model", "modelClassify",
+			"productModel", "brand", "gomeCode", "isNew", "isPreferential",
+			"installationFee", "spec", "price", "refrigeration", "comment" };
+	private String[] barCodeRules = { "gomeCode", "category", "barCodeNumber",
+			"insideMachine", "insideMachineContent", "insideMachineOne",
+			"insideMachineContentOne", "insideMachineTwo",
+			"insideMachineContentTwo", "outsideMachine",
+			"outsideMachineContent", "outsideMachineOne",
+			"outsideMachineContentOne", "outsideMachineTwo",
+			"outsideMachineContentTwo", "note" };
+	private String[] fittingPropery = { "fittingCode", "fittingName",
+			"fittingType", "partsCode", "spec", "produceType","brand", "gomeCode",
+			"fittingLevel", "cost", "networkPrice", "branchPrice", "userPrice",
+			"comment", "term", "isRetrieve", "isStop"};
+	private String[] fittingModelPropery = { "fittingCode", "suitModel",
+			"comment" };
+	private String[] fittingFaultCodePropery = { "fittingCode", "faultCode",
+	"comment" };
+	private String[] maintenancePropery = { "category", "parentCode",
+			"faultCode", "faultName", "PNumber",
+			"maintenanceCosts", "wetUnion", "note" };
+	private String[] codeBarPropery = { "compareType", "innerCode1",
+			"innerCode2", "outerCode", "innerModel1", "innerModel2",
+			"outerModel", "wholeModel", "codeBegin","brand", "comment"};
+	private String[] freePropery = { "model", "expenseStandard", "managerFee",
+			"monthlyBonus", "brand"};
+	private String[] setupFreePrppery = { "model", "freeOrganization",
+			"freeCost", "managerCost", "brand"};
+	private String[] feeMoveMachinePropery = { "classifyCode", "wholefee",
+			"innerfee", "outerfee", "operationType" };
+	private String[] barCodePropery = { "barCode", "machineType" };
+	private String[] brandPropery = { "gm_code", "brand", "note"};
+	private String[] goodBillPrppery = { "gsxx01", "gsmc", "thdh", "khmc", "spbm",
+			"xsje", "fph", "jzrq", "bmmc", "yyymc", "zpbj", "spflmc", "ppbmc",
+			"shuliang" };
+	private String[] currentStockProperty = { "orgId", "type", "fittingCode",
+			"stock", "countWay", "isNew" };
+	private String[] fittingLocationPropery = { "organizationName",
+			"materialType", "fittingsCode", "location", "note" };
+	private String[] postagePropery = { "posSendUnit", "posReceiptUnit",
+			"posRecipient", "posAddress", "posPayUnit", "posNum", "posWay",
+			"posDate", "posContent", "posUnit", "posWeight", "posMoney",
+			"posHandlers", "posNote" };
+    private String[] rolePropery={"roleId","roleName","roleDesc"};	
+    private String[] positionJbpmPropery_hx={"positionCode","positionName","roleId","orgId","jbpmRoleCode","jbpmRoleName"};
+    private String[] positionJbpmPropery_gome={"positionCode","roleId","jbpmRoleCode","jbpmRoleName"};
+    private String[] roleAuthorityPropery={"roleId","roleName","roleDesc","menuId","fittingAuthId","categoryId"};
+    
+	@Override
+	public void importHxProductDetail(Workbook workbook) {
+		Sheet st= workbook.getSheetAt(0);
+		List<Object> hxProductDetails= this.xSSFSheetToObjectList(st, new HxProductDetail(), productDetailPropery);
+		getAllCode();
+		for(Object o: hxProductDetails){
+			HxProductDetail productDetail=(HxProductDetail) o;
+			if(CODEMAP.get("gmdm_"+productDetail.getGomeCode())!=null && !"".equals(CODEMAP.get("gmdm_"+productDetail.getGomeCode()).trim()))
+			        productDetail.setGomeCode(CODEMAP.get("gmdm_"+productDetail.getGomeCode()));
+			if(CODEMAP.get("cplx_"+productDetail.getProductModel())!=null && !"".equals(CODEMAP.get("cplx_"+productDetail.getProductModel()).trim()))
+			        productDetail.setProductModel(CODEMAP.get("cplx_"+productDetail.getProductModel()));
+			if(CODEMAP.get("pp_"+productDetail.getBrand())!=null && !"".equals(CODEMAP.get("pp_"+productDetail.getBrand()).trim()))
+		        productDetail.setBrand(CODEMAP.get("pp_"+productDetail.getBrand()));
+		}
+		if (hxProductDetails != null && hxProductDetails.size() > 0)
+			this.sqlSessionTemplate.insert("com.gome.gmhx.dao.basicdata.HxProductDetailDao.insertBatch",hxProductDetails);
+	}
+	
+	@Override
+	public void importBarCodeRules(Workbook workbook) {
+		Sheet st= workbook.getSheetAt(0);
+		List<Object> hxBarCodeRules= this.xSSFSheetToObjectList(st, new HxBarCodeRules(), barCodeRules);
+		getAllCode();
+		for(Object o: hxBarCodeRules){
+			HxBarCodeRules barCodeRules=(HxBarCodeRules) o;
+			if(CODEMAP.get("gmdm_"+barCodeRules.getGomeCode())!=null && !"".equals(CODEMAP.get("gmdm_"+barCodeRules.getGomeCode().trim())))
+				barCodeRules.setGomeCode(CODEMAP.get("gmdm_"+barCodeRules.getGomeCode()));
+			if(CODEMAP.get("wxpl_"+barCodeRules.getCategory())!=null && !"".equals(CODEMAP.get("wxpl_"+barCodeRules.getCategory().trim())))
+				barCodeRules.setCategory(CODEMAP.get("wxpl_"+barCodeRules.getCategory()));
+		}
+		if (hxBarCodeRules != null && hxBarCodeRules.size() > 0)
+		    this.sqlSessionTemplate.insert("com.gome.gmhx.dao.basicdata.HxBarCodeRulesDao.insertBatch", hxBarCodeRules);
+	}
+	
+	@Override
+	public void importHxFitting(Workbook workbook) {
+		Sheet st= workbook.getSheetAt(0);
+		List<Object> hxFittings = this.xSSFSheetToObjectList(st, new HxFitting(), fittingPropery);
+		getAllCode();
+		for(Object o: hxFittings){
+			HxFitting fitting=(HxFitting) o;
+			if(CODEMAP.get("pjfl_"+fitting.getFittingType())!=null && !"".equals(CODEMAP.get("pjfl_"+fitting.getFittingType().trim())))
+			       fitting.setFittingType(CODEMAP.get("pjfl_"+fitting.getFittingType()));
+			if(CODEMAP.get("sclx_"+fitting.getProduceType())!=null && !"".equals(CODEMAP.get("sclx_"+fitting.getProduceType().trim())))
+			       fitting.setProduceType(CODEMAP.get("sclx_"+fitting.getProduceType()));
+			if(CODEMAP.get("gmdm_"+fitting.getGomeCode())!=null && !"".equals(CODEMAP.get("gmdm_"+fitting.getGomeCode().trim())))
+			       fitting.setGomeCode(CODEMAP.get("gmdm_"+fitting.getGomeCode()));
+			if(CODEMAP.get("pp_"+fitting.getBrand())!=null && !"".equals(CODEMAP.get("pp_"+fitting.getBrand()).trim()))
+				fitting.setBrand(CODEMAP.get("pp_"+fitting.getBrand()));
+		}
+		if (hxFittings != null && hxFittings.size() > 0)
+		    this.sqlSessionTemplate.insert("com.gome.gmhx.dao.basicdata.HxFittingDao.insertFittingDetailBatch", hxFittings);
+	}
+	
+	@Override
+	public void importHxFittingModel(Workbook workbook) {
+		Sheet st= workbook.getSheetAt(0);
+		List<Object> hxFittingModels = this.xSSFSheetToObjectList(st, new HxFittingModel(), fittingModelPropery);
+		if (hxFittingModels != null && hxFittingModels.size() > 0)
+		    this.sqlSessionTemplate.insert("com.gome.gmhx.dao.basicdata.HxFittingDao.insertFittingModelBatch", hxFittingModels);
+	}
+	
+
+	@Override
+	public void importHxFittingFaultCode(Workbook workbook) {
+		Sheet st= workbook.getSheetAt(0);
+		List<Object> hxFittingFaultCodes = this.xSSFSheetToObjectList(st, new HxFittingFaultCode(), fittingFaultCodePropery);
+		if (hxFittingFaultCodes != null && hxFittingFaultCodes.size() > 0)
+		    this.sqlSessionTemplate.insert("com.gome.gmhx.dao.basicdata.HxFittingDao.insertFittingFaultCodeBatch", hxFittingFaultCodes);
+	}
+
+	@Override
+	public void importHxMaintenance(Workbook workbook) {
+		Sheet st= workbook.getSheetAt(0);
+		List<Object> hxMaintenances = this.xSSFSheetToObjectList(st, new HxMaintenance(), maintenancePropery);
+		getAllCode();
+		for(Object o:hxMaintenances){
+			HxMaintenance maintenance=(HxMaintenance) o;
+			if(CODEMAP.get("sf_"+maintenance.getWetUnion())!=null && !"".equals(CODEMAP.get("sf_"+maintenance.getWetUnion()).trim()))
+			     maintenance.setWetUnion(CODEMAP.get("sf_"+maintenance.getWetUnion()));
+			if(CODEMAP.get("sf_"+maintenance.getChose())!=null && !"".equals(CODEMAP.get("sf_"+maintenance.getChose()).trim()))
+			     maintenance.setChose(CODEMAP.get("sf_"+maintenance.getChose()));
+			if(CODEMAP.get("sf_"+maintenance.getWetEnable())!=null && !"".equals(CODEMAP.get("sf_"+maintenance.getWetEnable()).trim()))
+			     maintenance.setWetEnable(CODEMAP.get("sf_"+maintenance.getWetEnable()));
+			if(CODEMAP.get("wxpl_"+maintenance.getCategory())!=null && !"".equals(CODEMAP.get("wxpl_"+maintenance.getCategory()).trim()))
+			     maintenance.setCategory(CODEMAP.get("wxpl_"+maintenance.getCategory()));
+			if(CODEMAP.get("ktps_"+maintenance.getPNumber())!=null && !"".equals(CODEMAP.get("ktps_"+maintenance.getPNumber()).trim()))
+			     maintenance.setPNumber(CODEMAP.get("ktps_"+maintenance.getPNumber()));
+		}		
+		if (hxMaintenances != null && hxMaintenances.size() > 0)
+		    this.sqlSessionTemplate.insert("com.gome.gmhx.dao.basicdata.HxMaintenanceDao.insertMaintenanceBatch", hxMaintenances);
+	}
+
+	@Override
+	public void importHxCodeBar(Workbook workbook) {
+		Sheet st= workbook.getSheetAt(0);
+		List<Object> HxCodeBars = this.xSSFSheetToObjectList(st, new HxCodeBar(), codeBarPropery);
+		getAllCode();
+		for(Object o:HxCodeBars){
+			HxCodeBar codeBar=(HxCodeBar) o;
+			if(CODEMAP.get("dzlx_"+codeBar.getCompareType())!=null && !"".equals(CODEMAP.get("dzlx_"+codeBar.getCompareType()).trim()))
+				codeBar.setCompareType(CODEMAP.get("dzlx_"+codeBar.getCompareType()));
+			if(CODEMAP.get("pp_"+codeBar.getBrand())!=null && !"".equals(CODEMAP.get("pp_"+codeBar.getBrand()).trim()))
+				codeBar.setBrand(CODEMAP.get("pp_"+codeBar.getBrand()));
+		}
+		if (HxCodeBars != null && HxCodeBars.size() > 0)
+		    this.sqlSessionTemplate.insert("com.gome.gmhx.dao.basicdata.HxCodeBarDao.insertCodeBarBatch", HxCodeBars);
+	}
+
+	@Override
+	public void importHxFree(Workbook workbook) {
+		Sheet st= workbook.getSheetAt(0);
+		List<Object> HxFrees = this.xSSFSheetToObjectList(st, new HxFree(), freePropery);
+		getAllCode();
+		for(Object o:HxFrees){
+			HxFree free=(HxFree) o;
+			if(CODEMAP.get("pp_"+free.getBrand())!=null && !"".equals(CODEMAP.get("pp_"+free.getBrand()).trim()))
+				free.setBrand(CODEMAP.get("pp_"+free.getBrand()));
+		}
+		if (HxFrees != null && HxFrees.size() > 0)
+		    this.sqlSessionTemplate.insert("com.gome.gmhx.dao.basicdata.HxFreeDao.insertFreeBatch", HxFrees);
+	}
+
+	@Override
+	public void importHxSetupeFree(Workbook workbook) {
+		Sheet st= workbook.getSheetAt(0);
+		List<Object> hxSetupeFrees= this.xSSFSheetToObjectList(st, new HxSetupeFree(), setupFreePrppery);
+		getAllCode();
+		for(Object o:hxSetupeFrees){
+			HxSetupeFree setupFree=(HxSetupeFree) o;
+			if(CODEMAP.get("jx_"+setupFree.getModel())!=null && !"".equals(CODEMAP.get("jx_"+setupFree.getModel()).trim()))
+				setupFree.setModel(CODEMAP.get("jx_"+setupFree.getModel()));
+			if(CODEMAP.get("pp_"+setupFree.getBrand())!=null && !"".equals(CODEMAP.get("pp_"+setupFree.getBrand()).trim()))
+				setupFree.setBrand(CODEMAP.get("pp_"+setupFree.getBrand()));
+			if(CODEMAP.get("jg_"+setupFree.getFreeOrganization())!=null && !"".equals(CODEMAP.get("jg_"+setupFree.getFreeOrganization()).trim()))
+				setupFree.setFreeOrganization(CODEMAP.get("jg_"+setupFree.getFreeOrganization()));
+		}
+		if (hxSetupeFrees != null && hxSetupeFrees.size() > 0)
+		    this.sqlSessionTemplate.insert("com.gome.gmhx.dao.basicdata.HxSetupeFreeDao.insertSetupeFreeBatch", hxSetupeFrees);
+	}
+
+	@Override
+	public void importHxFeeMoveMachine(Workbook workbook) {
+		Sheet st= workbook.getSheetAt(0);
+		List<Object> hxFeeMoveMachines= this.xSSFSheetToObjectList(st, new HxFeeMoveMachine(), feeMoveMachinePropery);
+		if (hxFeeMoveMachines != null && hxFeeMoveMachines.size() > 0)
+		    this.sqlSessionTemplate.insert("com.gome.gmhx.dao.basicdata.HxMoveChangeCheckoutDao.insertFeeMoveMachineBatch", hxFeeMoveMachines);
+	}
+
+
+	@Override
+	public void importHxBarCode(Workbook workbook) {
+		Sheet st= workbook.getSheetAt(0);
+		List<Object> barCodes= this.xSSFSheetToObjectList(st, new BarCode(), barCodePropery);
+		if (barCodes != null && barCodes.size() > 0)
+		    this.sqlSessionTemplate.insert("com.gome.gmhx.dao.basicdata.HxBarCodeDao.insertBarCodeBatch", barCodes);
+	}
+	
+
+	@Override
+	public void importBrand(Workbook workbook) {
+		Sheet st= workbook.getSheetAt(0);
+		List<Object> brands = this.xSSFSheetToObjectList(st, new Brand(), brandPropery);
+		getAllCode();
+		for(Object o:brands){
+			Brand brand=(Brand) o;
+			if(CODEMAP.get("gmdm_"+brand.getGm_code())!=null && !"".equals(CODEMAP.get("gmdm_"+brand.getGm_code()).trim()))
+				brand.setGm_code(CODEMAP.get("gmdm_"+brand.getGm_code()));
+			if(CODEMAP.get("pp_"+brand.getBrand())!=null && !"".equals(CODEMAP.get("pp_"+brand.getBrand()).trim()))
+				brand.setBrand(CODEMAP.get("pp_"+brand.getBrand()));
+		}
+		if (brands != null && brands.size() > 0)
+		    this.sqlSessionTemplate.insert("com.gome.gmhx.dao.basicdata.BrandDao.insertBrandBatch", brands);
+	}
+	
+	@Override
+	public void importHxGoodbill(Workbook workbook) {
+		Sheet st= workbook.getSheetAt(0);
+		List<Object> hxGoodbills = this.xSSFSheetToObjectList(st, new HxGoodbill(), goodBillPrppery);
+		if (hxGoodbills != null && hxGoodbills.size() > 0)
+		    this.sqlSessionTemplate.insert("com.gome.gmhx.dao.basicdata.HxGoodbillDao.insertGoodbillBatch", hxGoodbills);
+	}
+
+	@Override
+	public void importHxFittingLocation(Workbook workbook) {
+		Sheet st= workbook.getSheetAt(0);
+		List<Object> hxFittingLocations = this.xSSFSheetToObjectList(st, new HxFittingLocation(), fittingLocationPropery);
+		getAllCode();
+		for(Object o:hxFittingLocations){
+			HxFittingLocation fittingLocation=(HxFittingLocation) o;
+			if(CODEMAP.get("jg_"+fittingLocation.getOrganizationName())!=null && !"".equals(CODEMAP.get("jg_"+fittingLocation.getOrganizationName().trim())))
+			        fittingLocation.setOrganizationName(CODEMAP.get("jg_"+fittingLocation.getOrganizationName()));
+			if(CODEMAP.get("pjbm_"+fittingLocation.getFittingsCode())!=null && !"".equals(CODEMAP.get("pjbm_"+fittingLocation.getFittingsCode().trim())))
+			        fittingLocation.setFittingsCode(CODEMAP.get("pjbm_"+fittingLocation.getFittingsCode()));
+			if(CODEMAP.get("wllx_"+fittingLocation.getMaterialType())!=null && !"".equals(CODEMAP.get("wllx_"+fittingLocation.getMaterialType().trim())))
+			        fittingLocation.setMaterialType(CODEMAP.get("wllx_"+fittingLocation.getMaterialType()));
+		}
+		if (hxFittingLocations != null && hxFittingLocations.size() > 0)
+		    this.sqlSessionTemplate.insert("com.gome.gmhx.dao.basicdata.HxFittingLocationDao.insertFittingLocationBatch", hxFittingLocations);
+	}
+	
+	@Override
+	public void importHxPostage(Workbook workbook) {
+		Sheet st= workbook.getSheetAt(0);		
+		List<Object> hxPostages = this.xSSFSheetToObjectList(st, new HxPostage(), postagePropery);
+		getAllCode();
+		for(Object o:hxPostages){
+			HxPostage postage=(HxPostage) o;
+			if(CODEMAP.get("jg_"+postage.getPosPayUnit())!=null && !"".equals(CODEMAP.get("jg_"+postage.getPosPayUnit()).trim()))
+			       postage.setPosPayUnit(CODEMAP.get("jg_"+postage.getPosPayUnit()));
+			if(CODEMAP.get("jg_"+postage.getPosSendUnit())!=null && !"".equals(CODEMAP.get("jg_"+postage.getPosSendUnit()).trim()))
+			       postage.setPosSendUnit(CODEMAP.get("jg_"+postage.getPosSendUnit()));
+			if(CODEMAP.get("yjfs_"+postage.getPosWay())!=null && !"".equals(CODEMAP.get("yjfs_"+postage.getPosWay()).trim()))
+			       postage.setPosWay(CODEMAP.get("yjfs_"+postage.getPosWay()));
+		}
+		if (hxPostages != null && hxPostages.size() > 0)
+		    this.sqlSessionTemplate.insert("com.gome.gmhx.dao.basicdata.HxPostageDao.insertPostageBatch", hxPostages);
+	}
+
+	@Override
+	public void importHxRole(Workbook workbook) {
+		Sheet st= workbook.getSheetAt(0);		
+		List<Object> hxRoles = this.xSSFSheetToObjectList(st, new HxRole(), rolePropery);
+		List<String> allRoleids=hxRoleDao.getAllRole();
+		for(Object o:hxRoles){
+			HxRole role=(HxRole) o;
+			if(allRoleids!=null && allRoleids.contains(role.getRoleId())){
+				throw new ArrayIndexOutOfBoundsException("重复的角色编码!");
+			}
+		}
+		if (hxRoles != null && hxRoles.size() > 0)
+		    this.sqlSessionTemplate.insert("com.gome.gmhx.dao.sysconfig.HxRoleDao.insertRoleBatch", hxRoles);
+	}
+
+	@Override
+	public void importHxRoleAuthority(Workbook workbook) {
+		Sheet st= workbook.getSheetAt(0);
+		List<Object> hxRoleAuthoritys = this.xSSFSheetToObjectList(st, new HxRoleAuthorityVO(), roleAuthorityPropery);
+		List<HxRoleAuthorityVO> roleFittingAuthList=new ArrayList<HxRoleAuthorityVO>();
+		List<HxRoleAuthorityVO> roleMenuList=new ArrayList<HxRoleAuthorityVO>();  // 父子菜单特殊处理
+		List<HxRoleAuthorityVO> roleCategoryList=new ArrayList<HxRoleAuthorityVO>(); 
+		for(Object o:hxRoleAuthoritys){
+			HxRoleAuthorityVO roleAuthority=(HxRoleAuthorityVO) o;
+			Set<String> set_goods=new HashSet<String>();   //防止重复的父菜单
+			Set<String> set_menu=new HashSet<String>();
+			if(roleAuthority.getRoleId()!=null && !"".equals(roleAuthority.getRoleId().trim())){
+				if(roleAuthority.getCategoryId()!=null && !"".equals(roleAuthority.getCategoryId().trim())){
+					String categorys[]=roleAuthority.getCategoryId().split(",");
+					if(categorys!=null &&categorys.length>0){
+						for(String category:categorys){
+							EccGoods eccGoods=eccDao.getEccGoodsByMATKL(category);
+							if (eccGoods != null){
+								set_goods.add(eccGoods.getMatkl());
+								set_goods.add(eccGoods.getClass1());
+								set_goods.add(eccGoods.getClass2());
+								set_goods.add(eccGoods.getClass3());
+							}
+						}
+					}
+				}
+				for(String categoryId:set_goods){
+					if(!"".equals(categoryId))
+						roleCategoryList.add(new HxRoleAuthorityVO(roleAuthority.getRoleId(),null,categoryId,null));
+					
+				}
+				
+				if(roleAuthority.getFittingAuthId()!=null && !"".equals(roleAuthority.getFittingAuthId().trim())){
+					String fittingAuths[]=roleAuthority.getFittingAuthId().split(",");
+					if(fittingAuths!=null && fittingAuths.length>0){
+						for(String fittingauth:fittingAuths){
+							if(!"".equals(fittingauth))
+							   roleFittingAuthList.add(new HxRoleAuthorityVO(roleAuthority.getRoleId(), null, null, fittingauth));
+						}
+					}
+				}
+				if(roleAuthority.getMenuId()!=null && !"".equals(roleAuthority.getMenuId().trim())){
+					String menus[]=roleAuthority.getMenuId().split(",");
+					if(menus!=null && menus.length>0){
+						for(String menu:menus){
+							String parentIds=hxPositionDao.getParentList(menu);
+							if(parentIds!=null && !"".equals(parentIds.trim())){
+								String splits[]=parentIds.split(",");
+								for(String menuId:splits){
+									set_menu.add(menuId);  // 防止重复的父菜单
+								}
+								
+							}
+						}
+					}
+				}
+				for(String menuId1:set_menu){
+					if(!"0".equals(menuId1) && !"".equals(menuId1))
+						roleMenuList.add(new HxRoleAuthorityVO(roleAuthority.getRoleId(),menuId1,null,null));
+				}
+			}
+		}
+        if(hxRoleAuthoritys!=null && hxRoleAuthoritys.size()>0)
+        	this.sqlSessionTemplate.insert("com.gome.gmhx.dao.sysconfig.HxRoleDao.insertRoleBatch", hxRoleAuthoritys);
+		if(roleCategoryList!=null && roleCategoryList.size()>0)
+			this.sqlSessionTemplate.insert("com.gome.gmhx.dao.sysconfig.HxRoleMenuDao.insertRoleCategoryBatch", roleCategoryList);
+		if(roleFittingAuthList!=null && roleFittingAuthList.size()>0)
+			this.sqlSessionTemplate.insert("com.gome.gmhx.dao.sysconfig.HxRoleMenuDao.insertRoleFittingAuthBatch", roleFittingAuthList);
+		if(roleMenuList!=null && roleMenuList.size()>0)
+			this.sqlSessionTemplate.insert("com.gome.gmhx.dao.sysconfig.HxRoleMenuDao.insertRoleMenuBatch", roleMenuList);
+	}
+	
+	// 岗位管理-恒信,权限
+	@Override
+	public void importHxPosition(Workbook workbook, String positionOrigin) {
+		Sheet st = workbook.getSheetAt(0);
+		List<Object> hxPositionJbpms = null;
+		if("hx".equals(positionOrigin)){
+			hxPositionJbpms = this.xSSFSheetToObjectList(st, new HxPositionJbpmVO(), positionJbpmPropery_hx);
+			for(Object o:hxPositionJbpms){
+				HxPositionJbpmVO positionJpbm=(HxPositionJbpmVO) o;
+				positionJpbm.setId(UUIDGenerator.getUUID());
+				positionJpbm.setModifyDate(new Date());
+				positionJpbm.setPositionOrigin("hx");
+			}
+			this.sqlSessionTemplate.insert("com.gome.gmhx.dao.sysconfig.HxPositionDao.insertPositionBatch", hxPositionJbpms);
+		}else{
+			hxPositionJbpms = this.xSSFSheetToObjectList(st, new HxPositionJbpmVO(), positionJbpmPropery_gome);
+			for(Object o:hxPositionJbpms){
+				HxPositionJbpmVO positionJpbm=(HxPositionJbpmVO) o;
+				positionJpbm.setId(UUIDGenerator.getUUID());
+				positionJpbm.setModifyDate(new Date());
+				positionJpbm.setPositionOrigin("gome");
+			}
+		}
+		if(hxPositionJbpms!=null && hxPositionJbpms.size()>0){
+			this.sqlSessionTemplate.delete("com.gome.gmhx.dao.sysconfig.HxPositionDao.deletePositionRoleByPositionIdBatch", hxPositionJbpms);
+	        this.sqlSessionTemplate.insert("com.gome.gmhx.dao.sysconfig.HxPositionDao.insertPositionRoleBatch", hxPositionJbpms);
+	        this.sqlSessionTemplate.insert("com.gome.gmhx.dao.sysconfig.HxPositionDao.insertPositionMappingBatch", hxPositionJbpms);
+		}
+	}
+
+
+	private List<Object> xSSFSheetToObjectList(Sheet sheet,Object src,String[] properies){
+		List<Object> objList = new ArrayList<Object>();
+		try{
+			for(int i=1;i<=sheet.getLastRowNum();i++){
+				Row row = sheet.getRow(i);
+				Object cloneObj = src.getClass().newInstance();
+				objList.add(cloneObj);
+				for(int index=0;index<row.getLastCellNum();index++){
+					Cell cell = row.getCell(index);
+					String value = null;
+					if(cell!=null){
+						 switch (cell.getCellType()) {
+			               case XSSFCell.CELL_TYPE_STRING:
+			                   value = cell.getStringCellValue();
+			                   break;
+			               case XSSFCell.CELL_TYPE_NUMERIC:
+			                      value = new DecimalFormat("0").format(cell.getNumericCellValue());
+			                   break;
+			               case XSSFCell.CELL_TYPE_FORMULA:
+			                      value = cell.getNumericCellValue() + "";
+			                   break;
+			               case XSSFCell.CELL_TYPE_BLANK:
+			                   break;
+			               case XSSFCell.CELL_TYPE_ERROR:
+			                   value = "";
+			                   break;
+			               case XSSFCell.CELL_TYPE_BOOLEAN:
+			                   value = cell.getBooleanCellValue()+"";
+			                   break;
+			               default:
+			                   value = null;
+			               }
+					}
+					// 约束：若该行的第一列的字段值为空值，则该行不导入
+					if(index==0&&(value==null||"".equals(value))){
+						objList.remove(cloneObj);
+						break;
+					}
+					// 约束：若该列名没有名称，则该列不解析
+					if(properies[index]==null || "".equals(properies[index])){
+						continue;
+					}
+					BeanTool.setAttributeByString(cloneObj,properies[index], value);
+				}
+			}
+		}catch(Exception e){
+			throw new RuntimeException(e);
+		}
+		return objList;
+	}
+	
+	@Override
+	public void importStocks(Workbook workbook) {
+		Sheet st= workbook.getSheetAt(0);
+		List<Object> hxCurrentStocks = this.xSSFSheetToObjectList(st, new HxCurrentStock(), currentStockProperty);
+		//存在则更新，先删再加
+		for (Object object : hxCurrentStocks) {
+			hxCurrentStockDao.deleteStock((HxCurrentStock)object);
+		}
+		if(hxCurrentStocks!=null && hxCurrentStocks.size()>0)
+		   this.sqlSessionTemplate.insert("com.gome.gmhx.dao.storeinfo.HxCurrentStockDao.insertStocksBatch", hxCurrentStocks);
+	}
+}

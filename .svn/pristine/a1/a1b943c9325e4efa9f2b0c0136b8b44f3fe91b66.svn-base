@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process key="MP07" name="MP07" xmlns="http://jbpm.org/4.4/jpdl">
+   <start g="300,29,48,48" name="start">
+      <transition to="S3"/>
+   </start>
+   <task g="279,132,92,52" name="S3">
+  	  <assignment-handler class="com.gome.gmhx.jbpm.JbpmAuthorityService"/>   
+      <transition g="-8,-15" name="T6" to="cancel"/>
+      <transition g="-16,-14" name="T2" to="S4"/>
+      <transition g="7,-17" name="T3" to="end1"/>
+   </task>
+   <end-cancel g="153,216,48,48" name="cancel"/>
+   <task g="279,238,92,52" name="S4">
+      <assignment-handler class="com.gome.gmhx.jbpm.JbpmAuthorityService"/>   
+      <transition g="-1,-12" name="T6" to="cancel"/>
+      <transition g="-50,-22" name="T3" to="end1"/>
+      <transition name="T2" to="S6" g="-35,-18"/>
+   </task>
+   <end g="449,229,48,48" name="end1"/>
+   <task name="S6" g="279,354,92,52" candidate-users="${applicant}">
+      <transition name="T4" to="end1" g="-8,-13"/>
+   </task>
+</process>

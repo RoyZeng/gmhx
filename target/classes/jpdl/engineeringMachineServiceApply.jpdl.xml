@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process key="SP04" name="SP04" xmlns="http://jbpm.org/4.4/jpdl">
+   <start g="282,47,48,48" name="start1">
+      <transition to="S3"/>
+   </start>
+   <end-cancel g="82,343,48,48" name="cancel1"/>
+   <end g="497,336,48,48" name="end1"/>
+   <task g="260,163,92,52" name="S3">
+   	  <assignment-handler class="com.gome.gmhx.jbpm.JbpmAuthorityService"/>   
+      <transition g="-52,-22" name="T2" to="S4"/>
+      <transition g="-42,7" name="T6" to="cancel1"/>
+      <transition g="-22,-20" name="T7" to="S10"/>
+      <transition g="-50,-22" name="T3" to="end1"/>
+   </task>
+   <task g="264,340,92,52" name="S4">
+   	  <assignment-handler class="com.gome.gmhx.jbpm.JbpmAuthorityService"/>   
+      <transition g="-64,-22" name="T6" to="cancel1"/>
+      <transition g="-70,-22" name="T2" to="GXJSBS"/>
+      <transition g="-50,-22" name="T3" to="end1"/>
+      <transition g="8,10" name="T7" to="S10"/>
+   </task>
+   <task candidate-users="applicant" g="58,169,92,52" name="S10">
+      <transition g="105,155;302,152:-52,-22" name="T1" to="S3"/>
+      <transition g="-26,-17" name="T6" to="cancel1"/>
+   </task>
+   <custom class="com.gome.gmhx.jbpm.activityBehaviour.ModifySuceessMarkBehaviour" g="267,482,92,52" name="GXJSBS">
+      <transition to="end1"/>
+   </custom>
+</process>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gome.gmhx.dao.basicdata.HxMoveChangeCheckoutDao">
+	<resultMap id="BaseResultMap" type="com.gome.gmhx.entity.HxFeeMoveMachine">
+	    <id property="feeID" column="fee_id" jdbcType="VARCHAR"/>
+	    <result property="classifyCode" column="classify_code" jdbcType="VARCHAR"/>
+	    <result property="wholefee" column="whole_fee" jdbcType="FLOAT"/>
+	    <result property="innerfee" column="inner_fee" jdbcType="FLOAT"/>	
+	    <result property="outerfee" column="outer_fee" jdbcType="FLOAT"/>	
+	    <result property="createUsername" column="create_username" jdbcType="VARCHAR"/>
+	    <result property="createDate" column="create_date" jdbcType="DATE"/>
+	    <result property="modifyUsername" column="modify_username" jdbcType="VARCHAR"/>
+	    <result property="modifyDate" column="modify_date" jdbcType="DATE"/>
+	    <result property="operationType" column="operation_type" jdbcType="VARCHAR"/>
+	</resultMap>
+	<!-- SELECT product.classify_name, fee.whole_fee, fee.inner_fee, fee.outer_fee from hx_fee_movemachine fee, hx_product_classify product where fee.classify_code=product.classify_code;
+	insert into hx_fee_movemachine(classify_code, whole_fee, inner_fee, outer_fee, create_username, create_date) values ('1.5PDL', 1100, 600, 500, 'test01', now()) -->
+	
+	<select id="getHxMoveChangePageList" parameterType="com.gome.common.page.Page" resultType="hashmap">
+		<!-- 
+		SELECT product.classify_name, fee_id, fee.whole_fee, fee.inner_fee, fee.outer_fee, fee.operation_type 
+		from hx_fee_movemachine fee, hx_product_classify product from hx_code_setting set
+			where fee.classify_code=product.classify_code 
+					AND set_id.code='mcm'
+		 -->			
+		SELECT product.classify_name, fee_id, fee.whole_fee, fee.inner_fee, fee.outer_fee, hx_code_setting.code_value as operation_type
+		FROM
+		hx_fee_movemachine AS fee
+		INNER JOIN hx_product_classify AS product ON fee.classify_code = product.classify_code ,
+		hx_code
+		INNER JOIN hx_code_setting ON hx_code_setting.code_id = hx_code.code_id 
+		WHERE
+		fee.classify_code = product.classify_code and hx_code_setting.code_id='mcm'
+		AND hx_code_setting.code_key = fee.operation_type
+				
+			<if test="param.classifyCode!= null and param.classifyCode!= '' ">
+		   		and fee.classify_code like CONCAT('%',#{param.classifyCode},'%')</if>
+		   	<if test="param.wholefee!= null and param.wholefee!= '' ">
+		   		and fee.whole_fee = #{param.wholefee, jdbcType=FLOAT}</if>
+		   	<if test="param.innerfee!= null and param.innerfee!= '' ">
+		   		and fee.inner_fee  = #{param.innerfee, jdbcType=FLOAT}</if>
+		   	<if test="param.outerfee!= null and param.outerfee!= '' ">
+		   		and fee.outer_fee = #{param.outerfee, jdbcType=FLOAT}</if>
+		   	<if test="param.operationType!= null and param.operationType!= '' ">
+		   		and hx_code_setting.code_key  like CONCAT('%',#{param.operationType,jdbcType=VARCHAR},'%')</if>
+	</select>
+	
+	<select id="getCheckoutExport" parameterType="com.gome.gmhx.entity.HxFeeMoveMachine" resultType="hashmap" >
+		SELECT
+			fee_id,
+			fee.classify_code,
+			fee.whole_fee,
+			fee.inner_fee,
+			fee.outer_fee,
+			fee.operation_type,
+			fee.create_username,
+		 	fee.create_date,
+		  	fee.modify_username,
+		  	fee.modify_date
+		FROM
+			hx_fee_movemachine AS fee
+		INNER JOIN hx_product_classify AS product ON fee.classify_code = product.classify_code,
+		 hx_code
+		INNER JOIN hx_code_setting ON hx_code_setting.code_id = hx_code.code_id
+		WHERE
+			fee.classify_code = product.classify_code
+		AND hx_code_setting.code_id = 'mcm'
+		AND hx_code_setting.code_key = fee.operation_type
+	</select>
+	
+	<select id="getCheckoutById" parameterType="string" resultMap="BaseResultMap">
+		SELECT
+			fee.fee_id,
+			product.classify_name as classify_code,
+			fee.whole_fee,
+			fee.inner_fee,
+			fee.outer_fee,
+			fee.create_username,
+			fee.create_date,
+			fee.modify_username,
+			fee.modify_date,
+			hx_code_setting.code_value as operation_type
+		FROM
+			hx_fee_movemachine AS fee
+		INNER JOIN hx_product_classify AS product ON fee.classify_code = product.classify_code
+		INNER JOIN hx_code_setting ON hx_code_setting.code_key = fee.operation_type
+		WHERE
+			fee_id =#{feeID,jdbcType=VARCHAR} AND hx_code_setting.code_id='mcm'
+	</select>
+	
+	<select id="getUpdateCheckoutById" parameterType="string" resultMap="BaseResultMap">
+		SELECT
+			fee.fee_id,
+			product.classify_code as classify_code,
+			fee.whole_fee,
+			fee.inner_fee,
+			fee.outer_fee,
+			fee.create_username,
+			fee.create_date,
+			fee.modify_username,
+			fee.modify_date,
+			hx_code_setting.code_key as operation_type
+		FROM
+			hx_fee_movemachine AS fee
+		INNER JOIN hx_product_classify AS product ON fee.classify_code = product.classify_code
+		INNER JOIN hx_code_setting ON hx_code_setting.code_key = fee.operation_type
+		WHERE
+			fee_id =#{feeID,jdbcType=VARCHAR} AND hx_code_setting.code_id='mcm'
+	</select>
+	
+	<sql id="Base_Column_List">
+	fee_id,classify_code,whole_fee,inner_fee,outer_fee,create_username,create_date,operation_type
+	</sql>
+	
+	<insert id="addMoveChangeCheckout" parameterType="com.gome.gmhx.entity.HxFeeMoveMachine">
+		insert into hx_fee_movemachine(fee_id, classify_code, whole_fee, inner_fee, outer_fee, create_username, create_date, operation_type)
+		     values(#{feeID},#{classifyCode},#{wholefee},#{innerfee},#{outerfee},#{createUsername},#{createDate}, #{operationType})
+	</insert>
+	
+	<insert id="insertFeeMoveMachineBatch" parameterType="java.util.List">
+     INSERT INTO hx_fee_movemachine (
+    <include refid="Base_Column_List" />
+    )
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+     (#{item.feeID,jdbcType=VARCHAR}, #{item.classifyCode,jdbcType=VARCHAR}, #{item.wholefee,jdbcType=FLOAT}, #{item.innerfee,jdbcType=FLOAT}, 
+      #{item.outerfee,jdbcType=FLOAT}, #{item.createUsername,jdbcType=VARCHAR}, #{item.createDate,jdbcType=DATE}, 
+      #{item.operationType,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+	
+	<update id="updateCheckout" parameterType="com.gome.gmhx.entity.HxFeeMoveMachine">
+		UPDATE  hx_fee_movemachine SET classify_code=#{classifyCode}, whole_fee=#{wholefee}, inner_fee=#{innerfee},
+			outer_fee=#{outerfee}, modify_username=#{modifyUsername},modify_date=#{modifyDate},
+			operation_type=  #{operationType}
+			WHERE fee_id = #{feeID}
+	</update>
+	<delete id="deleteMoveCheckout" parameterType="string">
+		delete from hx_fee_movemachine where fee_id = #{id,jdbcType=VARCHAR}; 
+	</delete>
+</mapper>

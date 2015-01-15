@@ -1,0 +1,246 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ include file="../../inc/header.jsp"%>
+<%@ include file="../../inc/resource.inc"%>
+<script type="text/javascript">
+	$(function() {
+		$(function() {
+			parent.$.messager.progress('close');
+
+			var s = "${map.service_status}";
+			if(s!="S1"){
+				$("#affirm").hide();
+				$("#update").hide();
+			}
+		});
+		
+		$('#troubleGrid').datagrid({
+			url : "${ctx}/repairReceipt/getRepairReceiptTroubles/${map.service_id}",
+			title : "故障栏",
+			striped : true,
+			collapsible : true,
+			autoRowHeight : false,
+			remoteSort : false,
+			rownumbers : true,
+			fitColumns : true,
+			columns : [ [ {field : 'troubleCode',title : '故障维修代码',align:'center',width : 30
+			}, {field : 'repairContent',title : '维修内容',align:'center',width : 30
+			}, {field : 'troubleReason',title : '故障原因',align:'center',width : 30
+			}, {field : 'troubleDescription',title : '详细描述',align:'center',width : 30
+			} ] ],
+			toolbar : '#toolbarForTrouble'
+		});
+	
+		$('#partsGrid').datagrid({
+			url : "${ctx}/repairReceipt/getRepairReceiptParts/${map.service_id}",
+			title : "配件栏",
+			striped : true,
+			collapsible : true,
+			autoRowHeight : false,
+			remoteSort : false,
+			rownumbers : true,
+			fitColumns : true,
+			columns : [ [  {field : 'fitMachineType',title : '适用机型',align:'center',width : 30
+			}, {field : 'partsCode',title : '配件编码',align:'center',width : 30
+			}, {field : 'partsName',title : '配件名称',align:'center',width : 30
+			}, {field : 'price',title : '配件价格',align:'center',width : 30
+			}, {field : 'amount',title : '配件数量',align:'center',width : 30
+			}, {field : 'oldPartsCode',title : '旧配件编码',align:'center',width : 30
+			}, {field : 'oldPartsPrice',title : '旧配件价格 ',align:'center',width : 30
+			} ] ],
+			toolbar : '#toolbarForParts'
+		});
+		$("div.easyui-layout").css("height", "auto");
+	});
+	
+	function affirm(){
+		$.messager.confirm("", "确认后不允许修改？", function (data) {
+    		if(data){
+    			var serviceId = $("#service_id").val();
+    			$.post("${ctx}/repairReceipt/affirmRepairReceipt/"+ serviceId,
+						function(msg){
+						if($.parseJSON(msg).flag == "success"){
+							$.messager.alert('提示:','确定成功!');
+							window.location.href = "${ctx}/repairReceipt/repairReceiptView/"+serviceId;  
+						}else{
+							$.messager.alert('提示:','确定失败!');
+						}
+					});
+    		}
+		});
+	}
+	
+	function update(){
+		window.location.href = "${ctx}/repairReceipt/updateRepairReceiptView/${map.service_id}";
+	}
+	
+	function goBack(){
+		window.location.href="${ctx}/repairReceipt/repairReceiptView";	
+	}
+
+</script>
+<div style="background-color:#95b8e7; text-align:left; color:#fff; font-weight:bold; border-bottom: 1px solid #000;">客户信息</div>
+<input id="service_id" type="hidden" value="${map.service_id }"/>
+<table border=1 style="cellSpacing:1;cellPadding:3;width:100%;background-color:#eff5ff;border-collapse:collapse">
+	<tr>
+		<td width="25%" align="center">客户姓名</td><td width="25%" ><label>${map.customer_name}</label></td>
+		<td width="25%" align="center">客户类别</td><td width="25%" >
+			<input class="easyui-combobox" disabled="disabled" data-options="url:'${ctx}/hxCode/getCombobox/khlb?value=${map.customer_type}', editable:false"/>
+		</td>
+	</tr>
+	<tr>
+		<td width="25%" align="center">性别</td><td width="25%" >
+			<input class="easyui-combobox" disabled="disabled" data-options="url:'${ctx}/hxCode/getCombobox/xb?value=${map.customer_sex}', editable:false"/>
+		</td>
+		<td width="25%" align="center">会员卡号</td><td width="25%" ><label>${map.member_num }</label></td>
+	</tr>
+	<tr>
+		<td width="25%" align="center">省份</td>
+		<td width="25%" >
+			<input type="text" disabled="disabled" class="easyui-combobox" data-options="url:'${ctx}/hxCode/getRegionCombobox',panelHeight:'200', editable:true,required:true" value="${map.province }">
+		</td>
+		<td width="25%" align="center">区号</td><td width="25%" ><label>${map.area_code }</label></td>
+	</tr>
+	<tr>
+		<td width="25%" align="center">手机</td><td width="25%" ><label>${map.phone }</label></td>
+		<td width="25%" align="center">固定电话</td><td width="25%" ><label>${map.telephone }</label></td>
+	</tr>
+	<tr>
+		<td width="25%" align="center">E_MAIL</td><td width="25%" ><label>${map.e_mail }</label></td>
+		<td width="25%" align="center">邮编</td><td width="25%" ><label>${map.postcode }</label></td>
+	</tr>
+	<tr>
+		<td width="25%" align="center">联系地址</td><td width="25%" ><label>${map.address }</label></td>
+		<td width="25%" align="center">备注</td><td width="25%" ><label>${map.note }</label></td>
+	</tr>
+</table>
+<div style="background-color:#95b8e7; text-align:left; color:#fff; font-weight:bold; border-bottom: 1px solid #000;">产品信息</div>
+<table border=1 style="cellSpacing:1;cellPadding:3;width:100%;background-color:#eff5ff;border-collapse:collapse">
+	<tr>
+		<td width="25%" align="center">机型</td><td width="25%" ><label>${map.machine_type }</label></td>
+		<td width="25%" align="center">国美代码</td><td width="25%" >
+			<input class="easyui-combobox" disabled="disabled" name="gomeCode" data-options="url:'${ctx}/hxCode/getCombobox/gmdm?value=${map.gome_code}', editable:false"/>
+		</td>
+	</tr>
+	<tr>
+		<td width="25%" align="center">品牌</td><td width="25%" >
+			<input class="easyui-combobox" disabled="disabled" value="${map.brand}" data-options="url:'${ctx}/hxCode/getCombobox/pp', editable:false"/>
+		</td>
+		<td width="25%" align="center">机器条码(非空)</td><td width="25%" ><label>${map.machine_code}</label></td>
+	</tr>
+	<tr>
+		<td width="25%" align="center">内机条码1</td><td width="25%" ><label>${map.internal_machine_code1 }</label></td>
+		<td width="25%" align="center">内机条码2</td><td width="25%" ><label>${map.internal_machine_code2 }</label></td>
+	</tr>
+	<tr>
+		<td width="25%" align="center">外机条码</td><td width="25%" ><label>${map.external_machine_code }</label></td>
+		<td width="25%" align="center">提货单号</td><td width="25%" ><label>${map.delivery_order_num }</label></td>
+	</tr>
+	<tr>					
+		<td width="25%" align="center">安装卡号</td><td width="25%" ><label>${map.install_card_num }</label></td>
+		<td width="25%" align="center">单据序号</td><td width="25%" ><label>${map.ticket_num }</label></td>
+	</tr>
+	<tr>
+		<td width="25%" align="center">发票号码</td><td width="25%" ><label>${map.invoice_num }</label></td>
+		<td width="25%" align="center">购买者姓名</td><td width="25%" ><label>${map.buyer }</label></td>
+	</tr>
+	<tr>
+		<td width="25%" align="center">购机日期</td><td width="25%" ><label><fmt:formatDate value='${map.buy_date}' pattern='yyyy-MM-dd' /></label></td>
+		<td width="25%" align="center">安装日期</td><td width="25%" ><label><fmt:formatDate value='${map.install_date}' pattern='yyyy-MM-dd' /></label></td>
+	</tr>
+	<tr>
+		<td width="25%" align="center">安装单位</td>
+		<td width="25%" >
+			<input type="text" disabled="disabled" class="easyui-combobox" data-options="url:'${ctx}/hxCode/getWebsiteCombobox',required:true" value="${map.install_unit}">
+		</td>
+		<td width="25%" align="center">销售分部</td>
+		<td width="25%" >
+			<input type="text" disabled="disabled" class="easyui-combobox" data-options="url:'${ctx}/hxCode/getECCombobox',required:true,onSelect:function(rec){fillCombo(rec)}" value="${map.sale_center }">
+		</td>
+	</tr>
+	<tr>
+		<td width="25%" align="center">销售门店</td>
+		<td width="25%" >
+			<input type="text" disabled="disabled" class="easyui-combobox" data-options="url:'${ctx}/hxCode/getStoreCombobox',panelHeight:'auto', editable:true,required:true" value="${map.sale_market }">
+		</td>
+		<td width="25%" align="center">安装省份</td><td width="25%" >
+			<input type="text" disabled="disabled" class="easyui-combobox" data-options="url:'${ctx}/hxCode/getRegionCombobox',panelHeight:'200', editable:true,required:true" value="${map.install_province }">
+		</td>
+	</tr>
+	<tr>
+		<td width="25%" align="center">保修截止日期</td><td width="25%" ><label><fmt:formatDate value='${map.warranty}' pattern='yyyy-MM-dd' /></label></td>
+		<td width="25%" align="center">销售价格</td><td width="25%" ><label>${map.sale_price }</label></td>
+	</tr>
+	<tr>
+		<td width="25%" align="center">安装详细地址</td><td width="25%" ><label>${map.install_detail_address }</label></td>
+		<td width="25%" align="center">备注</td><td width="25%" ><label>${map.product_note }</label></td>
+	</tr>
+	<tr>
+		<td width="25%" align="center">审核结果</td><td width="25%" ><label>${map.check_result}</label></td>
+		<td width="25%" align="center">机审无效原因</td><td width="25%" ><label>${map.machine_check_fault_reason}</label></td>
+	</tr>
+	<tr>
+		<td width="25%" align="center">创建人</td><td width="25%" ><label>${map.create_man_p }</label></td>
+		<td width="25%" align="center">创建时间</td><td width="25%" ><label>${map.create_time_p }</label></td>
+	</tr>
+	<tr>
+		<td width="25%" align="center">修改人</td><td width="25%" ><label>${map.alter_man_p }</label></td>
+		<td width="25%" align="center">修改时间</td><td width="25%" ><label>${map.alter_time_p }</label></td>
+	</tr>
+</table>
+<div style="background-color:#95b8e7; text-align:left; color:#fff; font-weight:bold; border-bottom: 1px solid #000;">维修单信息</div>
+<table border=1 style="cellSpacing:1;cellPadding:3;width:100%;background-color:#eff5ff;border-collapse:collapse">
+	<tr>
+		<td  width="25%" align="center">服务单号<font color="red">*</font></td></td><td width="25%" ><label>${map.service_id }</label></td>
+		<td width="25%" align="center">报修日期<font color="red">*</font></td><td width="25%" ><label><fmt:formatDate value='${map.inform_repair_date}' pattern='yyyy-MM-dd' /></label></td>
+	</tr>
+	<tr>
+		<td width="25%" align="center">维修方式<font color="red">*</font></td>
+		<td width="25%">
+			<input class="easyui-combobox" disabled="disabled" data-options="url:'${ctx}/hxCode/getCombobox/wxfs?value=${map.repair_mode}',editable:false"/>
+		</td>
+		<td width="25%" align="center">远程申请单号</td><td width="25%" ><label>${map.distance_apply_num }</label></td>
+	</tr>
+	<tr>
+		<td width="25%" align="center">充氟申请单号</td><td width="25%" ><label>${map.charge_fluorine_num }</label></td>
+		<td width="25%" align="center">服务证号</td><td width="25%" ><label>${map.service_card_num }</label></td>
+	</tr>
+	<tr>
+		<td width="25%" align="center">维修工<font color="red">*</font></td><td width="25%" ><label>${map.service_man }</label></td>
+		<td width="25%" align="center">客户满意度<font color="red">*</font></td>
+		<td width="25%">
+			<input class="easyui-combobox" disabled="disabled" data-options="url:'${ctx}/hxCode/getCombobox/myd?value=${map.customer_satisfaction }',editable:false"/>
+		</td>
+	</tr>
+	<tr>
+		<td width="25%" align="center">维修日期<font color="red">*</font></td><td width="25%" ><label><fmt:formatDate value='${map.service_date}' pattern='yyyy-MM-dd' /></label></td>
+		<td width="25%" align="center">保修政策<font color="red">*</font></td>
+		<td width="25%">
+			<input disabled="disabled" class="easyui-combobox" data-options="url:'${ctx}/hxCode/getCombobox/bxzc?value=${map.warranty_policy }', editable:false"/>
+		</td>
+	</tr>
+	<tr>
+		<td width="25%" align="center">是否更换配件<font color="red">*</font></td>
+		<td width="25%">
+			<input disabled="disabled" class="easyui-combobox" data-options="url:'${ctx}/hxCode/getCombobox/sf?value=${map.is_replace_parts}', editable:false"/>
+		</td>
+		<td width="25%" align="center">手工单号</td><td width="25%" ><label>${map.manul_num }</label></td>
+	</tr>
+	<tr>
+		<td width="25%" align="center">备注</td><td width="25%" ><label>${map.comment_s }</label></td>
+	</tr>
+</table>
+<br/>
+<div>
+	<div class="easyui-layout" data-options="fit : true,border : false">
+		<table id="troubleGrid"></table>
+	</div>
+	<br/>
+	<div class="easyui-layout" data-options="fit : true,border : false">
+		<table id="partsGrid"></table>
+	</div>
+</div>
+<div style="text-align:right;padding:5px">
+	<a id="affirm" href="#" class="easyui-linkbutton"  onclick="affirm();">确认</a>
+	<a id="update" href="#" class="easyui-linkbutton"  onclick="update();">修改</a>
+	<a href="#" class="easyui-linkbutton"  onclick="goBack();">返回</a>
+</div>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process key="MP02" name="MP02" xmlns="http://jbpm.org/4.4/jpdl">
+   <start g="295,16,48,48" name="start">
+      <transition to="S4"/>
+   </start>
+   <task g="276,116,92,52" name="S4">
+     <assignment-handler class="com.gome.gmhx.jbpm.JbpmAuthorityService"/>   
+      <transition g="-48,9" name="T6" to="cancel"/>
+      <transition g="-21,-22" name="T3" to="end"/>
+      <transition name="T2" to="S6" g="-35,-22"/>
+   </task>
+   <end g="501,260,48,48" name="end"/>
+   <task g="278,255,92,52" name="S6">
+    	<assignment-handler class="com.gome.gmhx.jbpm.JbpmAuthorityService"/>   
+      <transition g="-23,-13" name="T4" to="S7"/>
+      <transition g="-17,-17" name="T6" to="cancel"/>
+   </task>
+   <task g="286,360,92,52" name="S7">
+       <assignment-handler class="com.gome.gmhx.jbpm.JbpmAuthorityService"/>   
+      <transition g="-16,-13" name="T4" to="S8"/>
+      <transition g="-20,-28" name="T6" to="cancel"/>
+   </task>
+   <task candidate-users="${applicant}" g="291,484,92,52" name="S8">
+      <transition g="-31,-43" name="T6" to="cancel"/>
+      <transition g="-21,-22" name="T4" to="end"/>
+   </task>
+   <end-cancel g="94,275,48,48" name="cancel"/>
+</process>

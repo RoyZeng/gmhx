@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gome.gmhx.dao.basicdata.HxFittingLocationDao">
+	<resultMap id="BaseResultMap" type="com.gome.gmhx.entity.HxFittingLocation">
+	    <id property="fittingId" column="fitting_id" jdbcType="INTEGER"/>
+	    <result property="organizationName"  column="organization_name"   jdbcType="VARCHAR"/>
+		<result property="materialType"      column="material_type"       jdbcType="VARCHAR"/>
+		<result property="fittingsCode"      column="fittings_code"       jdbcType="VARCHAR"/>
+		<result property="fittingsName"      column="fittings_name"       jdbcType="VARCHAR"/>
+		<result property="location"          column="location"            jdbcType="VARCHAR"/>
+		<result property="note"              column="note"                jdbcType="VARCHAR"/>
+		<result property="createDate"        column="create_date"         jdbcType="TIMESTAMP"/>
+		<result property="modifieDate"       column="modifie_date"        jdbcType="TIMESTAMP"/>
+	</resultMap>
+
+	<select id="getHxFittingLocationPageList" parameterType="com.gome.common.page.Page" resultType="hashmap">
+	SELECT a.fitting_id,(select code_value from v_code where code_id='jg' and a.organization_name=code_key )organization_name,
+	 a.fittings_code,a.location,a.note, a.create_date, a.modifie_date ,
+	 (select code_value from v_code where code_id='pjbm' and a.fittings_code=code_key )fittings_name, 
+    (select code_value from v_code where code_id='wllx' and a.material_type=code_key )material_type 
+    FROM hx_fitting_location a WHERE 1=1
+        <if test="param.organizationName!= null and param.organizationName!= '' ">
+		   and organization_name like CONCAT('%',#{param.organizationName},'%')</if>
+	    <if test="param.materialType!= null and param.materialType!= '' ">
+		   and material_type like CONCAT('%',#{param.materialType},'%')</if>
+        <if test="param.fittingsCode!= null and param.fittingsCode!= '' ">
+		   and fittings_code like CONCAT('%',#{param.fittingsCode},'%')</if>
+	    <if test="param.location!= null and param.location!= '' ">
+		   and location like CONCAT('%',#{param.location},'%')</if>
+		<if test="param.modifieDate_sta !=null and param.modifieDate_sta != '' ">
+		   <![CDATA[ and modifie_date >=#{param.modifieDate_sta} ]]>   </if>        
+		<if test="param.modifieDate_end !=null and param.modifieDate_end != '' ">
+		   <![CDATA[ and modifie_date <=#{param.modifieDate_end} ]]>   </if>        
+	</select>
+	
+	<insert id="addHxFittingLocation" parameterType="com.gome.gmhx.entity.HxFittingLocation">
+	    insert into hx_fitting_location(fitting_id,organization_name,material_type,fittings_code,
+	                location,note,create_date)
+	    values(#{fittingId},#{organizationName},#{materialType},#{fittingsCode},
+	           #{location},#{note},now())
+	</insert>
+	
+	<insert id="insertFittingLocationBatch" parameterType="java.util.List">
+    INSERT INTO hx_fitting_location(fitting_id,organization_name,material_type,fittings_code,location,note,create_date)
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+     (#{item.fittingId,jdbcType=INTEGER},#{item.organizationName,jdbcType=VARCHAR},#{item.material_type,jdbcType=VARCHAR},#{item.fittingsCode,jdbcType=VARCHAR},
+     #{item.location,jdbcType=VARCHAR},#{item.note,jdbcType=VARCHAR},#{item.createDate,jdbcType=TIMESTAMP})
+    </foreach>
+  </insert>
+	
+	<select id="getHxFittingLocationById" parameterType="string" resultMap="BaseResultMap">
+	     SELECT a.fitting_id,a.organization_name,
+	 a.fittings_code, a.location,a.note, a.create_date, a.modifie_date ,
+    a.material_type 
+    FROM hx_fitting_location a WHERE fitting_id=#{fittingId}
+	</select>
+	
+	<update id="updateHxFittingLocation" parameterType="com.gome.gmhx.entity.HxFittingLocation">
+	    UPDATE hx_fitting_location SET organization_name=#{organizationName},material_type=#{materialType},
+	    fittings_code=#{fittingsCode},
+		location=#{location},note=#{note},modifie_date=now()
+	    where fitting_id=#{fittingId}
+	</update>
+	
+	<select id="getHxFittingLocationExport" parameterType="com.gome.gmhx.entity.HxFittingLocation" resultType="hashmap">
+       SELECT a.fitting_id,(select code_value from v_code where code_id='jg' and a.organization_name=code_key )organization_name,
+	 a.fittings_code,a.location,a.note, a.create_date, a.modifie_date ,
+	 (select code_value from v_code where code_id='pjbm' and a.fittings_code=code_key )fittings_name, 
+    (select code_value from v_code where code_id='wllx' and a.material_type=code_key )material_type 
+    FROM hx_fitting_location a WHERE 1=1
+    </select>
+	 
+    <select id="getShowById" parameterType="string" resultMap="BaseResultMap">
+     SELECT a.fitting_id,(select code_value from v_code where code_id='jg' and a.organization_name=code_key )organization_name,
+	 a.fittings_code,a.location,a.note, a.create_date, a.modifie_date ,
+	 (select code_value from v_code where code_id='pjbm' and a.fittings_code=code_key )fittings_name, 
+    (select code_value from v_code where code_id='wllx' and a.material_type=code_key )material_type 
+    FROM hx_fitting_location a WHERE fitting_id=#{fittingId}
+    </select>
+	       
+	
+</mapper>

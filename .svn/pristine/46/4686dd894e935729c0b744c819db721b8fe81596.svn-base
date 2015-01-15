@@ -1,0 +1,669 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gome.gmhx.dao.materialmanage.HxMaterialDao" >
+	<resultMap id="BaseResultMap" type="com.gome.gmhx.entity.HxMaterialManage" >
+	    <result column="type" property="type" jdbcType="VARCHAR" />
+	    <result column="send_company" property="sendCompany" jdbcType="VARCHAR" />
+	    <result column="receive_company" property="receiveCompany" jdbcType="VARCHAR" />
+	    <result column="list_number" property="listNumber" jdbcType="VARCHAR" />
+	    <result column="proposer" property="proposer" jdbcType="VARCHAR" />
+	    <result column="apply_date" property="applyDate" jdbcType="TIMESTAMP" />
+	    <result column="comment" property="comment" jdbcType="VARCHAR" />
+	    <result column="customer_name" property="customerName" jdbcType="VARCHAR" />
+	    <result column="customer_tel" property="customerTel" jdbcType="VARCHAR" />
+	    <result column="address" property="address" jdbcType="VARCHAR" />
+	    <result column="status" property="status" jdbcType="VARCHAR" />
+	    <result column="fitting_org_id" property="fittingOrgId" jdbcType="VARCHAR" />
+	     <result column="fitting_position_id" property="fittingPositionId" jdbcType="VARCHAR" />
+	    <result column="create_person" property="createPerson" jdbcType="VARCHAR" />
+	    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+	    <result column="update_person" property="updatePerson" jdbcType="VARCHAR" />
+	    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+	    <result column="process_instance_id" property="processInstanceId" jdbcType="VARCHAR"/>
+	    <result column="applicant" property="applicant" jdbcType="VARCHAR"/>
+	    <result column="send_number" property="sendNumber" jdbcType="VARCHAR"/>
+	    <result column="move_direction" property="moveDirection" jdbcType="VARCHAR"/>
+	    <result column="related_list_number" property="relatedListNumber" jdbcType="VARCHAR"/>
+	    <result column="in_batch" property="inBatch" jdbcType="VARCHAR"/>
+	    <result column="out_batch" property="outBatch" jdbcType="VARCHAR"/>
+  	</resultMap>
+  	
+  	<resultMap id="currentStockMap" type="com.gome.gmhx.entity.HxCurrentStock" >
+	    <result column="org_id" property="orgId" jdbcType="VARCHAR" />
+	    <result column="fitting_code" property="fittingCode" jdbcType="VARCHAR" />
+	    <result column="stock" property="stock" jdbcType="INTEGER" />
+	    <result column="count_way" property="countWay" jdbcType="INTEGER" />
+	    <result column="type" property="type" jdbcType="VARCHAR" />
+	    <result column="is_new" property="isNew" jdbcType="BIT" />
+  	</resultMap>
+  	
+  	<resultMap id="MaterialManageVOResultMap" type="com.gome.gmhx.entity.vo.HxMaterialManageVO" >
+	    <result column="type" property="type" jdbcType="VARCHAR" />
+	    <result column="send_company" property="sendCompany" jdbcType="VARCHAR" />
+	    <result column="receive_company" property="receiveCompany" jdbcType="VARCHAR" />
+	    <result column="list_number" property="listNumber" jdbcType="VARCHAR" />
+	    <result column="proposer" property="proposer" jdbcType="VARCHAR" />
+	    <result column="apply_date" property="applyDate" jdbcType="TIMESTAMP" />
+	    <result column="comment" property="comment" jdbcType="VARCHAR" />
+	    <result column="customer_name" property="customerName" jdbcType="VARCHAR" />
+	    <result column="customer_tel" property="customerTel" jdbcType="VARCHAR" />
+	    <result column="address" property="address" jdbcType="VARCHAR" />
+	    <result column="status" property="status" jdbcType="VARCHAR" />
+	    <result column="fitting_org_id" property="fittingOrgId" jdbcType="VARCHAR" />
+	     <result column="fitting_position_id" property="fittingPositionId" jdbcType="VARCHAR" />
+	    <result column="create_person" property="createPerson" jdbcType="VARCHAR" />
+	    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+	    <result column="update_person" property="updatePerson" jdbcType="VARCHAR" />
+	    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+	    <result column="process_instance_id" property="processInstanceId" jdbcType="VARCHAR"/>
+	    <result column="applicant" property="applicant" jdbcType="VARCHAR"/>
+	    <result column="send_number" property="sendNumber" jdbcType="VARCHAR"/>
+	    <result column="move_direction" property="moveDirection" jdbcType="VARCHAR"/>
+	    <result column="related_list_number" property="relatedListNumber" jdbcType="VARCHAR"/>
+	    <result column="in_batch" property="inBatch" jdbcType="VARCHAR"/>
+	    <result column="out_batch" property="outBatch" jdbcType="VARCHAR"/>
+	    <result column="center_check_man" property="centerCheckMan" jdbcType="VARCHAR" />
+	    <result column="center_check_date" property="centerCheckTime" jdbcType="TIMESTAMP" />
+	    <result column="headquarters_check_man" property="headQuartersCheckMan" jdbcType="VARCHAR" />
+	    <result column="headquarters_check_date" property="headQuartersCheckTime" jdbcType="TIMESTAMP" />
+  	</resultMap>
+  	
+  	<resultMap id="MaterialDetailVOResultMap" type="com.gome.gmhx.entity.vo.HxMaterialDetailVO" >
+	    <result column="suit_model" property="suitModel" jdbcType="VARCHAR" />
+	    <result column="fitting_code" property="fittingCodeDetail" jdbcType="VARCHAR" />
+	    <result column="fitting_name" property="fittingNameDetail" jdbcType="VARCHAR" />
+	    <result column="spec" property="spec" jdbcType="VARCHAR" />
+	    <result column="price" property="price" jdbcType="REAL" />
+	    <result column="apply_count" property="applyCount" jdbcType="INTEGER" />
+	    <result column="audit_count" property="auditCount" jdbcType="INTEGER" />
+	    <result column="comment" property="comment" jdbcType="VARCHAR" />
+  	</resultMap>
+  	
+  	<sql id="Base_Column_List" >
+	    type, send_company, receive_company, list_number, proposer, apply_date, comment,fitting_position_id,
+	    customer_name, customer_tel, address, status, fitting_org_id, create_person, create_time, update_person, 
+	    update_time,process_instance_id,applicant,send_number,move_direction,related_list_number,in_batch,out_batch
+  	</sql>
+
+	<select id="getFittingBySuit" resultType="string" parameterType="string">
+		<!-- select fitting_code from hx_fitting_model where suit_model = #{suitModel} -->
+		
+		SELECT T.fitting_code,T.fitting_name FROM(
+		SELECT D.fitting_code,D.fitting_name,
+		GROUP_CONCAT(F.fault_code SEPARATOR '、') fault_code,
+		GROUP_CONCAT(M.suit_model SEPARATOR '、') suit_model 
+		FROM hx_fitting_detail D
+		LEFT JOIN hx_fitting_fault F ON F.fitting_code = D.fitting_code
+		LEFT JOIN hx_fitting_model M ON M.fitting_code = D.fitting_code
+		GROUP BY D.fitting_code)T
+		WHERE 1=1
+		<if test="param1 !=null and param1!=''">
+			AND INSTR(T.suit_model,#{param1})>0
+		</if>
+		<if test=" param2 !=null and param2!='' ">
+			AND INSTR(T.fault_code,#{param2})>0
+		</if>
+	</select>
+	
+	<select id="getFittingInfo" parameterType="hashmap" resultType="hashmap">
+		SELECT t.stock, t1.fitting_name fittingName, t1.spec,
+		case when t.type in (1,2) then t1.branch_price when t.type=3 then t1.network_price end price
+		FROM hx_current_stock t
+		LEFT JOIN hx_fitting_detail t1 ON t.fitting_code = t1.fitting_code
+		WHERE t.fitting_code = #{fittingId} AND org_id = #{orgId} AND is_new=#{isNew,jdbcType=BIT}
+	</select>
+	
+	<select id="getListNumber" parameterType="string" resultType="string">
+		SELECT lpad(count(*) + 1, 4, '0')
+		FROM hx_material_manage
+		WHERE fitting_org_id = #{companyId}
+		AND DATE_FORMAT(create_time, 'm-%d-%Y') = DATE_FORMAT(now(), 'm-%d-%Y')
+	</select>
+	<select id="getSendNumber" parameterType="string" resultType="string">
+		SELECT lpad(count(*) + 1, 4, '0')
+		FROM hx_material_manage
+		WHERE send_number is not null
+		AND send_company = #{companyId}
+		AND DATE_FORMAT(create_time, 'm-%d-%Y') = DATE_FORMAT(now(), 'm-%d-%Y')
+	</select>
+	
+	<select id="getFatherFittingOrgId" parameterType="string" resultType="string">
+		select DISTINCT org_parent_id from hx_organization where org_code=#{fittingOrgId}
+	</select>
+	<select id="getWebFittingOrgId" parameterType="string" resultType="string">
+		SELECT DISTINCT hfp.org_code
+		FROM hx_fittingstock_part hfp
+		WHERE hfp.part_id IN (SELECT hcsm.dqgsdm
+			FROM hx_custom_sale_mapping hcsm
+			WHERE hcsm.shgsdm IN (SELECT t.gsxx01
+				FROM (SELECT cw.azwd01 AS org_code, cw.gsxx01
+					FROM crm_website cw
+					UNION
+					SELECT ho.org_code, ho.org_parent_id AS gsxx01
+					FROM hx_organization ho
+					WHERE ho.org_type = '02'
+						OR ho.org_type = '03'
+					UNION
+					SELECT es.WERKS AS org_code, es.VKORG AS gsxx01
+					FROM ecc_store es
+					WHERE es.VKORG LIKE 'S%'
+					) t
+				WHERE t.org_code = #{fittingOrgId}))
+	</select>
+	
+	<select id="getWebFittingOrgByFatherId" parameterType="string" resultType="hashmap">
+		SELECT DISTINCT t.org_code, t.org_name
+		FROM (SELECT cw.azwd01 AS org_code, cw.gsxx01, cw.wdmc AS org_name
+			FROM crm_website cw
+			UNION
+			SELECT ho.org_code, ho.org_parent_id AS gsxx01, ho.org_name AS org_name
+			FROM hx_organization ho
+			WHERE ho.org_type = '02'
+				OR ho.org_type = '03'
+			UNION
+			SELECT es.WERKS AS org_code, es.VKORG AS gsxx01, es.NAME1 AS org_name
+			FROM ecc_store es
+			WHERE es.VKORG LIKE 'S%'
+			) t
+		WHERE EXISTS (SELECT hcsm.shgsdm
+			FROM hx_fittingstock_part hfp LEFT JOIN hx_custom_sale_mapping hcsm ON hfp.part_id = hcsm.dqgsdm
+			WHERE hfp.org_code = #{fittingOrgId}
+				AND t.gsxx01 = hcsm.shgsdm)
+	</select>
+	
+	<select id="getHxMaterialManage" parameterType="string" resultMap="BaseResultMap">
+		select <include refid="Base_Column_List"/>
+    	from hx_material_manage 
+    	where list_number = #{listNumber,jdbcType=VARCHAR}
+	</select>
+	
+	<select id="getHxMaterialManageShow" parameterType="string" resultMap="BaseResultMap">
+		select a.list_number, a.type, a.send_company,
+			a.receive_company, a.proposer,
+			a.apply_date, a.`comment`, a.customer_name, a.customer_tel,
+			a.address,a.status, a.fitting_org_id, v3.user_name create_person,
+			a.create_time, v4.user_name update_person,
+			a.update_time, a.process_instance_id, a.applicant,
+			a.send_number, a.fitting_position_id, a.move_direction, a.related_list_number,
+			a.in_batch, a.out_batch
+    	from hx_material_manage a
+    	LEFT JOIN hx_user_unload v3 on v3.user_login_name = a.create_person
+		LEFT JOIN hx_user_unload v4 on v4.user_login_name = a.update_person
+    	where list_number = #{listNumber,jdbcType=VARCHAR}
+	</select>
+	
+	<select id="getMaterialManageByNumber" parameterType="string" resultMap="MaterialManageVOResultMap">
+		select a.list_number, a.type, a.send_company,
+			a.receive_company, a.proposer,
+			a.apply_date, a.`comment`, a.customer_name, a.customer_tel,
+			a.address,a.status, a.fitting_org_id, v3.user_name create_person,
+			a.create_time, v4.user_name update_person,
+			a.update_time, a.process_instance_id, a.applicant,
+			a.send_number, a.fitting_position_id, a.move_direction, a.related_list_number,
+			a.in_batch, a.out_batch,
+      task3.participant center_check_man,task3.create_date center_check_date,
+      task4.participant headquarters_check_man,task4.create_date headquarters_check_date
+    from hx_material_manage a
+    LEFT JOIN hx_user_unload v3 on v3.user_login_name = a.create_person
+		LEFT JOIN hx_user_unload v4 on v4.user_login_name = a.update_person
+    LEFT JOIN JBPM4_TASK_TRAJECTTORY task3 on task3.current_activity='S3' AND task3.work_entity_id=a.list_number
+    LEFT JOIN JBPM4_TASK_TRAJECTTORY task4 on task4.current_activity='S4' AND task4.work_entity_id=a.list_number
+    	where a.list_number = #{listNumber,jdbcType=VARCHAR}
+	</select>
+	
+	<select id="getMaterialByNumber" parameterType="string" resultMap="MaterialManageVOResultMap">
+		SELECT
+			a.list_number, a.type, v2.`name` send_company,
+			v.`name` receive_company, a.proposer,
+			a.apply_date, a.`comment`, a.customer_name, a.customer_tel,
+			a.address, t4.code_value status, a.fitting_org_id, v3.user_name create_person,
+			a.create_time, v4.user_name update_person,
+			a.update_time, a.process_instance_id, a.applicant,
+			a.send_number, a.fitting_position_id, a.move_direction, a.related_list_number,
+			a.in_batch, a.out_batch,
+            task3.participant center_check_man,task3.create_date center_check_date,
+            task4.participant headquarters_check_man,task4.create_date headquarters_check_date
+		FROM
+			hx_material_manage a
+		LEFT JOIN hx_organization_unload v ON v.id IS NOT NULL AND v.id = a.receive_company
+		LEFT JOIN hx_organization_unload v2 ON v2.id IS NOT NULL AND v2.id = a.send_company
+		LEFT JOIN hx_user_unload v3 on v3.user_login_name = a.create_person
+		LEFT JOIN hx_user_unload v4 on v4.user_login_name = a.update_person
+		LEFT JOIN v_code t4 on t4.code_id='djzt' and a.status=t4.code_key
+		LEFT JOIN JBPM4_TASK_TRAJECTTORY task3 on task3.current_activity='S3' AND task3.work_entity_id=a.list_number
+        LEFT JOIN JBPM4_TASK_TRAJECTTORY task4 on task4.current_activity='S4' AND task4.work_entity_id=a.list_number
+		WHERE
+			a.list_number = #{listNumber}
+	</select>
+	
+	<select id="getHxMaterialDetail" parameterType="string" resultType="hashmap">
+		select t.suit_model as suitModel, t.fitting_code as fittingCode, t1.fitting_name as fittingName, t1.spec,
+		t.price,
+		t.apply_count as applyCount, t.audit_count as auditCount, t.receive_count as receiveCount, t.comment
+		from hx_material_detail t
+		LEFT JOIN hx_fitting_detail t1 ON t.fitting_code = t1.fitting_code
+		INNER JOIN hx_material_manage t2 ON t.list_number = t2.list_number
+		where t.list_number=#{listNumber}	
+	</select>
+	
+	<select id="getMaterialDetailByNumber" parameterType="string" resultMap="MaterialDetailVOResultMap">
+		select t.suit_model, t.fitting_code, t1.fitting_name, t1.spec,t.price,
+		t.apply_count, t.audit_count, t.comment
+		from hx_material_detail t
+		LEFT JOIN hx_fitting_detail t1 ON t.fitting_code = t1.fitting_code
+		INNER JOIN hx_material_manage t2 ON t.list_number = t2.list_number
+		where t.list_number=#{listNumber}	
+	</select>
+	<select id="getHxMaterialDetail3" parameterType="string" resultType="hashmap">
+		select t.suit_model as suitModel, t.fitting_code as fittingCode, t1.fitting_name as fittingName, t1.spec,
+		t.price, 
+		t.apply_count as applyCount, t.comment
+		from hx_material_detail t
+		LEFT JOIN hx_fitting_detail t1 ON t.fitting_code = t1.fitting_code
+		INNER JOIN hx_material_manage t2 ON t.list_number = t2.list_number
+		where t.list_number=#{listNumber} and 
+		t2.type='fb-n-sq' and t2.status='S6'
+		AND t.list_number NOT IN (
+			SELECT related_list_number FROM hx_material_manage
+			WHERE related_list_number IS NOT NULL)
+	</select>
+	
+	<select id="getHxMaterialShow" parameterType="string" resultMap="BaseResultMap">
+		SELECT
+			a.list_number, a.type, v2.`name` send_company,
+			v.`name` receive_company, a.proposer,
+			a.apply_date, a.`comment`, a.customer_name, a.customer_tel,
+			a.address, t4.code_value status, a.fitting_org_id, v3.user_name create_person,
+			a.create_time, v4.user_name update_person,
+			a.update_time, a.process_instance_id, a.applicant,
+			a.send_number, a.fitting_position_id, a.move_direction, a.related_list_number,
+			a.in_batch, a.out_batch
+		FROM
+			hx_material_manage a
+		LEFT JOIN hx_organization_unload v ON v.id IS NOT NULL AND v.id = a.receive_company
+		LEFT JOIN hx_organization_unload v2 ON v2.id IS NOT NULL AND v2.id = a.send_company
+		LEFT JOIN hx_user_unload v3 on v3.user_login_name = a.create_person
+		LEFT JOIN hx_user_unload v4 on v4.user_login_name = a.update_person
+		LEFT JOIN v_code t4 on t4.code_id='djzt' and a.status=t4.code_key
+		WHERE
+			a.list_number = #{listNumber}	
+	</select>
+	
+	<select id="getHxMaterialDetail2" parameterType="map" resultType="hashmap">
+	SELECT
+		t.*, IFNULL(s.stock, 0) stock
+	FROM
+		(SELECT
+				t.fitting_code,
+				t1.fitting_name,
+				t1.spec,
+				t2.send_company AS send_company,
+				t2.receive_company,
+				t.price,
+				t.apply_count,
+				t.audit_count,
+				t.receive_count,
+				t. COMMENT
+			FROM
+				hx_material_detail t
+			INNER JOIN hx_fitting_detail t1 ON t.fitting_code = t1.fitting_code
+			INNER JOIN hx_material_manage t2 ON t.list_number = t2.list_number
+			AND t2.list_number = #{listNumber}
+		) t LEFT JOIN hx_current_stock s
+			ON t.send_company = s.org_id
+			AND s.fitting_code = t.fitting_code AND is_new = #{isNew}
+	</select>
+	
+	<select id="getHxMaterialStock" parameterType="string" resultType="hashmap">
+		SELECT t.suit_model AS suitModel, t.fitting_code AS fittingCode, t1.fitting_name as fittingName, t1.spec AS spec, t.price
+			, t.apply_count AS applyCount, t.audit_count as auditCount, t.receive_count as receiveCount,
+			 t.COMMENT as comment, s1.stock as sendStock, s2.stock as receiveStock
+		FROM hx_material_detail t LEFT JOIN hx_fitting_detail t1 ON t.fitting_code = t1.fitting_code 
+		INNER JOIN hx_material_manage t2 ON t.list_number = t2.list_number 
+		LEFT JOIN hx_current_stock s1 ON t2.send_company = s1.org_id
+		AND t.fitting_code = s1.fitting_code AND s1.is_new = '1' 
+		LEFT JOIN hx_current_stock s2 ON t2.receive_company = s2.org_id AND t.fitting_code = s2.fitting_code AND s2.is_new = '1'
+		WHERE t.list_number = #{listNumber}
+	</select>
+	<update id="updateHxMaterialDetail" parameterType="com.gome.gmhx.entity.HxMaterialDetail">
+		update hx_material_detail
+		set audit_count = #{auditCount},
+			fitting_code = #{newFittingCode}
+		where list_number = #{listNumber}
+			and fitting_code = #{oldFittingCode}
+	</update>
+	
+	<select id="getHxMaterialDetailForUpdate" parameterType="string" resultType="hashmap">
+		select t.fitting_code fittingCode, t.suit_model suitModel, t1.fitting_name fittingName, t1.spec, IFNULL(t3.stock,0) stock,
+		case when t3.type in (1,2) then t1.branch_price when t3.type=3 then t1.network_price end price,
+		t.apply_count applyCount,  t.comment
+		from hx_material_detail t
+		LEFT JOIN hx_fitting_detail t1 ON t.fitting_code = t1.fitting_code
+		INNER JOIN hx_material_manage t2 ON t.list_number = t2.list_number
+		LEFT JOIN hx_current_stock t3 ON t.fitting_code = t3.fitting_code and t3.org_id=#{companyId} and is_new= #{isNew}
+		where t.list_number=#{listNumber}
+	</select>
+	
+	<select id="getHxMaterialPageList" parameterType="com.gome.common.page.Page" resultType="hashmap">
+		SELECT t1.fitting_auth_name type, t.type type_hidden,
+		t.list_number, t.send_number, t2.name send_company, t3.name receive_company, t4.code_value status, t.status status_hidden,t.update_time
+		FROM hx_material_manage t
+		LEFT JOIN hx_fitting_auth t1 ON t.type = t1.fitting_auth_id
+		LEFT JOIN hx_organization_unload t2 on t.send_company=t2.id
+		LEFT JOIN hx_organization_unload t3 on t.receive_company=t3.id
+		LEFT JOIN v_code t4 on t4.code_id='djzt' and t.status=t4.code_key
+		WHERE fitting_org_id = #{param.fittingOrgId} and create_person=#{param.userAccount}
+			and t.`status` NOT IN ('S0')
+		<if test="param.type != null and param.type != ''"> and t.type=#{param.type}</if>
+		<if test="param.listNumber != null and param.listNumber != ''"> and t.list_number like CONCAT('%',#{param.listNumber},'%')</if>
+		<if test="param.sendCompany != null and param.sendCompany != ''"> and t.send_company = #{param.sendCompany}</if>
+		<if test="param.receiveCompany != null and param.receiveCompany != ''"> and t.receive_company like CONCAT('%',#{param.receiveCompany},'%')</if>
+		<if test="param.status != null and param.status != ''"> and t.status like CONCAT('%',#{param.status},'%')</if>
+		<if test="param.ksrq != null and param.ksrq != ''">
+			<![CDATA[ and DATE_FORMAT(t.update_time, '%Y-%m-%d') >= #{param.ksrq}]]>
+		</if>
+		<if test="param.jsrq != null and param.jsrq != ''">
+			<![CDATA[ and DATE_FORMAT(t.update_time, '%Y-%m-%d') <= #{param.jsrq}]]>
+		</if>
+	</select>
+	
+	<select id="getHxMaterialHistoryPageList" parameterType="com.gome.common.page.Page" resultType="hashmap">
+		SELECT t1.fitting_auth_name AS type, t.type AS type_hidden, t.list_number, t.send_number, t2.NAME AS send_company
+			, t3.NAME AS receive_company, t4.code_value AS STATUS, t.STATUS AS status_hidden, t.update_time, t.proposer
+			, t.process_instance_id AS processInstanceId_hidden
+		FROM hx_material_manage t LEFT JOIN hx_fitting_auth t1 ON t.type = t1.fitting_auth_id 
+		LEFT JOIN hx_organization_unload t2 ON t.send_company = t2.id 
+		LEFT JOIN hx_organization_unload t3 ON t.receive_company = t3.id LEFT JOIN v_code t4 ON t4.code_id = 'djzt'
+		AND t.STATUS = t4.code_key
+		WHERE 
+			t.STATUS = 'S0'
+		<if test="param.fittingOrgId != null and param.fittingOrgId != ''"> and t.fitting_org_id=#{param.fittingOrgId}</if>
+		<if test="param.userAccount != null and param.userAccount != ''"> and t.create_person=#{param.userAccount}</if>
+		<if test="param.type != null and param.type != ''"> and t.type=#{param.type}</if>
+		<if test="param.listNumber != null and param.listNumber != ''"> and t.list_number like CONCAT('%',#{param.listNumber},'%')</if>
+		<if test="param.sendCompany != null and param.sendCompany != ''"> and t.send_company = #{param.sendCompany}</if>
+		<if test="param.receiveCompany != null and param.receiveCompany != ''"> and t.receive_company like CONCAT('%',#{param.receiveCompany},'%')</if>
+		<if test="param.status != null and param.status != ''"> and t.status like CONCAT('%',#{param.status},'%')</if>
+		<if test="param.proposer != null and param.proposer !=''">and t.proposer like CONCAT('%',#{param.proposer},'%')</if>
+		<if test="param.ksrq != null and param.ksrq != ''">
+			<![CDATA[ and DATE_FORMAT(t.update_time, '%Y-%m-%d') >= #{param.ksrq}]]>
+		</if>
+		<if test="param.jsrq != null and param.jsrq != ''">
+			<![CDATA[ and DATE_FORMAT(t.update_time, '%Y-%m-%d') <= #{param.jsrq}]]>
+		</if>
+		ORDER BY t.update_time DESC
+	</select>
+	
+	<!-- 邮包收发货历史 -->      
+	<select id="getHxParcelPageList" parameterType="com.gome.common.page.Page" resultType="hashmap">
+		SELECT DISTINCT
+		 a.org_id, a.parcel_code, a.bills_code, a.carrier_unit, a.state,a.update_date, 
+		    a.send_date, a.delivery_way, a.trantransportation_expenses, a.package_number, a.package_weight, 
+		    a.package_volume, a.volume_weight, a.receive_name, a.receive_phone, a.receive_post, a.receive_address, 
+		    a.note, v3.user_name founders, a.founder_date, v4.user_name modefieds, a.modefied_date, a.send_number, 
+		    a.out_date, a.receive_date, a.type,
+		    v.name receive_unit, 
+		    v2.name send_unit
+		FROM
+			hx_parcel_delivery a 
+			LEFT JOIN hx_organization_unload v ON v.id IS NOT NULL AND v.id = a.receive_unit
+			LEFT JOIN hx_organization_unload v2 ON v2.id IS NOT NULL AND v2.id = a.send_unit
+			LEFT JOIN hx_user_unload v3 on v3.user_login_name = a.founders
+			LEFT JOIN hx_user_unload v4 on v4.user_login_name = a.modefieds
+			JOIN hx_parcel_material pm ON pm.parcel_code = a.parcel_code
+			AND pm.list_number IN (
+				SELECT
+					t.work_entity_id
+				FROM
+					JBPM4_TASK_TRAJECTTORY t
+				WHERE
+					t.current_activity IN ('S7', 'S8')
+			)
+		WHERE 
+			1=1
+		<choose>
+			<when test="param.fittingOrgId != null and param.fittingOrgId !=''">
+				AND (((a.state ='02' or a.state='03') and a.send_unit= #{param.fittingOrgId})
+					 OR
+		 		(a.state ='03' and a.receive_unit= #{param.fittingOrgId}))
+			</when>
+			<otherwise>
+				AND (a.state ='02' or a.state='03')
+			</otherwise>
+		</choose>
+		<if test="param.parcelCode!= null and param.parcelCode!= '' ">
+		   and a.parcel_code like CONCAT('%',#{param.parcelCode},'%')</if>
+	    <if test="param.billsCode!= null and param.billsCode!= '' ">
+		   and a.bills_code like CONCAT('%',#{param.billsCode},'%')</if>
+        <if test="param.sendUnit!= null and param.sendUnit!= '' ">
+		   and a.send_unit like CONCAT('%',#{param.sendUnit},'%')</if>
+	    <if test="param.receiveUnit!= null and param.receiveUnit!= '' ">
+		   and a.receive_unit like CONCAT('%',#{param.receiveUnit},'%')</if>
+		<if test="param.carrierUnit!= null and param.carrierUnit!= '' ">
+		   and a.carrier_unit like CONCAT('%',#{param.carrierUnit},'%')</if>
+		<if test="param.sendDate_sta !=null and param.sendDate_sta != '' ">
+		   <![CDATA[ and DATE_FORMAT(a.send_date, '%Y-%m-%d') >= #{param.sendDate_sta}]]></if>
+		<if test="param.sendDate_end !=null and param.sendDate_end != '' ">
+		   <![CDATA[ and DATE_FORMAT(a.send_date, '%Y-%m-%d') <= #{param.sendDate_end}]]> </if>
+		ORDER BY a.update_date DESC    
+	</select> 
+	
+	<select id="isExist" parameterType="hashmap" resultMap="currentStockMap">
+		select * from hx_current_stock where org_id=#{companyId,jdbcType=VARCHAR} and fitting_code=#{fittingCode,jdbcType=VARCHAR} and is_new = #{isNew, jdbcType=BIT}
+	</select>
+	
+	<select id="exportMP08Excel" parameterType="java.lang.String" resultType="hashmap">
+	SELECT
+	a.list_number listNumber,
+	fa.fitting_auth_name
+	fittingAuthName,
+	v3.user_name createPerson,
+	a.apply_date applyDate,
+	task3.participant participants3,
+	task3.create_date createdates3,
+	task4.participant participants4,
+	task4.create_date createdates4,
+	t.fitting_code fittingCode,
+	t1.fitting_name fittingName,
+	t.price,
+	t.apply_count applyCount,
+	t.COMMENT
+	FROM
+	hx_material_manage a
+	LEFT JOIN hx_user_unload v3 ON v3.user_login_name = a.create_person
+	LEFT JOIN hx_user_unload v4 ON v4.user_login_name = a.update_person
+	LEFT JOIN JBPM4_TASK_TRAJECTTORY task3 ON task3.current_activity = 'S3'
+	AND task3.work_entity_id = a.list_number
+	LEFT JOIN JBPM4_TASK_TRAJECTTORY task4 ON task4.current_activity = 'S4'
+	AND task4.work_entity_id = a.list_number
+	LEFT JOIN hx_material_detail t ON a.list_number = t.list_number
+	LEFT JOIN hx_fitting_detail t1 ON t.fitting_code = t1.fitting_code
+	LEFT JOIN hx_fitting_auth fa ON fa.fitting_auth_id = a.type
+	WHERE
+	a.list_number = #{listNumber}
+</select>
+	
+	<select id="exportBatchMP08Excel" parameterType="map" resultType="hashmap">
+	SELECT
+	a.list_number listNumber,
+	fa.fitting_auth_name fittingAuthName,
+	v3.user_name createPerson,
+	a.apply_date applyDate,
+	task3.participant
+	participants3,
+	task3.create_date createdates3,
+	task4.participant
+	participants4,
+	task4.create_date createdates4,
+	t.fitting_code
+	fittingCode,
+	t1.fitting_name fittingName,
+	t.price,
+	t.apply_count
+	applyCount,
+	t.COMMENT
+	FROM
+	hx_material_manage a
+	LEFT JOIN hx_user_unload v3 ON v3.user_login_name = a.create_person
+	LEFT JOIN hx_user_unload v4 ON v4.user_login_name = a.update_person
+	LEFT JOIN JBPM4_TASK_TRAJECTTORY task3 ON task3.current_activity = 'S3'
+	AND task3.work_entity_id = a.list_number
+	LEFT JOIN JBPM4_TASK_TRAJECTTORY task4 ON task4.current_activity = 'S4'
+	AND task4.work_entity_id = a.list_number
+	LEFT JOIN hx_material_detail t ON a.list_number = t.list_number
+	LEFT JOIN hx_fitting_detail t1 ON t.fitting_code = t1.fitting_code
+	LEFT JOIN hx_fitting_auth fa ON fa.fitting_auth_id = a.type
+	WHERE a.type='wd-bw-xs'
+	<if test="listNumber != null and listNumber !='' ">
+		and a.list_number like CONCAT('%',#{listNumber},'%')
+	</if>
+	<if test="ksrq != null and ksrq != ''">
+			<![CDATA[ and DATE_FORMAT(a.apply_date, '%Y-%m-%d') >= #{ksrq}]]>
+	</if>
+	<if test="jsrq != null and jsrq != ''">
+			<![CDATA[ and DATE_FORMAT(a.apply_date, '%Y-%m-%d') <= #{jsrq}]]>
+	</if>
+</select>
+	
+	<insert id="addHxMaterialManage" parameterType="com.gome.gmhx.entity.HxMaterialManage" >
+	    insert into hx_material_manage (type, send_company,
+	      receive_company, list_number, proposer, 
+	      apply_date, comment, customer_name,
+	      customer_tel, address, status, fitting_org_id,
+	      create_person, create_time, update_person, 
+	      update_time,process_instance_id,applicant,fitting_position_id,move_direction,related_list_number,in_batch,out_batch)
+	    values (#{type,jdbcType=VARCHAR}, #{sendCompany,jdbcType=VARCHAR}, 
+	      #{receiveCompany,jdbcType=VARCHAR}, #{listNumber,jdbcType=VARCHAR}, #{proposer,jdbcType=VARCHAR}, 
+	      #{applyDate,jdbcType=TIMESTAMP}, #{comment,jdbcType=VARCHAR}, #{customerName,jdbcType=VARCHAR}, 
+	      #{customerTel,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR},
+	      #{fittingOrgId,jdbcType=VARCHAR}, #{createPerson,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
+	      #{updatePerson,jdbcType=VARCHAR}, #{updateTime,jdbcType=TIMESTAMP},
+	      #{processInstanceId},#{applicant},#{fittingPositionId},#{moveDirection},#{relatedListNumber},#{inBatch},#{outBatch})
+	</insert>
+	
+	<insert id="addHxMaterialDetail">
+	    insert into hx_material_detail (list_number, suit_model, fitting_code, 
+	      apply_count, audit_count, price, comment) values 
+	    <foreach collection="list" item="lt" separator=",">
+    		(#{lt.listNumber,jdbcType=VARCHAR}, #{lt.suitModel,jdbcType=VARCHAR}, #{lt.fittingCode,jdbcType=VARCHAR}, 
+	      	#{lt.applyCount,jdbcType=INTEGER},#{lt.auditCount,jdbcType=INTEGER},
+	      	#{lt.price,jdbcType=FLOAT}, #{lt.comment,jdbcType=VARCHAR})
+		</foreach>
+	</insert>
+	
+	<insert id="insertRkCount">
+	    insert into hx_current_stock (org_id, fitting_code, stock, type, is_new) values 
+	    (#{companyId,jdbcType=VARCHAR}, #{fittingCode,jdbcType=VARCHAR}, #{stock,jdbcType=INTEGER},
+	    #{type,jdbcType=VARCHAR}, #{isNew,jdbcType=BIT})
+	</insert>
+
+	<update id="updateStatus" parameterType="hashmap">
+		update hx_material_manage set status=#{status} where list_number=#{listNumber}
+	</update>
+	
+	<update id="updateRkCount" parameterType="hashmap">
+		UPDATE hx_current_stock set stock = stock + #{stock,jdbcType=INTEGER}
+		WHERE org_id = #{companyId,jdbcType=VARCHAR} and fitting_code = #{fittingCode,jdbcType=VARCHAR} and is_new = #{isNew, jdbcType=BIT}
+	</update>
+	
+	<update id="updateCkCount" parameterType="hashmap">
+		<foreach collection="detail" item="item" index="index">
+			UPDATE hx_current_stock set stock = stock - #{item.applyCount,jdbcType=INTEGER}
+			WHERE org_id = #{companyId,jdbcType=VARCHAR} and is_new = #{isNew, jdbcType=BIT}
+		</foreach>
+	</update>
+	
+	<delete id="delHxMaterialDetail" parameterType="string">
+		delete from hx_material_detail where list_number = #{listNumber}
+	</delete>
+	
+	<delete id="delHxMaterialManage" parameterType="string">
+		delete from hx_material_manage where list_number = #{listNumber}
+	</delete>
+	
+	 <update id="updateHxMaterialManage" parameterType="com.gome.gmhx.entity.HxMaterialManage" >
+    update hx_material_manage
+    <set >
+      <if test="type != null" >
+        type = #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="sendCompany != null" >
+        send_company = #{sendCompany,jdbcType=VARCHAR},
+      </if>
+      <if test="receiveCompany != null" >
+        receive_company = #{receiveCompany,jdbcType=VARCHAR},
+      </if>
+      <if test="proposer != null" >
+        proposer = #{proposer,jdbcType=VARCHAR},
+      </if>
+      <if test="applyDate != null" >
+        apply_date = #{applyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="comment != null" >
+        comment = #{comment,jdbcType=VARCHAR},
+      </if>
+      <if test="customerName != null" >
+        customer_name = #{customerName,jdbcType=VARCHAR},
+      </if>
+      <if test="customerTel != null" >
+        customer_tel = #{customerTel,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="fittingOrgId != null" >
+        fitting_org_id = #{fittingOrgId,jdbcType=VARCHAR},
+      </if>
+      <if test="createPerson != null" >
+        create_person = #{createPerson,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatePerson != null" >
+        update_person = #{updatePerson,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="processInstanceId != null" >
+        process_instance_id = #{processInstanceId,jdbcType=VARCHAR},
+      </if>
+      <if test="applicant != null" >
+        applicant = #{applicant,jdbcType=VARCHAR},
+      </if>
+       <if test="fittingPositionId != null" >
+        fitting_position_id = #{fittingPositionId,jdbcType=VARCHAR},
+      </if>
+      <if test="sendNumber != null" >
+      	send_number = #{sendNumber, jdbcType=VARCHAR},
+      </if>
+      <if test="moveDirection != null">
+      	move_direction = #{moveDirection},
+      </if>
+      <if test="relatedListNumber != null">
+      	related_list_number = #{relatedListNumber},
+      </if>
+      <if test="inBatch != null">
+      	in_batch = #{inBatch},
+      </if>
+      <if test="outBatch != null">
+      	out_batch = #{outBatch}
+      </if>
+    </set>
+    where list_number = #{listNumber,jdbcType=VARCHAR}
+  </update>
+
+  <select id="getBatchNumber" resultType="long">
+  	select batch_number from hx_increment_config
+  </select>
+  
+  <update id="updateIncrementBatchNumber">
+  	update hx_increment_config set batch_number = batch_number+1;
+  </update>
+	
+	
+</mapper>

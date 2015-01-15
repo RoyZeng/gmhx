@@ -1,0 +1,16 @@
+#mysql
+jdbc.driverClass=com.mysql.jdbc.Driver
+jdbc.jdbcUrl=jdbc:mysql://10.128.11.129:3306/gmhx600?characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull
+jdbc.user=root
+jdbc.password=mysql
+
+sqlserver_driverName=com.microsoft.sqlserver.jdbc.SQLServerDriver
+sqlserver_url=jdbc:sqlserver://10.128.15.201:1433; DatabaseName=Gmhx
+sqlserver_username=shengx
+sqlserver_passsword=Shengx1229
+
+jdbc.maxActive = 2
+jdbc.maxIdle =5
+jdbc.minIdle=1
+jdbc.initialSize =3
+jdbc.maxWait =3000

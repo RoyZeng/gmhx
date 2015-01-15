@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+	http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.1.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+	                    http://www.springframework.org/schema/task 
+	                    http://www.springframework.org/schema/task/spring-task-3.1.xsd">
+	
+	<context:annotation-config/>
+    <context:component-scan base-package="com.gome.gmhx.schedule" />
+       
+	<!-- 注解形式定时器，需要扫描包 -->
+    <task:executor id="executor" pool-size="5" />
+    <task:scheduler id="scheduler" pool-size="10" />
+    <task:annotation-driven executor="executor" scheduler="scheduler" />
+    
+    <bean id="GetAccountJob" class="com.gome.gmhx.schedule.GetAccountJob"/>
+    <bean id="GetAccountJobMethod" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject">
+            <ref bean="GetAccountJob"/>
+        </property>
+        <property name="targetMethod">  <!-- 要执行的方法名称 -->
+            <value>getAccount</value>
+        </property>
+    </bean>
+    
+    <bean id="UnloadOrganization" class="com.gome.gmhx.schedule.UnloadOrganization"/>
+    <bean id="UnloadOrganizationMethod" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject">
+            <ref bean="UnloadOrganization"/>
+        </property>
+        <property name="targetMethod">  <!-- 要执行的方法名称 -->
+            <value>unloadOrganization</value>
+        </property>
+    </bean>
+    
+    <bean id="UnloadUser" class="com.gome.gmhx.schedule.UnloadUser"/>
+    <bean id="UnloadUserMethod" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject">
+            <ref bean="UnloadUser"/>
+        </property>
+        <property name="targetMethod">  <!-- 要执行的方法名称 -->
+            <value>unloadUser</value>
+        </property>
+    </bean>
+    
+    <bean id="SynchronizeOrganizationUser" class="com.gome.gmhx.schedule.SynchronizeOrganizationUser"/>
+    <bean id="SynchronizeOrganizationUserMethod" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject">
+            <ref bean="SynchronizeOrganizationUser"/>
+        </property>
+        <property name="targetMethod">  <!-- 要执行的方法名称 -->
+            <value>synchronizeOrganizationUser</value>
+        </property>
+    </bean>
+    
+    <bean id="UnloadEmpUser" class="com.gome.gmhx.schedule.UnloadEmpUser"/>
+    <bean id="UnloadEmpUserMethod" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject">
+            <ref bean="UnloadEmpUser"/>
+        </property>
+        <property name="targetMethod">  <!-- 要执行的方法名称 -->
+            <value>unloadEmpUser</value>
+        </property>
+    </bean>
+    
+    <bean id="SettlementTicket" class="com.gome.gmhx.schedule.CreateSettlementTicketJob"/>
+    <bean id="SettlementTicketMethod" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject">
+            <ref bean="SettlementTicket"/>
+        </property>
+        <property name="targetMethod">  <!-- 要执行的方法名称 -->
+            <value>createSettlementTicket</value>
+        </property>
+    </bean>
+    
+     <bean id="codeSynchCachebean" class="com.gome.common.bean.InitCodeBean"/>
+     <bean id="codeSynchCacheMethod" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject">
+            <ref bean="codeSynchCachebean"/>
+        </property>
+        <property name="targetMethod">  <!-- 要执行的方法名称 -->
+            <value>codeSynchCache</value>
+        </property>
+    </bean>
+
+    <!-- ======================== 调度触发器 ======================== -->
+    <bean id="CronTriggerBean" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="GetAccountJobMethod"></property>
+        <property name="cronExpression" value="0 15 * * * ?"></property>
+    </bean>
+    
+    <!-- ======================== 调度触发器 ======================== -->
+    <bean id="CronTriggerBean_unloadOrganization" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="UnloadOrganizationMethod"></property>
+        <property name="cronExpression" value="0 59 23 * * ?"></property>
+    </bean>
+    
+     <!-- ======================== 调度触发器 ======================== -->
+    <bean id="CronTriggerBean_unloadUser" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="UnloadUserMethod"></property>
+        <property name="cronExpression" value="0 59 23 * * ?"></property>
+    </bean>
+    
+    <!-- ======================== 调度触发器 ======================== -->
+    <bean id="CronTriggerBean_synchronizeOrganizationUser" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="SynchronizeOrganizationUserMethod"></property>
+        <property name="cronExpression" value="0 0/2 * * * ?"></property>
+    </bean>
+    
+     <!-- ======================== 调度触发器 ======================== -->
+    <bean id="CronTriggerBean_unloadEmpUser" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="UnloadEmpUserMethod"></property>
+        <property name="cronExpression" value="0 59 23 * * ?"></property>
+    </bean>
+    
+    <!-- ======================== 调度触发器 ======================== -->
+    <bean id="CronTriggerBean_createSettlementTicket" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="SettlementTicketMethod"></property>
+        <property name="cronExpression" value="0 0 1 1 * ?"></property>
+    </bean>
+		
+	 <!-- ======================== 调度触发器 ======================== -->
+	  <bean id="CronTriggerBean_codeSynchCache" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="codeSynchCacheMethod"></property>
+        <property name="cronExpression" value="0 0 4 * * ?"></property>
+    </bean>
+    <!-- ======================== 调度工厂 ======================== -->
+    <!-- 
+    <bean id="SpringJobSchedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+    	<property name="autoStartup"><value>true</value></property>
+        <property name="triggers">
+            <list>
+                <ref bean="CronTriggerBean"/>
+                <ref bean="CronTriggerBean_unloadOrganization"/>
+                <ref bean="CronTriggerBean_unloadUser"/>
+                <ref bean="CronTriggerBean_synchronizeOrganizationUser"/>
+                <ref bean="CronTriggerBean_unloadEmpUser"/>
+                <ref bean="CronTriggerBean_createSettlementTicket"/>
+                <ref bean="CronTriggerBean_codeSynchCache"/>
+            </list>
+        </property>
+    </bean>  
+     -->
+</beans>

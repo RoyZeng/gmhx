@@ -1,0 +1,23 @@
+package com.gome.gmhx.dao.hxhistory;
+
+import java.util.List;
+import java.util.Map;
+
+import com.gome.common.page.Page;
+
+/** 
+ * @author 作者:wanghaojie
+ * @date 创建时间：2015年1月12日 上午10:09:11 
+ * @version 1.0 
+ * @parameter  
+ * @since  
+ * @return  
+ */
+public interface HxHistoryData {
+	
+	public List<Map<String,Object>> getHistoryTicketPageList(Page page);
+
+	public Map<String, Object> getHistoryTicketById(String serviceId);
+	
+	public List<String> getHistoryTicketByBarCode(String barCode);
+}

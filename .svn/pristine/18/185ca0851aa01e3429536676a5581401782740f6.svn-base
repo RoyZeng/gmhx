@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gome.gmhx.dao.sysconfig.HxPositionDao" >
+  <resultMap id="BaseResultMap" type="com.gome.gmhx.entity.HxPosition" >
+    <id column="position_code" property="positionCode" jdbcType="VARCHAR" />
+    <result column="position_name" property="positionName" jdbcType="VARCHAR" />
+    <result column="position_type" property="positionType" jdbcType="VARCHAR" />
+    <result column="org_id" property="orgId" jdbcType="VARCHAR" />
+    <result column="from_type" property="fromType" jdbcType="VARCHAR" />
+    <result column="position_origin" property="positionOrigin" jdbcType="VARCHAR" />
+    <result column="position_org_name" property="positionOrgName" jdbcType="VARCHAR" />
+    <result column="modify_date" property="modifyDate" jdbcType="TIMESTAMP" />
+    <result column="role_id" property="roleId" jdbcType="VARCHAR" />
+    <result column="role_name" property="roleName" jdbcType="VARCHAR" />
+  </resultMap>
+ 
+ <resultMap id="positionCategoryMap" type="com.gome.gmhx.entity.EccGoodsCategory" >
+    <result column="class" property="class_" jdbcType="VARCHAR" />
+    <result column="kschl" property="kschl" jdbcType="VARCHAR" />
+    <result column="zsjfldm" property="zsjfldm" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <select id="getPositionPageList" parameterType="com.gome.common.page.Page" resultMap="BaseResultMap">
+		select t.position_code,t.position_name,t.position_type,t.org_id,t.from_type,t.position_origin,t.position_org_name,t.modify_date,hr.role_name from (
+		select hp.position_code, hp.position_name, hp.position_type,hp.org_id,'0' as from_type,hp.position_origin,hou.name as position_org_name,hp.modify_date from hx_position hp left join hx_organization_unload hou on hp.org_id = hou.id
+		union select distinct(ep.positioncode) as position_code, ep.positionname as position_name,'0' as position_type,left(ep . positioncode, (length(ep . positioncode) - 10))  AS org_id,'1' as from_type,'gome' as position_origin,onebranchname as position_org_name,null as modify_date from emp_empposition  ep ) t
+		left join hx_position_role hpr on t.position_code = hpr.position_id
+		left join hx_role hr on hpr.role_id = hr.role_id
+ 		where 1=1
+		<if test="param.positionCode != null and param.positionCode != ''">
+		   and t.position_code like CONCAT('%',#{param.positionCode},'%')
+		</if>
+		<if test="param.positionName != null and param.positionName != ''">
+		   and t.position_name like CONCAT('%',#{param.positionName},'%')
+		</if>
+		<if test="param.positionOrigin != null and param.positionOrigin != ''">
+		   and t.position_origin = #{param.positionOrigin,jdbcType=VARCHAR}
+		</if>
+		<if test="param.orgId != null and param.orgId != ''">
+		   and t.org_id = #{param.orgId,jdbcType=VARCHAR}
+		</if>
+		<if test="param.positionType != null and param.positionType != ''">
+		   and t.position_type = #{param.positionType,jdbcType=VARCHAR}
+		</if>
+		<if test="param.roleId != null and param.roleId != ''">
+		   and hpr.role_id = #{param.roleId,jdbcType=VARCHAR}
+		</if>
+		order by t.modify_date desc
+  </select>
+  
+    <select id="exportPositionRoleJbpmExcel" parameterType="com.gome.gmhx.entity.HxPosition" resultType="hashmap">
+  SELECT
+	t.position_name AS positionName,
+	hr.role_name AS roleName,
+	t.position_org_name as orgName,
+    t.jbpmRoleName
+FROM
+	(
+		SELECT
+			hp.position_code,
+			hp.position_name,
+			hp.position_origin,
+			hp.org_id,
+			hou. NAME AS position_org_name,
+      pm.jbpm_role_name as jbpmRoleName
+		FROM
+			hx_position hp
+		LEFT JOIN hx_organization_unload hou ON hp.org_id = hou.id
+    LEFT JOIN JBPM4_POSITION_MAPPING pm on pm.position_code=hp.position_code
+		UNION
+			SELECT DISTINCT
+				(ep.positioncode) AS position_code,
+				ep.positionname AS position_name,
+				'gome' AS position_origin,
+				left(ep . positioncode, (length(ep . positioncode) - 10))  AS org_id,
+				onebranchname AS position_org_name,
+        pm.jbpm_role_name as jbpmRoleName
+			FROM
+				emp_empposition ep
+     LEFT JOIN JBPM4_POSITION_MAPPING pm on pm.position_code=ep.positioncode
+	) t
+LEFT JOIN hx_position_role hpr ON t.position_code = hpr.position_id
+LEFT JOIN hx_role hr ON hpr.role_id = hr.role_id
+WHERE 1 = 1 AND t.position_origin = #{positionOrigin,jdbcType=VARCHAR}
+<if test="positionCode != null and positionCode != ''">
+		   and t.position_code like CONCAT('%',#{positionCode},'%')
+		</if>
+		<if test="positionName != null and positionName != ''">
+		   and t.position_name like CONCAT('%',#{positionName},'%')
+		</if>
+		<if test="orgId != null and orgId != ''">
+		   and t.org_id = #{orgId,jdbcType=VARCHAR}
+		</if>
+		<if test="roleId != null and roleId != ''">
+		   and hpr.role_id = #{roleId,jdbcType=VARCHAR}
+		</if>
+  </select>
+  
+  
+  
+  <select id="getPositionById" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select hp.position_code,hp.position_name, hp.position_type,hp.org_id,'0' as from_type,hp.position_origin,hou.name as position_org_name,hpr.role_id,hr.role_name
+ 	from hx_position hp left join hx_organization_unload hou on hp.org_id = hou.id 
+ 	left join hx_position_role hpr on hp.position_code = hpr.position_id
+    left join hx_role hr on hpr.role_id = hr.role_id where 0=0
+    and hp.position_code = #{positionCode,jdbcType=VARCHAR}
+  </select>
+  
+  
+  <insert id="addPosition" parameterType="com.gome.gmhx.entity.HxPosition" >
+    insert into hx_position (position_name,position_type,org_id,position_code,position_origin,modify_date)
+    values (#{positionName,jdbcType=VARCHAR}, 
+    #{positionType,jdbcType=VARCHAR}, #{orgId,jdbcType=VARCHAR}, #{positionCode,jdbcType=VARCHAR}, #{positionOrigin,jdbcType=VARCHAR},#{modifyDate,jdbcType=TIMESTAMP})
+  </insert>
+  
+    <insert id="insertPositionBatch" parameterType="java.util.List">
+     INSERT INTO hx_position (
+    position_code,position_name,org_id,position_origin,modify_date
+    )
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+     (#{item.positionCode,jdbcType=VARCHAR},#{item.positionName,jdbcType=VARCHAR},
+      #{item.orgId,jdbcType=VARCHAR},#{item.positionOrigin,jdbcType=VARCHAR},#{item.modifyDate,jdbcType=TIMESTAMP})
+    </foreach>
+  </insert>
+  
+  <delete id = "deletePositionRoleByPositionIdBatch" parameterType = "java.util.List">  
+    <![CDATA[  
+       delete from hx_position_role where position_id in  
+    ]]>  
+    <foreach collection="list" item = "model" open="(" separator="," close=")">
+    #{model.positionCode}  
+    </foreach>  
+</delete> 
+
+ <insert id="insertPositionRoleBatch" parameterType="java.util.List">
+     INSERT INTO hx_position_role (
+    position_id,role_id
+    )
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+     (#{item.positionCode,jdbcType=VARCHAR},#{item.roleId,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+  
+  <insert id="insertPositionMappingBatch" parameterType="java.util.List">
+     INSERT INTO JBPM4_POSITION_MAPPING (
+    id,jbpm_role_code,jbpm_role_name,position_code
+    )
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+     (#{item.id,jdbcType=VARCHAR},#{item.jbpmRoleCode,jdbcType=VARCHAR},#{item.jbpmRoleName,jdbcType=VARCHAR},#{item.positionCode,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+  
+ 
+  <update id="updatePosition" parameterType="com.gome.gmhx.entity.HxPosition" >
+    update hx_position
+    set position_code = #{positionCode,jdbcType=VARCHAR},
+    position_name = #{positionName,jdbcType=VARCHAR},
+    position_type = #{positionType,jdbcType=VARCHAR},
+    org_id = #{orgId,jdbcType=VARCHAR},
+    position_origin = #{positionOrigin,jdbcType=VARCHAR},
+    modify_date = #{modifyDate,jdbcType=TIMESTAMP}
+    where position_code = #{oldPositionCode,jdbcType=VARCHAR}
+  </update>
+  
+   <select id="getPositionByCode" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select  positioncode as position_code,positionname as position_name,'0' as position_type,'1' as from_type,'gome' as position_origin,positioncode as position_code,onebranchname as position_org_name,hpr.role_id,hr.role_name from emp_empposition 
+    left join hx_position_role hpr on positioncode = hpr.position_id
+    left join hx_role hr on hpr.role_id = hr.role_id where 0=0
+    and positioncode = #{positionCode,jdbcType=VARCHAR}
+  </select>
+  
+  
+<select id="checkPositionBycode"  resultType="java.lang.Integer" parameterType="java.lang.String">
+select count(*) from (
+select p.position_code from hx_position p where p.position_code= #{positionCode,jdbcType=VARCHAR}
+union
+select ep.positioncode from emp_empposition ep where ep.positioncode=#{positionCode,jdbcType=VARCHAR}
+) t
+
+</select>
+
+  
+   <select id="getOtherPositionPageListBYCodeName" resultMap="BaseResultMap" parameterType="com.gome.common.page.Page">
+select * from (select distinct p.position_name,p.position_type,p.org_id,p.position_code,p.position_origin
+  from hx_position p
+ where 1 = 1
+   and not exists (select *
+          from JBPM4_POSITION_MAPPING pm
+         where pm.jbpm_role_code = #{param.jbpmRoleCode,jdbcType=VARCHAR}
+           and pm.jbpm_role_name = #{param.jbpmRoleName,jdbcType=VARCHAR}
+           and p.position_code = pm.position_code)
+           <if test="param.positionName != null and param.positionName != ''">
+		   and p.position_name like CONCAT('%',#{param.positionName},'%')
+		</if>
+UNION
+select distinct emp.positionname as position_name,
+       '0' as position_type,
+       left(emp.positioncode, (length(emp.positioncode) - 10)) AS org_id,
+       emp.positioncode as position_code,
+       'gome' as position_origin
+  from emp_empposition emp
+ where 1 = 1
+   and not exists (select *
+          from JBPM4_POSITION_MAPPING pm
+         where pm.jbpm_role_code = #{param.jbpmRoleCode,jdbcType=VARCHAR}
+           and pm.jbpm_role_name = #{param.jbpmRoleName,jdbcType=VARCHAR}
+           and emp.positioncode = pm.position_code)
+           <if test="param.positionName != null and param.positionName != ''">
+		   and emp.positionname like CONCAT('%',#{param.positionName},'%')
+		</if>
+   ) t
+   
+   </select>
+   
+   <select id="getPositionPageListBYCodeName" resultMap="BaseResultMap" parameterType="com.gome.common.page.Page">
+select * from (select distinct p.position_name,p.position_type,p.org_id,p.position_code,p.position_origin
+  from hx_position p
+ where 1 = 1
+   and exists (select *
+          from JBPM4_POSITION_MAPPING pm
+         where pm.jbpm_role_code = #{param.jbpmRoleCode,jdbcType=VARCHAR}
+           and pm.jbpm_role_name = #{param.jbpmRoleName,jdbcType=VARCHAR}
+           and p.position_code = pm.position_code)
+           <if test="param.positionName != null and param.positionName != ''">
+		   and p.position_name like CONCAT('%',#{param.positionName},'%')
+		</if>
+UNION
+select distinct emp.positionname as position_name,
+       '0' as position_type,
+       left(emp.positioncode, (length(emp.positioncode) - 10)) AS org_id,
+       emp.positioncode as position_code,
+       'gome' as position_origin
+  from emp_empposition emp
+ where 1 = 1
+   and exists (select *
+          from JBPM4_POSITION_MAPPING pm
+         where pm.jbpm_role_code = #{param.jbpmRoleCode,jdbcType=VARCHAR}
+           and pm.jbpm_role_name = #{param.jbpmRoleName,jdbcType=VARCHAR}
+           and emp.positioncode = pm.position_code)
+           <if test="param.positionName != null and param.positionName != ''">
+		   and emp.positionname like CONCAT('%',#{param.positionName},'%')
+		</if>
+   ) t
+   </select>
+
+  <select id="getPositionCategoryTree" resultMap="positionCategoryMap">
+		select t.class,t.kschl,t.zsjfldm from ecc_goods_category t 
+  </select>
+ 
+  <select id="getPositionCategoryTreeData" resultMap="positionCategoryMap" parameterType="java.lang.String">
+		select hpc.position_category as class from hx_position_category hpc
+		where hpc.position_id = #{positionId,jdbcType=VARCHAR}
+  </select>
+  
+  <insert id="addPositionCategory" parameterType="com.gome.gmhx.entity.HxPosition" >
+    insert into hx_position_category (position_id, position_category)
+    values (#{positionCode,jdbcType=VARCHAR}, #{positionCategoryId,jdbcType=VARCHAR})
+  </insert>
+  
+  <delete id="deletePositionCategoryByPositionId" parameterType="java.lang.String" >
+    delete from hx_position_category where 1=1
+    <if test="_parameter != null and _parameter != '' " >
+      and position_id = #{_parameter,jdbcType=VARCHAR}
+    </if>
+  </delete>
+  
+  <select id="getPositionExport" parameterType="com.gome.gmhx.entity.HxPosition" resultType="hashMap">
+	select t.position_code as positionCode,t.position_name as positionName,
+	(case when (t.position_org_name is null) then ''  else t.position_org_name end) as positionOrgName,
+	(case when (t.position_type = '0') then '普通岗' when (t.position_type = '1') then '总部物料岗' when (t.position_type = '2') then '分部物料岗' when (t.position_type = '3') then '网点物料岗' else '' end) as positionTypeName ,
+	(case when (t.from_type = '0') then '系统创建' when (t.from_type = '1') then '身份管理平台'  else '' end) as fromType, '' as action 
+	from (
+	select hp.position_code, hp.position_name, hp.position_type,hp.org_id,'0' as from_type,hp.position_origin,hou.name as position_org_name,hp.modify_date from hx_position hp left join hx_organization_unload hou on hp.org_id = hou.id
+	union select distinct(ep.positioncode) as position_code, ep.positionname as position_name,'0' as position_type,left(ep . positioncode, (length(ep . positioncode) - 10))  AS org_id,'1' as from_type,'gome' as position_origin,onebranchname as position_org_name,ep.modifydate as modify_date from emp_empposition  ep 
+	) t where 1=1
+		<if test="positionName != null and positionName != ''">
+		   and t.position_name like CONCAT('%',#{positionName},'%')
+		</if>
+		<if test="positionOrigin != null and positionOrigin != ''">
+		   and t.position_origin = #{positionOrigin,jdbcType=VARCHAR}
+		</if>
+		<if test="orgId != null and orgId != ''">
+		   and t.org_id = #{orgId,jdbcType=VARCHAR}
+		</if>
+		<if test="positionType != null and positionType != ''">
+		   and t.position_type = #{positionType,jdbcType=VARCHAR}
+		</if>
+		order by t.modify_date desc
+  </select>
+  
+   <select id="getParentList" resultType="java.lang.String" parameterType="java.lang.String">
+   		select getParentList(#{id,jdbcType=VARCHAR}) pid
+  </select>
+  
+  <select id="getCategoryParentList" resultType="java.lang.String" parameterType="java.lang.String">
+   		select getCategoryParentList(#{id,jdbcType=VARCHAR}) pid
+  </select>
+  
+  <insert id="addPositionRole" parameterType="com.gome.gmhx.entity.HxPosition" >
+    insert into hx_position_role (position_id, role_id)
+    values (#{positionCode,jdbcType=VARCHAR}, #{roleId,jdbcType=VARCHAR})
+  </insert>
+  
+  <delete id="deletePositionRoleByPositionId" parameterType="java.lang.String" >
+    delete from hx_position_role where 1=1
+    <if test="_parameter != null and _parameter != '' " >
+      and position_id = #{_parameter,jdbcType=VARCHAR}
+    </if>
+  </delete>
+  
+</mapper>

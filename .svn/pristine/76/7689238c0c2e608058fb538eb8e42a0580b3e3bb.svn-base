@@ -1,0 +1,352 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ include file="../../inc/header.jsp"%>
+<%@ include file="../../inc/resource.inc"%>
+<script language="javascript" type="text/javascript" src="${ctx}/js/My97DatePicker/WdatePicker.js"></script>
+<script type="text/javascript">
+	var category;
+ 	var serviceUnit; 
+	$(function(){
+		$(".kongtiao").show();
+		$(".reshuiqi").hide();
+		$("#machineCode").val("");
+		$('#machineCode').validatebox({required: false});  
+		$('#internalMachineCode1').validatebox({required: true});  
+		$('#externalMachineCode').validatebox({required: true}); 
+	});
+	
+	function validate(){
+		if($("input[name=customerName]").val() == ""){alert("请输入客户姓名！");return false;};
+		if($("input[name=customerType]").val() == ""){alert("请输入客户类别！");return false;};
+		if($("input[name=province]").val() == ""){alert("请输入客户省份！");return false;};
+		if($("input[name=address]").val() == ""){alert("请输入客户联系地址！");return false;};
+		if($("input[name=machineType]").val() == ""){alert("请输入产品机型！");return false;};
+		if($("input[name=internalMachineCode1]").val() == ""){alert("请输入产品内机条码1！");return false;};
+		if($("input[name=externalMachineCode]").val() == ""){alert("请输入产品外机条码！");return false;};
+		if($("input[name=deliveryOrderNum]").val() == ""){alert("请输入产品提货单号！");return false;};
+		if($("input[name=invoiceNum]").val() == ""){alert("请输入产品发票号码！");return false;};
+		if($("input[name=buyer]").val() == ""){alert("请输入产品购买者姓名！");return false;};
+		if($("input[name=buyDate]").val() == ""){alert("请输入产品购机日期！");return false;};
+		if($("input[name=installDate]").val() == ""){alert("请输入产品安装日期！");return false;};
+		if($("input[name=installUnit]").val() == ""){alert("请输入产品 安装单位！");return false;};
+		if($("input[name=saleMarket]").val() == ""){alert("请输入产品 销售分部！");return false;};
+		if($("input[name=saleMarket]").val() == ""){alert("请输入产品销售门店！");return false;};
+		if($("input[name=installProvince]").val() == ""){alert("请输入产品安装省份！");return false;};
+		if($("input[name=installDetailAddress]").val() == ""){alert("请输入产品安装详细地址！");return false;};
+		if($("input[name=installer]").val() == ""){alert("请输入安装工！");return false;};
+		if($("input[name=warrantyPolicy]").val() == ""){alert("请输入保修政策！");return false;};
+		if($("input[name=productExteriorSatisfaction]").val() == ""){alert("请输入产品外观满意度！");return false;};
+		if($("input[name=productExteriorSignificance]").val() == ""){alert("请输入产品外观重要性！");return false;};
+		if($("input[name=qualitySatisfaction]").val() == ""){alert("请输入产品质量满意度！");return false;};
+		if($("input[name=qualitySignificance]").val() == ""){alert("请输入产品质量重要性！");return false;};
+		if($("input[name=priceSatisfaction]").val() == ""){alert("请输入价格满意度！");return false;};
+		if($("input[name=priceSignificance]").val() == ""){alert("请输入价格重要性！");return false;};
+		if($("input[name=serviceSatisfaction]").val() == ""){alert("请输入服务满意度！");return false;};
+		if($("input[name=serviceSignificance]").val() == ""){alert("请输入服务重要性！");return false;};
+		if($("input[name=physiologySatisfaction]").val() == ""){alert("请输入生理感受满意度！");return false;};
+		if($("input[name=physiologySignificance]").val() == ""){alert("请输入生理感受重要性！");return false;};
+		if($("input[name=isDoubleInstall]").val() == ""){alert("请输入是否二次安装！");return false;};
+		return true;
+	}
+	
+	$.serializeObject = function(form) {
+		var o = {};
+		$.each(form.serializeArray(), function(index) {
+			if (o[this['name']]) {
+				o[this['name']] = o[this['name']] + "," + this['value'];
+			} else {
+				o[this['name']] = this['value'];
+			}
+		});
+		return o;
+	};
+	
+	function save(){
+		if($("#formCustomer").form('validate')&&
+				$("#formProduct").form('validate')&&
+				$("#formTicket").form('validate')){
+			var serviceTicketVO = {};
+			serviceTicketVO.serviceCustomer = $.serializeObject($('#formCustomer'));
+			serviceTicketVO.serviceProduct = $.serializeObject($('#formProduct'));
+			serviceTicketVO.serviceTicket = $.serializeObject($('#formTicket')); 
+			serviceTicketVO.serviceProduct.installUnit = $("#installUnit").val();
+			$.ajax({
+	            type:"POST", 
+	            url:"${ctx}/installReceipt/saveInstallReceipt", 
+	            dataType:"json",      
+	            contentType:"application/json",               
+	            data:JSON.stringify(serviceTicketVO), 
+	            success:function(data){
+	            	if(data.flag == "success"){
+	            		$.messager.alert('', '保存成功!',null,function(){
+	 						window.location.href = "${ctx}/installReceipt/installReceiptView/" + data.serviceId;
+	            		});
+	            	}else{
+	            		$.messager.alert('',data.message);
+	            	}
+	            } 
+	        });
+		}
+	}
+	
+	function goBack() {
+		window.location.href = "${ctx}/installReceipt/installReceiptView";
+	}
+	
+	function fillForm(rec){
+		$("#gomeCode").combobox('setValue',rec.gomeCode); 
+		$("#brand").combobox('setValue',rec.brand); 
+		
+		if(rec.brand.indexOf("空调")>-1){
+			$(".kongtiao").show();
+			$(".reshuiqi").hide();
+			$("#machineCode").val("");
+			$('#machineCode').validatebox({required: false});  
+			$('#internalMachineCode1').validatebox({required: true});  
+			$('#externalMachineCode').validatebox({required: true}); 
+			
+		}else if(rec.brand.indexOf("热水器")>-1){
+			$(".kongtiao").hide();
+			$(".reshuiqi").show();
+			$("#internalMachineCode1").val("");
+			$("#internalMachineCode2").val("");
+			$("#externalMachineCode").val("");
+			$('#internalMachineCode1').validatebox({required: false});  
+			$('#externalMachineCode').validatebox({required: false});  
+			$('#machineCode').validatebox({required: true});  
+		}
+	}
+	
+	function fillCombo(rec){
+	    $("#saleMarket").combobox('reload','${ctx}/hxCode/getStoreCombobox?center=' + rec.value);
+	    $("#saleMarket").combobox('clear');
+	} 
+	
+	function selectCategory(rec){
+		category = rec.value;
+		if(category=="R03"){
+			$(".kongtiao").show();
+			$(".reshuiqi").hide();
+			$("#machineCode").val("");
+			$('#machineCode').validatebox({required: false});  
+			$('#internalMachineCode1').validatebox({required: true});  
+			$('#externalMachineCode').validatebox({required: true}); 
+		}else{
+			$(".kongtiao").hide();
+			$(".reshuiqi").show();
+			$("#internalMachineCode1").val("");
+			$("#internalMachineCode2").val("");
+			$("#externalMachineCode").val("");
+			$('#machineCode').validatebox({required: true});  
+			$('#internalMachineCode1').validatebox({required: false});  
+			$('#externalMachineCode').validatebox({required: false});
+		}
+		$("#machineType").combobox('clear');
+		$("#gomeCode").combobox('clear');
+		$("#brand").combobox('clear');
+		$("#machineType").combobox('reload',"${ctx}/hxCode/getModelCombobox?type=&category=" + category);
+	}
+	
+</script>
+<input type="hidden" id="continueToAddFlag" title="继续添加标志位" value="0">
+<form id="formCustomer" method="post">
+	<div style="background-color:#95b8e7; text-align:left; color:#fff; font-weight:bold; border-bottom: 1px solid #000;">客户信息</div>
+	<input name="customerId" value="${customerProduct.customerId }" type="hidden">
+	<table border=1 style="cellSpacing:1;cellPadding:3;width:100%;background-color:#eff5ff;border-collapse:collapse">
+		<tr>
+			<td width="20%">客户姓名<font color="red">*</font></td>
+			<td width="30%"><input id="customerName" name="customerName" type="text"   class="easyui-validatebox span2" value="${customerProduct.customerName}" data-options="required:true"></td>
+			<td width="20%">客户类别<font color="red">*</font></td>
+			<td width="30%">
+				<input class="easyui-combobox" name="customerType" data-options="url:'${ctx}/hxCode/getCombobox/khlb?value=${customerProduct.customerType}',panelHeight:'auto', editable:false,required:true"/>
+			</td>
+		</tr>
+		<tr>
+			<td>性别</td>
+			<td>
+				<input name="customerSex" class="easyui-combobox" data-options="url:'${ctx}/hxCode/getCombobox/xb?value=${customerProduct.customerSex}',panelHeight:'auto', editable:false"/>
+			</td>
+			<td>会员卡号</td>
+			<td><input name="memberNum"  type="text"  class="easyui-validatebox span2" value="${customerProduct.memberNum}"></td>
+		</tr>
+		<tr>
+			<td>省份<font color="red">*</font></td>
+			<td><input name="province" type="text" class="easyui-combobox" data-options="url:'${ctx}/hxCode/getRegionCombobox',panelHeight:'200', editable:true,required:true" value="${customerProduct.province}"></td>
+			<td>区号</td>
+			<td><input name="areaCode" type="text"  class="easyui-validatebox span2" value="${customerProduct.areaCode}"></td>
+		</tr>
+		<tr>
+			<td>手机</td>
+			<td><input name="phone" type="text"   class="easyui-validatebox span2" value="${customerProduct.phone }"></td>
+			<td>固定电话</td>
+			<td><input name="telephone" type="text"   class="easyui-validatebox span2" value="${customerProduct.telephone }"></td>
+		</tr>
+		<tr>
+			<td>E-MAIL</td>
+			<td><input name="email" type="text" data-options="validType:'email'"  class="easyui-validatebox span2" value="${customerProduct.email}"></td>
+			<td>邮编</td>
+			<td><input name="postcode" type="text"   class="easyui-validatebox span2" value="${customerProduct.postcode}"></td>
+		</tr>
+		<tr>
+			<td>联系地址<font color="red">*</font></td>
+			<td colspan="3"><textarea name="address" rows="2"  cols="80" class="easyui-validatebox span2" data-options="required:true">${customerProduct.address}</textarea></td>
+		</tr>
+		<tr>
+			<td>备注</td>
+			<td colspan="3"><textarea name="note"  rows="2" cols="80" class="easyui-validatebox span2" >${customerProduct.note}</textarea></td>
+		</tr>
+	</table> 
+</form>
+<form id="formProduct" method="post">
+	<div style="background-color:#95b8e7; text-align:left; color:#fff; font-weight:bold; border-bottom: 1px solid #000;">产品信息</div>
+	<input name="installNum" type="hidden" value=""/>
+	<table border=1 style="cellSpacing:1;cellPadding:3;width:100%;background-color:#eff5ff;border-collapse:collapse">
+		<tr>
+			<td  width="20%">品类<font color="red">*</font></td>
+			<td  width="30%">
+				<input class="easyui-combobox" name="category" data-options="url:'${ctx}/hxCode/getCategoryCombobox',onSelect:function(rec){selectCategory(rec)},panelHeight:'100', editable:false,required:true"/>
+			</td>
+		</tr>
+		
+		<tr>
+			<td width="20%">机型<font color="red">*</font></td>
+			<td width="30%"><input id="machineType" name="machineType" class="easyui-combobox" data-options="required:true,valueField:'value',textField:'text',onSelect: function(rec){fillForm(rec)},panelHeight:'auto'"/></td>
+			<td width="20%">国美代码</td>
+			<td width="30%"><input id="gomeCode" class="easyui-combobox" name="gomeCode" disabled="disabled" data-options="url:'${ctx}/hxCode/getCombobox/gmdm',panelHeight:'auto', editable:false" /></td>
+		</tr>
+		<tr>
+			<td>品牌</td>
+			<td><input id="brand" name="brand" class="easyui-combobox" disabled="disabled" data-options="valueField:'text',textField:'value',url:'${ctx}/hxCode/getCombobox/pp',panelHeight:'auto', editable:false"/></td>
+			<td class="reshuiqi">条码<font color="red">*</font></td>
+			<td class="reshuiqi"><input id="machineCode" name="machineCode" type="text" data-options="required:true" value="" class="easyui-validatebox span2"></td>
+			<td class="kongtiao">内机条1<font color="red">*</font></td>
+			<td class="kongtiao"><input id="internalMachineCode1" name="internalMachineCode1" type="text" data-options="required:true" value="" class="easyui-validatebox span2"></td>
+		</tr>
+		<tr class="kongtiao">
+			<td>内机条码2</td>
+			<td><input id="internalMachineCode2" name="internalMachineCode2" type="text" value=""  class="easyui-validatebox span2"></td>
+			<td>外机条码<font color="red">*</font></td>
+			<td><input id="externalMachineCode" name="externalMachineCode" type="text" value="" data-options="required:true" class="easyui-validatebox span2"></td>
+		</tr>
+		<tr>
+			<td>提货单号<font color="red">*</font></td>
+			<td><input name="deliveryOrderNum" type="text" data-options="required:true" value="" class="easyui-validatebox span2"></td>
+			<td>安装卡号</td>
+			<td><input name="installCardNum" type="text" value="" class="easyui-numberbox" class="easyui-validatebox span2"></td>
+		</tr>
+		<tr>
+			<td>单据序号</td>
+			<td><input name="ticketNum" type="text" value="" class="easyui-numberbox" class="easyui-validatebox span2"></td>
+			<td>发票号码<font color="red">*</font></td>
+			<td><input name="invoiceNum" type="text" data-options="required:true" value="" class="easyui-validatebox span2"></td>
+		</tr>
+		<tr>
+			<td>购买者姓名<font color="red">*</font></td>
+			<td><input name="buyer" type="text" data-options="required:true" value="" class="easyui-validatebox span2"></td>
+			<td>购机日期<font color="red">*</font></td>
+			<td>
+				<input id="buyDate" name="buyDate" type="text" data-options="required:true" readonly="readonly" class="easyui-validatebox span2">
+				<img onclick="WdatePicker({el:'buyDate'})" src="${ctx}/js/My97DatePicker/skin/datePicker.gif" width="16" height="22" align="absmiddle">
+			</td>
+		</tr>
+		<tr>
+			<td>安装日期<font color="red">*</font></td>
+			<td>
+				<input id="installDate" name="installDate" type="text" data-options="required:true" readonly="readonly"  class="easyui-validatebox span2">
+				<img onclick="WdatePicker({el:'installDate'})" src="${ctx}/js/My97DatePicker/skin/datePicker.gif" width="16" height="22" align="absmiddle">
+			</td>
+			<td>
+			</td>
+		</tr>
+		<tr>
+			<td>销售分部<font color="red">*</font></td>
+			<td><input id="saleCenter" name="saleCenter" type="text" class="easyui-combobox" data-options="url:'${ctx}/hxCode/getECCombobox',required:true,onSelect:function(rec){fillCombo(rec)}"></td>
+			<td>销售门店<font color="red">*</font></td>
+			<td><input id="saleMarket" name="saleMarket" type="text" class="easyui-combobox" data-options="required:true"></td>
+		</tr>
+		<tr>
+			<td>销售价格</td>
+			<td><input name="salePrice" type="text" value=""  class="easyui-validatebox span2"></td>
+			<td>安装省份<font color="red">*</font> </td>
+			<td><input name="installProvince" type="text"  class="easyui-combobox" data-options="url:'${ctx}/hxCode/getRegionCombobox',panelHeight:'200', editable:true,required:true" ></td>
+		</tr>
+		<tr>
+			<td>安装详细地址<font color="red">*</font></td>
+			<td colspan="3"><textarea name="installDetailAddress" class="easyui-validatebox span2" data-options="required:true" rows="2" cols="80"></textarea></td>
+		</tr>
+		<tr>
+			<td>备注</td>
+			<td colspan="3"><textarea name="productNote" rows="2" cols="80"></textarea></td>
+		</tr>
+	</table> 
+</form>
+<form id="formTicket" method="post">
+	<div style="background-color:#95b8e7; text-align:left; color:#fff; font-weight:bold; border-bottom: 1px solid #000;">安装单信息</div>
+	<table border=1 style="cellSpacing:1;cellPadding:3;width:100%;background-color:#eff5ff;border-collapse:collapse">
+		<tr>
+			<td>服务单位<font color="red">*</font></td>
+			<td width="30%"><input name="serviceUnit" type="text" class="easyui-combobox" data-options="url:'${ctx}/hxCode/getServiceUnit?wd=${user.companyId}',required:true"></td>
+			<td>安装单位<font color="red">*</font></td>
+			<td><input id="installUnit" type="text" disabled="disabled" value="${user.companyId}" class="easyui-combobox" data-options="url:'${ctx}/hxCode/getWebsiteCombobox?serviceUnit=',required:true"></td>
+		</tr>
+		<tr>
+			<td width="20%">远程申请单号</td>
+			<td width="30%"><input id="distanceApplyNum" name="distanceApplyNum" type="text"   class="easyui-validatebox span2"></td>
+			<td>服务证号</td>
+			<td><input id="serviceCardNum" name="serviceCardNum" type="text"   class="easyui-validatebox span2"></td>
+		</tr>
+		<tr>
+			<td>安装工<font color="red">*</font></td>
+			<td><input id="serviceMan" name="serviceMan" type="text"  data-options="required:true" class="easyui-validatebox span2"></td>
+			<td>保修政策<font color="red">*</font></td>
+			<td><input id="warrantyPolicy" name="warrantyPolicy" class="easyui-combobox" data-options="url:'${ctx}/hxCode/getCombobox/bxzc',panelHeight:'auto',panelHeight:'auto',editable:false,required:true"></td>
+		</tr>
+		<tr>	
+			<%-- <td>产品外观满意度<font color="red">*</font></td>
+			<td>
+				<input id="productExteriorSatisfaction" name="productExteriorSatisfaction" class="easyui-combobox"  data-options="url:'${ctx}/hxCode/getCombobox/myd',panelHeight:'auto',editable:false,required:true ">
+			</td> --%>
+		<%--</tr>
+		 <tr>
+			<td>产品外观重要性<font color="red">*</font></td>
+			<td><input id="productExteriorSignificance" name="productExteriorSignificance" class="easyui-combobox"  data-options="url:'${ctx}/hxCode/getCombobox/zyx',panelHeight:'auto',editable:false,required:true "></td>
+			<td>产品质量满意度<font color="red">*</font></td>
+			<td>
+				<input id="qualitySatisfaction" name="qualitySatisfaction" class="easyui-combobox"  data-options="url:'${ctx}/hxCode/getCombobox/myd',panelHeight:'auto',editable:false,required:true ">
+			</td>
+		</tr>
+		<tr>
+			<td>产品质量重要性<font color="red">*</font></td>
+			<td>
+				<input id="qualitySignificance" name="qualitySignificance" class="easyui-combobox"  data-options="url:'${ctx}/hxCode/getCombobox/zyx',panelHeight:'auto',editable:false,required:true ">
+			</td>
+			<td>价格满意度<font color="red">*</font></td>
+			<td><input id="priceSatisfaction" name="priceSatisfaction" class="easyui-combobox"  data-options="url:'${ctx}/hxCode/getCombobox/myd',panelHeight:'auto',editable:false,required:true "></td>
+		</tr>
+		<tr>
+			<td>价格重要性<font color="red">*</font></td>
+			<td><input id="priceSignificance" name="priceSignificance" class="easyui-combobox"  data-options="url:'${ctx}/hxCode/getCombobox/zyx',panelHeight:'auto',editable:false,required:true "></td>
+			<td>服务满意度<font color="red">*</font></td>
+			<td><input id="serviceSatisfaction" name="serviceSatisfaction" class="easyui-combobox"  data-options="url:'${ctx}/hxCode/getCombobox/myd',panelHeight:'auto',editable:false,required:true "></td>
+		</tr>
+		<tr>
+			<td>服务重要性<font color="red">*</font></td>
+			<td><input id="serviceSignificance" name="serviceSignificance" class="easyui-combobox"  data-options="url:'${ctx}/hxCode/getCombobox/zyx',panelHeight:'auto',editable:false,required:true "></td>
+			<td>生理感受满意度<font color="red">*</font></td>
+			<td><input id="physiologySatisfaction" name="physiologySatisfaction" class="easyui-combobox"  data-options="url:'${ctx}/hxCode/getCombobox/myd',panelHeight:'auto',editable:false,required:true "></td>
+		</tr> 
+		<tr>--%>
+			<%-- <td>生理感受重要性<font color="red">*</font></td>
+			<td><input id="physiologySignificance" name="physiologySignificance" class="easyui-combobox"  data-options="url:'${ctx}/hxCode/getCombobox/zyx',panelHeight:'auto',editable:false,required:true "></td> --%>
+			<td>是否二次安装<font color="red">*</font></td>
+			<td><input id="isDoubleInstall" name="isDoubleInstall" class="easyui-combobox"  data-options="url:'${ctx}/hxCode/getCombobox/sf',panelHeight:'auto',editable:false,required:true "></td>
+		</tr>
+	 	<tr>
+			<td>备注</td>
+			<td colspan="3"><textarea id="commentS" name="commentS" rows="2" cols="80"></textarea></td>
+		</tr>
+	</table>
+</form>
+<div style="text-align:right;padding:5px">
+	<a href="#" class="easyui-linkbutton" onclick="save();">保存</a>
+	<a href="#" class="easyui-linkbutton"  onclick="goBack();">返回</a>
+</div>

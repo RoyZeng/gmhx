@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:aop="http://www.springframework.org/schema/aop" xmlns:jaxws="http://cxf.apache.org/jaxws"
+    xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+                        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+                        http://cxf.apache.org/jaxws       
+                        http://cxf.apache.org/schemas/jaxws.xsd
+                        http://cxf.apache.org/jaxrs
+                        http://cxf.apache.org/schemas/jaxrs.xsd
+                        http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd"
+    default-lazy-init="false">
+    
+    <jaxws:server id="eccWService" serviceClass="com.gome.gmhx.webservice.wsdl.EccWService" address="/eccWService">
+	    <jaxws:serviceBean>  
+	        <ref bean="eccWServiceBean"/>
+	    </jaxws:serviceBean>
+    </jaxws:server>
+    
+    <jaxws:server id="jlWService" serviceClass="com.gome.gmhx.webservice.wsdl.JlWService" address="/jlWService">
+        <jaxws:serviceBean>  
+            <ref bean="jlWServiceBean"/>
+        </jaxws:serviceBean>  
+    </jaxws:server>
+    
+    <jaxws:server id="crmWebsiteWService" serviceClass="com.gome.gmhx.webservice.wsdl.CrmWebsiteWService" address="/crmWebsiteWService">
+        <jaxws:serviceBean>  
+            <ref bean="crmWebsiteWServiceBean"/>  
+        </jaxws:serviceBean>  
+    </jaxws:server>
+</beans>

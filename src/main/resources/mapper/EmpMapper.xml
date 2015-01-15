@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gome.gmhx.dao.wsdl.EmpDao" >
+
+   <resultMap id="accountResultMap" type="com.gome.gmhx.entity.EmpAccount" >
+    <id column="empno" property="empno" jdbcType="VARCHAR" />
+    <result column="empname" property="empname" jdbcType="VARCHAR" />
+    <result column="ad_account" property="adAccount" jdbcType="VARCHAR" />
+    <result column="ad_accountpwd" property="adAccountpwd" jdbcType="VARCHAR" />
+    <result column="ap_account" property="apAccount" jdbcType="VARCHAR" />
+    <result column="ap_accountpwd" property="apAccountpwd" jdbcType="VARCHAR" />
+    <result column="compcode" property="compcode" jdbcType="VARCHAR" />
+    <result column="compname" property="compname" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="state" property="state" jdbcType="VARCHAR" />
+    <result column="needmodify" property="needmodify" jdbcType="VARCHAR" />
+    <result column="operatortype" property="operatortype" jdbcType="VARCHAR" />
+    <result column="createdate" property="createdate" jdbcType="DATE" />
+    <result column="createtime" property="createtime" jdbcType="VARCHAR" />
+    <result column="modifydate" property="modifydate" jdbcType="DATE" />
+    <result column="modifytime" property="modifytime" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <resultMap id="sysVarResultMap" type="com.gome.gmhx.entity.EmpSysVar" >
+    <id column="varcode" property="varcode" jdbcType="VARCHAR" />
+    <result column="varname" property="varname" jdbcType="VARCHAR" />
+    <result column="varvalue" property="varvalue" jdbcType="VARCHAR" />
+    <result column="vardesc" property="vardesc" jdbcType="VARCHAR" />
+    <result column="varremark" property="varremark" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List_SysVar" >
+    varcode, varname, varvalue, vardesc, varremark
+  </sql>
+  <sql id="Base_Column_List_Account" >
+    empno, empname, ad_account, ad_accountpwd, ap_account, ap_accountpwd, compcode, compname, 
+    phone, email, state, needmodify, operatortype, createdate, createtime, modifydate, 
+    modifytime
+  </sql>
+ 
+  <select id="getAccountById" resultMap="accountResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List_Account" />
+    from emp_account
+    where EmpNo = #{empno,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="getAccountByApAccount" resultType="com.gome.gmhx.entity.SysUser" parameterType="java.lang.String" >
+    select distinct(t.ap_account) userAccount,t.empname userName,t.ap_accountpwd userPassword,t.state as userState,1 fromType,t.compcode companyId,
+			(select name from hx_organization_unload where id=t.compcode) companyName,
+			t1.positioncode sysPositionId,t1.positionname sysPositionName
+    from emp_account t left join emp_empposition t1
+    ON t.empno=t1.empno and t1.dutyflag=1
+    where t.ap_account = #{indexLoginId,jdbcType=VARCHAR} 
+  </select>
+ 
+  
+  <insert id="addAccount" parameterType="com.gome.gmhx.entity.EmpAccount" >
+    insert into emp_account (empno, empname, ad_account, 
+      ad_accountpwd, ap_account, ap_accountpwd, 
+      compcode, compname, phone, 
+      email, state, needmodify, 
+      operatortype, createdate, createtime, 
+      modifydate, modifytime)
+    values (#{empno,jdbcType=VARCHAR}, #{empname,jdbcType=VARCHAR}, #{adAccount,jdbcType=VARCHAR}, 
+      #{adAccountpwd,jdbcType=VARCHAR}, #{apAccount,jdbcType=VARCHAR}, #{apAccountpwd,jdbcType=VARCHAR}, 
+      #{compcode,jdbcType=VARCHAR}, #{compname,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, 
+      #{email,jdbcType=VARCHAR}, #{state,jdbcType=VARCHAR}, #{needmodify,jdbcType=VARCHAR}, 
+      #{operatortype,jdbcType=VARCHAR}, #{createdate,jdbcType=DATE}, #{createtime,jdbcType=VARCHAR}, 
+      #{modifydate,jdbcType=DATE}, #{modifytime,jdbcType=VARCHAR})
+  </insert>
+ 
+ 
+  <update id="updateAccount" parameterType="com.gome.gmhx.entity.EmpAccount" >
+    update emp_account
+    set EmpName = #{empname,jdbcType=VARCHAR},
+      AD_Account = #{adAccount,jdbcType=VARCHAR},
+      AD_AccountPwd = #{adAccountpwd,jdbcType=VARCHAR},
+      AP_Account = #{apAccount,jdbcType=VARCHAR},
+      AP_AccountPwd = #{apAccountpwd,jdbcType=VARCHAR},
+      CompCode = #{compcode,jdbcType=VARCHAR},
+      CompName = #{compname,jdbcType=VARCHAR},
+      Phone = #{phone,jdbcType=VARCHAR},
+      Email = #{email,jdbcType=VARCHAR},
+      State = #{state,jdbcType=VARCHAR},
+      NeedModify = #{needmodify,jdbcType=VARCHAR},
+      OperatorType = #{operatortype,jdbcType=VARCHAR},
+      CreateDate = #{createdate,jdbcType=DATE},
+      CreateTime = #{createtime,jdbcType=VARCHAR},
+      ModifyDate = #{modifydate,jdbcType=DATE},
+      ModifyTime = #{modifytime,jdbcType=VARCHAR}
+    where EmpNo = #{empno,jdbcType=VARCHAR}
+  </update>
+
+  <delete id="deleteLogByEmpno" parameterType="string" >
+    delete from emp_accountjoblog
+    where empno = #{empno,jdbcType=VARCHAR}
+  </delete>
+  
+  <insert id="addAccountJobLog" parameterType="com.gome.gmhx.entity.EmpAccountJobLog" useGeneratedKeys="true" keyProperty="logid" >
+    insert into emp_accountjoblog (logid,batchno, empno, empname, 
+      ad_account, ap_account, compname, 
+      deptcode, deptname, positioncode, 
+      positionname, dutyflag, operatortype, 
+      state, loginfo, errorinfo, 
+      createdate, createtime, modifydate, 
+      modifytime)
+    values (#{logid,jdbcType=VARCHAR},#{batchno,jdbcType=VARCHAR}, #{empno,jdbcType=VARCHAR}, #{empname,jdbcType=VARCHAR}, 
+      #{adAccount,jdbcType=VARCHAR}, #{apAccount,jdbcType=VARCHAR}, #{compname,jdbcType=VARCHAR}, 
+      #{deptcode,jdbcType=VARCHAR}, #{deptname,jdbcType=VARCHAR}, #{positioncode,jdbcType=VARCHAR}, 
+      #{positionname,jdbcType=VARCHAR}, #{dutyflag,jdbcType=VARCHAR}, #{operatortype,jdbcType=VARCHAR}, 
+      #{state,jdbcType=VARCHAR}, #{loginfo,jdbcType=VARCHAR}, #{errorinfo,jdbcType=VARCHAR}, 
+      #{createdate,jdbcType=DATE}, #{createtime,jdbcType=VARCHAR}, #{modifydate,jdbcType=DATE}, 
+      #{modifytime,jdbcType=VARCHAR})
+  </insert>
+ 
+  <delete id="deleteEmpPositionById" parameterType="string" >
+    delete from emp_empposition
+    where empno = #{empNo,jdbcType=VARCHAR}
+  </delete>
+ 
+  <insert id="addEmpPosition" parameterType="com.gome.gmhx.entity.EmpPosition" useGeneratedKeys="true" keyProperty="id" >
+    insert into emp_empposition (id,empno, headcode, headname, 
+      regioncode, regionname, onebranchcode, 
+      onebranchname, twobranchcode, twobranchname, 
+      storecode, storename, deptcode, 
+      deptname, positioncode, positionname, 
+      startdate, enddate, orglevel, 
+      orgleveldetail, dutyflag, createdate, 
+      createtime, modifydate, modifytime
+      )
+    values (#{id,jdbcType=VARCHAR},#{empno,jdbcType=VARCHAR}, #{headcode,jdbcType=VARCHAR}, #{headname,jdbcType=VARCHAR}, 
+      #{regioncode,jdbcType=VARCHAR}, #{regionname,jdbcType=VARCHAR}, #{onebranchcode,jdbcType=VARCHAR}, 
+      #{onebranchname,jdbcType=VARCHAR}, #{twobranchcode,jdbcType=VARCHAR}, #{twobranchname,jdbcType=VARCHAR}, 
+      #{storecode,jdbcType=VARCHAR}, #{storename,jdbcType=VARCHAR}, #{deptcode,jdbcType=VARCHAR}, 
+      #{deptname,jdbcType=VARCHAR}, #{positioncode,jdbcType=VARCHAR}, #{positionname,jdbcType=VARCHAR}, 
+      #{startdate,jdbcType=VARCHAR}, #{enddate,jdbcType=VARCHAR}, #{orglevel,jdbcType=VARCHAR}, 
+      #{orgleveldetail,jdbcType=VARCHAR}, #{dutyflag,jdbcType=VARCHAR}, #{createdate,jdbcType=DATE}, 
+      #{createtime,jdbcType=VARCHAR}, #{modifydate,jdbcType=DATE}, #{modifytime,jdbcType=VARCHAR}
+      )
+   </insert>
+   
+   <select id="getSysVarById" resultMap="sysVarResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List_SysVar" />
+    from emp_sysvar
+    where varcode = #{varcode,jdbcType=VARCHAR}
+  </select>
+  
+  <insert id="addSysVar" parameterType="com.gome.gmhx.entity.EmpSysVar" >
+    insert into emp_sysvar (varcode, varname, varvalue, 
+      vardesc, varremark)
+    values (#{varcode,jdbcType=VARCHAR}, #{varname,jdbcType=VARCHAR}, #{varvalue,jdbcType=VARCHAR}, 
+      #{vardesc,jdbcType=VARCHAR}, #{varremark,jdbcType=VARCHAR})
+  </insert>
+  
+  <update id="updateSysVar" parameterType="com.gome.gmhx.entity.EmpSysVar" >
+    update emp_sysvar
+    set varname = #{varname,jdbcType=VARCHAR},
+      varvalue = #{varvalue,jdbcType=VARCHAR},
+      vardesc = #{vardesc,jdbcType=VARCHAR},
+      varremark = #{varremark,jdbcType=VARCHAR}
+    where varcode = #{varcode,jdbcType=VARCHAR}
+  </update>
+  
+  <select id="selectCountByPostCodeAndState" parameterType="string" resultType="java.lang.Integer" >
+    select count(*) from hx_position where 0=0 
+    and position_code = #{positioncode,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="getResetPassword" resultMap="accountResultMap" parameterType="java.lang.String" >
+    select t.fappaccount as ap_account,t.fpassword as ap_accountpwd 
+    from hx_reset_password t
+    where t.fappaccount = #{userAccount,jdbcType=VARCHAR} 
+    order by t.fresetdate desc  limit 0,1
+  </select>
+</mapper>

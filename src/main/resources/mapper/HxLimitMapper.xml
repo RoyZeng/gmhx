@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gome.gmhx.dao.orgmanage.HxLimitDao" >
+  <resultMap id="BaseResultMap" type="com.gome.gmhx.entity.HxLimit" >
+    <id column="limit_id" jdbcType="VARCHAR" property="limitId" />
+    <result column="limit_org_id" jdbcType="VARCHAR" property="limitOrgId" />
+    <result column="limit_cash" jdbcType="BIGINT" property="limitCash" />
+    <result column="limit_credit" jdbcType="BIGINT" property="limitCredit" />
+    <result column="limit_cash_change" jdbcType="BIGINT" property="limitCashChange" />
+    <result column="limit_credit_change" jdbcType="BIGINT" property="limitCreditChange" />
+    <result column="limit_matter" jdbcType="BIGINT" property="limitMatter" />
+    <result column="limit_add_tag" jdbcType="VARCHAR" property="limitAddTag" />
+    <result column="limit_desc" jdbcType="VARCHAR" property="limitDesc" />
+    <result column="limit_origin_number" jdbcType="VARCHAR" property="limitOriginNumber" />
+    <result column="limit_operate_type" jdbcType="VARCHAR" property="limitOperateType" />
+    <result column="limit_operate_reason" jdbcType="VARCHAR" property="limitOperateReason" />
+    <result column="limit_operate_id" jdbcType="VARCHAR" property="limitOperateId" />
+    <result column="limit_operate_date" jdbcType="TIMESTAMP" property="limitOperateDate" />
+    <result column="limit_origin_id" jdbcType="VARCHAR" property="limitOriginId" />
+    <result column="limit_org_name" jdbcType="VARCHAR" property="limitOrgName" />
+    <result column="limit_org_parent_name" jdbcType="VARCHAR" property="limitOrgParentName" />
+  </resultMap>
+ 
+  <sql id="Base_Column_List" >
+    limit_id, limit_org_id, limit_cash, limit_credit, limit_matter, limit_add_tag, limit_desc, 
+    limit_origin_number, limit_operate_type, limit_operate_reason, limit_operate_id, 
+    limit_operate_date,limit_origin_id,limit_cash_change,limit_credit_change
+  </sql>
+  
+ <select id="getLimitPageList" parameterType="com.gome.common.page.Page" resultMap="BaseResultMap">
+	SELECT limit_id, limit_org_id, limit_cash, limit_credit,
+		limit_matter, limit_add_tag, limit_desc,
+		limit_origin_number, limit_operate_type,
+		limit_operate_reason, limit_operate_id,
+		limit_operate_date, limit_origin_id,
+		limit_cash_change,limit_credit_change,
+		v. NAME AS limit_org_name,
+		v1. NAME AS limit_org_parent_name
+		FROM (
+				SELECT
+					*
+				FROM
+					hx_limit tt
+				ORDER BY
+					limit_operate_date DESC
+			) hx_limit
+		LEFT JOIN hx_organization_unload v ON limit_org_id = v.id
+		LEFT JOIN hx_organization_unload v1 ON v.pid = v1.id
+		WHERE 1=1
+		<if test="param.innerOrgs !=null and param.innerOrgs !=''">
+			AND (limit_org_id IN (${param.innerOrgs}))
+		</if>
+		<if test="param.limitOrgId != null and param.limitOrgId != ''">
+		   and limit_org_id =#{param.limitOrgId}
+		</if>
+		<if test="param.limitCashChange != null and param.limitCashChange != ''">
+		   and limit_cash_change like CONCAT('%',#{param.limitCashChange},'%')
+		</if>
+		<if test="param.limitOrgParentId != null and param.limitOrgParentId != ''">
+		   and v1.id like CONCAT('%',#{param.limitOrgParentId},'%')
+		</if>
+		GROUP BY
+			limit_org_id
+		ORDER BY
+			limit_operate_date DESC
+  </select>
+  
+  <select id="getLimitById" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    SELECT  limit_id, limit_org_id, limit_cash, limit_credit, limit_matter, limit_add_tag, limit_desc, 
+    limit_origin_number, limit_operate_type, limit_operate_reason, limit_operate_id, limit_cash_change,limit_credit_change,
+    limit_operate_date,limit_origin_id,v.name as limit_org_name from hx_limit left join hx_organization_unload v on limit_org_id = v.id
+    where limit_id = #{limitId,jdbcType=VARCHAR}
+  </select>
+  <select id="getLimitByOrgId" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    SELECT  limit_id, limit_org_id, limit_cash, limit_credit, limit_matter, limit_add_tag, limit_desc, 
+    limit_origin_number, limit_operate_type, limit_operate_reason, limit_operate_id, limit_cash_change,limit_credit_change,
+    limit_operate_date,limit_origin_id,v.name as limit_org_name from hx_limit left join hx_organization_unload v on limit_org_id = v.id
+    where limit_org_id=#{limit_org_id,jdbcType=VARCHAR}
+  </select>
+  <select id="getOriLimitByOrg" resultMap="BaseResultMap" parameterType="java.lang.String" >
+  	SELECT
+		*
+	FROM
+		hx_limit
+	WHERE
+		limit_org_id = #{orgId}
+	ORDER BY limit_operate_date ASC limit 0,1;
+  </select>
+  <select id="getLatestLimitByOrg" resultMap="BaseResultMap" parameterType="string">
+  	SELECT
+		*
+	FROM
+		hx_limit
+	WHERE
+		limit_org_id = #{orgId}
+	ORDER BY
+		limit_operate_date DESC
+	LIMIT 0,1;
+  </select>
+  
+  <insert id="addLimit" parameterType="com.gome.gmhx.entity.HxLimit" >
+    insert into hx_limit (limit_id, limit_org_id, limit_cash, 
+      limit_credit, limit_matter, limit_add_tag, 
+      limit_desc, limit_origin_number, limit_operate_type, 
+      limit_operate_reason, limit_operate_id, limit_operate_date,limit_origin_id,
+      limit_cash_change,limit_credit_change
+      )
+    values (#{limitId,jdbcType=VARCHAR}, #{limitOrgId,jdbcType=VARCHAR}, #{limitCash,jdbcType=BIGINT}, 
+      #{limitCredit,jdbcType=BIGINT}, #{limitMatter,jdbcType=BIGINT}, #{limitAddTag,jdbcType=VARCHAR}, 
+      #{limitDesc,jdbcType=VARCHAR}, #{limitOriginNumber,jdbcType=VARCHAR}, #{limitOperateType,jdbcType=VARCHAR}, 
+      #{limitOperateReason,jdbcType=VARCHAR}, #{limitOperateId,jdbcType=VARCHAR}, #{limitOperateDate,jdbcType=TIMESTAMP},
+      #{limitOriginId,jdbcType=VARCHAR}, #{limitCashChange,jdbcType=BIGINT}, #{limitCreditChange,jdbcType=BIGINT})
+  </insert>
+  
+  <update id="updateLimit" parameterType="com.gome.gmhx.entity.HxLimit" >
+    update hx_limit
+    set limit_org_id = #{limitOrgId,jdbcType=VARCHAR},
+      limit_cash = #{limitCash,jdbcType=BIGINT},
+      limit_credit = #{limitCredit,jdbcType=BIGINT},
+      limit_matter = #{limitMatter,jdbcType=BIGINT},
+      limit_add_tag = #{limitAddTag,jdbcType=VARCHAR},
+      limit_desc = #{limitDesc,jdbcType=VARCHAR},
+      limit_origin_number = #{limitOriginNumber,jdbcType=VARCHAR},
+      limit_operate_type = #{limitOperateType,jdbcType=VARCHAR},
+      limit_operate_reason = #{limitOperateReason,jdbcType=VARCHAR},
+      limit_operate_id = #{limitOperateId,jdbcType=VARCHAR},
+      limit_operate_date = #{limitOperateDate,jdbcType=TIMESTAMP},
+      limit_origin_id = #{limitOriginId,jdbcType=TIMESTAMP},
+      limit_cash_change = #{limitCashChange,jdbcType=BIGINT},
+      limit_credit_change = #{limitCreditChange,jdbcType=BIGINT}
+    where limit_id = #{limitId,jdbcType=VARCHAR}
+  </update>
+  
+  <update id="updateLimitById" parameterType="com.gome.gmhx.entity.HxLimit" >
+    update hx_limit
+    set limit_org_id = #{limitOrgId,jdbcType=VARCHAR},
+      limit_cash = #{limitCash,jdbcType=BIGINT},
+      limit_credit = #{limitCredit,jdbcType=BIGINT},
+      limit_matter = #{limitMatter,jdbcType=BIGINT},
+      limit_add_tag = #{limitAddTag,jdbcType=VARCHAR},
+      limit_desc = #{limitDesc,jdbcType=VARCHAR},
+      limit_origin_number = #{limitOriginNumber,jdbcType=VARCHAR},
+      limit_operate_type = #{limitOperateType,jdbcType=VARCHAR},
+      limit_operate_reason = #{limitOperateReason,jdbcType=VARCHAR},
+      limit_operate_id = #{limitOperateId,jdbcType=VARCHAR},
+      limit_operate_date = #{limitOperateDate,jdbcType=TIMESTAMP},
+      limit_origin_id = #{limitOriginId,jdbcType=TIMESTAMP},
+      limit_cash_change = #{limitCashChange,jdbcType=BIGINT},
+      limit_credit_change = #{limitCreditChange,jdbcType=BIGINT}
+    where limit_id = #{limitId,jdbcType=VARCHAR}
+  </update>
+  
+  <select id="getLimitHistoryPageList" parameterType="com.gome.common.page.Page" resultMap="BaseResultMap">
+	SELECT  limit_id, limit_org_id, limit_cash, limit_credit, limit_matter, limit_add_tag, limit_desc, 
+    limit_origin_number, limit_operate_type, limit_operate_reason, v3.user_name limit_operate_id, 
+    limit_operate_date,limit_origin_id,v.name as limit_org_name,v1.name as limit_org_parent_name,
+    limit_cash_change,limit_credit_change
+    from hx_limit left join hx_organization_unload v on limit_org_id = v.id
+    left join hx_organization_unload v1 on v.pid = v1.id
+    LEFT JOIN hx_user_unload v3 on v3.user_login_name = hx_limit.limit_operate_id
+    where 1=1
+   		 <if test="param.innerOrgs !=null and param.innerOrgs !=''">
+			AND (limit_org_id IN (${param.innerOrgs}))
+		</if>
+		<if test="param.limitOrgId != null and param.limitOrgId != ''">
+		   and limit_org_id = #{param.limitOrgId}
+		</if>
+		<if test="param.limitOrgParentId != null and param.limitOrgParentId != ''">
+		   and v1.id like CONCAT('%',#{param.limitOrgParentId},'%')
+		</if>
+		<if test="param.limitOriginNumber != null and param.limitOriginNumber != ''">
+		   and limit_origin_number like CONCAT('%',#{param.limitOriginNumber},'%')
+		</if>
+		<if test="param.limitOperateType != null and param.limitOperateType != ''">
+		   and limit_operate_type like CONCAT('%',#{param.limitOperateType},'%')
+		</if>
+		<if test="param.limitAddTag != null and param.limitAddTag != ''">
+		   and limit_add_tag like CONCAT('%',#{param.limitAddTag},'%')
+		</if>
+		<if test="param.limitOperateReason != null and param.limitOperateReason != ''">
+		   and limit_operate_reason like CONCAT('%',#{param.limitOperateReason},'%')
+		</if>
+		<if test="param.limitCashChange != null and param.limitCashChange != ''">
+		   and limit_cash_change like CONCAT('%',#{param.limitCashChange},'%')
+		</if>
+		<if test="param.limitCreditChange != null and param.limitCreditChange != ''">
+		   and limit_credit_change like CONCAT('%',#{param.limitCreditChange},'%')
+		</if>
+		<if test="param.limitMatter != null and param.limitMatter != ''">
+		   and limit_matter like CONCAT('%',#{param.limitMatter},'%')
+		</if>
+		<if test="param.ksrq != null and param.ksrq != ''">
+			<![CDATA[ and DATE_FORMAT(limit_operate_date, '%Y-%m-%d') >= #{param.ksrq}]]>			
+		</if>
+		<if test="param.jsrq != null and param.jsrq != ''">
+			<![CDATA[ and DATE_FORMAT(limit_operate_date, '%Y-%m-%d') <= #{param.ksrq}]]>	
+		</if>
+		<if test="param.limitId != null and param.limitId != ''">
+			and (limit_id = #{param.limitId} or limit_origin_id = #{param.limitId})
+		</if>
+		order by limit_operate_date desc
+  </select>
+  
+</mapper>

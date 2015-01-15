@@ -1,0 +1,284 @@
+package com.gome.gmhx.controller.orgmanage;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.gome.common.Constrants;
+import com.gome.common.page.Page;
+import com.gome.common.util.BeanMapUtils;
+import com.gome.common.util.JsonUtil;
+import com.gome.common.util.UUIDGenerator;
+import com.gome.gmhx.entity.HxLimit;
+import com.gome.gmhx.entity.SysUser;
+import com.gome.gmhx.service.materialmanage.HxMaterialService;
+import com.gome.gmhx.service.orgmanage.HxLimitService;
+import com.gome.gmhx.service.sysconfig.HxOrganizationService;
+
+@Controller
+@RequestMapping(value="/hxLimit")
+public class HxLimitController {
+	@Resource
+	private HxLimitService hxLimitService;
+	@Resource
+	private HxMaterialService hxMaterialService;
+	@Resource
+	private HxOrganizationService hxOrganizationService;
+	
+	@RequestMapping(value="/limitView")
+	public String limitView(){
+		return "orgmanage/hxLimit/limitList";
+	}
+	
+	private String getInnerOrgs(SysUser sysUser) throws Exception{
+		//登录用户是网点，只能查询当前网点机构记录
+		//登录用户为分部， 只能查询机构名称是下级网点s的记录
+		//登录用户是总部，不过滤机构条件
+		List<String> webs = new ArrayList<String>();
+		if(sysUser.getSysPositionType() == 3)//网点
+			webs.add(sysUser.getOrgId());
+		if(sysUser.getSysPositionType() == 2){
+			List<Map<String, String>> orgs = hxMaterialService.getWebFittingOrgByFatherId(sysUser.getOrgId());
+			if(orgs.size() == 0){//该分部不存在下级网点
+				webs.add(Integer.MIN_VALUE+"");//查询时不返回数据
+			}
+			for (Map<String, String> map2 : orgs) {
+				webs.add(map2.get("org_code"));
+			}
+		}
+		StringBuffer sb = new StringBuffer();
+		for (String string : webs) {
+			sb.append("'"+string+"',");
+		}
+		if(sb.indexOf(",")>0){
+			String s = sb.toString();
+			s = s.substring(0, s.lastIndexOf(","));
+			sb = new StringBuffer(s);
+		}
+		if(sb == null) return "";
+		else if(sb.toString().equals("")) return "";
+		else return sb.toString();
+	}
+	
+	@RequestMapping(value="/getLimitPageList", produces="text/plain;charset=utf-8")
+	@ResponseBody
+	public String getLimitPageList(HttpServletRequest request, Page page, HxLimit limit) throws Exception{
+		SysUser sysUser = (SysUser)request.getSession().getAttribute(Constrants.USER_INFO);
+		Map<String, Object> map = BeanMapUtils.convertBean(limit);
+		map.put("innerOrgs", getInnerOrgs(sysUser));
+		page.setParam(map);
+		List<Map<String, Object>> list = hxLimitService.getLimitPageList(page);
+		return JsonUtil.writeListToDataGrid(page.getTotalResult(), list);
+	}
+	
+	@RequestMapping(value="/addView")
+	public String addView(){
+		return "orgmanage/hxLimit/limitAdd";
+	}
+	
+	@RequestMapping(value="/addLimit")
+	@ResponseBody
+	public String addLimit(HxLimit limit,HttpServletRequest request) {
+        try {
+        	String limitId = UUIDGenerator.getUUID();
+        	limit.setLimitId(limitId);//设置主键
+        	limit.setLimitOperateDate(new Date());
+        	SysUser sysuser = (SysUser) request.getSession().getAttribute("user");
+        	if(sysuser!=null){
+        		limit.setLimitOperateId(sysuser.getUserAccount());
+        	}
+        	limit.setLimitAddTag("1");//增
+        	limit.setLimitOperateType("0");//手动
+        	limit.setLimitOperateReason("初始化");//初始化
+        	limit.setLimitCash(0L);
+        	limit.setLimitCredit(0L);
+        	if(limit.getLimitMatter() == null){
+        		limit.setLimitMatter(0L);
+        	}
+        	if(hxLimitService.getOriLimitByOrg(limit.getLimitOrgId()) != null){
+        		return "{\"flag\" : \"failure\",\"info\":\"exist\"}";
+        	}
+        	hxLimitService.addLimit(limit);
+            return "{\"flag\" : \"success\"}";
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+	
+	@RequestMapping(value="/updateView")
+	public ModelAndView updateView(HttpServletRequest request){
+		ModelAndView mav = new ModelAndView("orgmanage/hxLimit/limitUpdate");
+		String limitId = request.getParameter("limitId");
+		HxLimit limit = hxLimitService.getLimitById(limitId);
+		mav.addObject("limit", limit);
+		return mav;
+	}
+	
+	@RequestMapping(value="/updateLimit")
+	@ResponseBody
+	public String updateLimit(HxLimit limit,HttpServletRequest request){
+		try {
+			String limitId = UUIDGenerator.getUUID();
+        	limit.setLimitId(limitId);//设置主键
+			limit.setLimitOperateDate(new Date());
+        	SysUser sysuser = (SysUser) request.getSession().getAttribute("user");
+        	if(sysuser!=null){
+        		limit.setLimitOperateId(sysuser.getUserAccount());
+        	}
+        	limit.setLimitOperateType("0");//手动
+        	limit.setLimitOperateReason("手动修改");//手动修改
+        	HxLimit latestLimit = hxLimitService.getLatestLimitByOrg(limit.getLimitOrgId());
+        	Long latestCash = latestLimit.getLimitCash()+latestLimit.getLimitCashChange();
+        	Long latestCredit = latestLimit.getLimitCredit()+latestLimit.getLimitCreditChange();
+        	limit.setLimitCash(latestCash);
+        	limit.setLimitCredit(latestCredit);
+        	Long cash= limit.getLimitCashChange();
+        	Long credit = limit.getLimitCreditChange();
+        	if("0".equals(limit.getLimitAddTag())){
+        		cash = -1 * cash;
+        		credit = -1 * credit;
+        	}
+        	limit.setLimitCashChange(cash);
+        	limit.setLimitCreditChange(credit);
+        	if(limit.getLimitMatter() == null){
+        		limit.setLimitMatter(0L);
+        	}
+			hxLimitService.updateLimit(limit);
+            return "{\"flag\" : \"success\"}";
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+	}
+	
+	@RequestMapping(value="/showView")
+	public ModelAndView showView(HttpServletRequest request){
+		ModelAndView mav = new ModelAndView("orgmanage/hxLimit/limitShow");
+		String limitId = request.getParameter("limitId");
+		HxLimit limit = hxLimitService.getLimitById(limitId);
+		mav.addObject("limit", limit);
+		return mav;
+	}
+	
+	@RequestMapping(value="/limitHistoryView")
+	public String limitHistoryView(){
+		return "orgmanage/hxLimit/limitListHistory";
+	}
+	
+	@RequestMapping(value="/getFbOrgNames", produces="text/plain;charset=utf-8")
+	@ResponseBody
+	public String getFbOrgNames(HttpServletRequest request){//获取下拉网点机构
+		SysUser sysUser = (SysUser)request.getSession().getAttribute(Constrants.USER_INFO);
+		Integer ptype = sysUser.getSysPositionType();
+		Map<String, String> orgMap = new HashMap<String, String>();
+		if(sysUser.getSysPositionType() == 3)//网点
+			orgMap.put(hxOrganizationService.getOrganizationById(sysUser.getOrgId()).getOrgName(),sysUser.getOrgId());
+		if(ptype==2){//分部
+			List<Map<String, String>> map = hxMaterialService.getWebFittingOrgByFatherId(sysUser.getOrgId());
+			for (Map<String, String> map2 : map) {
+				orgMap.put(map2.get("org_name")+"("+map2.get("org_code")+")", map2.get("org_code"));
+			}
+		}
+		Set<Entry<String, String>> set = orgMap.entrySet();
+		Iterator<Entry<String, String>> iter = set.iterator();
+		JSONArray array = new JSONArray();
+		JSONObject empty = new JSONObject();
+		empty.put("text", "　");
+		array.add(empty);
+		
+		while(iter.hasNext()){
+			Entry<String, String> entry = iter.next();
+			JSONObject object = new JSONObject();
+			object.put("text", entry.getKey());
+			object.put("value", entry.getValue());
+			if(ptype == 3){//网点用户选择当前网点
+				object.put("selected", true);
+			}
+			array.add(object);
+		}
+		return array.toString();
+		
+	}
+	
+	@RequestMapping(value="/getLimitHistoryPageList", produces="text/plain;charset=utf-8")
+	@ResponseBody
+	public String getLimitHistoryPageList(HttpServletResponse response, Page page, HxLimit limit,@DateTimeFormat(pattern="yyyy-MM-dd")Date ksrq, @DateTimeFormat(pattern="yyyy-MM-dd")Date jsrq,HttpServletRequest request) throws Exception{
+		SysUser sysUser = (SysUser)request.getSession().getAttribute(Constrants.USER_INFO);
+		Map<String, Object> map = BeanMapUtils.convertBean(limit);
+		map.put("ksrq", ksrq);
+		map.put("jsrq", jsrq);
+		String limitId = request.getParameter("limitId");
+		map.put("jsrq", jsrq);
+		map.put("limitId", limitId);
+		
+		map.put("innerOrgs", getInnerOrgs(sysUser));
+		page.setParam(map);
+		List<Map<String, Object>> list = hxLimitService.getLimitHistoryPageList(page);
+		return JsonUtil.writeListToDataGrid(page.getTotalResult(), list);
+	}
+	
+	@RequestMapping(value="/getOriLimit/{orgId}")
+	@ResponseBody
+	public String getOriLimit(@PathVariable String orgId){
+		HxLimit limit = this.hxLimitService.getOriLimitByOrg(orgId);
+		if(limit==null){
+    		return "{\"flag\" : \"failure\"}";
+		}else{
+    		return "{\"flag\" : \"success\",\"info\":\""+String.valueOf(limit.getLimitTotal())+"\"}";
+		}
+	}
+	
+	@RequestMapping(value="/getOriLimitCashTotal/{orgId}")
+	@ResponseBody
+	public String getOriLimitCashTotal(@PathVariable String orgId){
+		HxLimit limit = this.hxLimitService.getOriLimitByOrg(orgId);
+		if(limit==null){
+    		return "{\"flag\" : \"failure\"}";
+		}else{
+    		return "{\"flag\" : \"success\",\"info\":\""+String.valueOf(limit.getLimitCashTotal())+"\"}";
+		}
+	}
+	
+	@RequestMapping(value="/getOriLimitCreditTotal/{orgId}")
+	@ResponseBody
+	public String getOriLimitCreditTotal(@PathVariable String orgId){
+		HxLimit limit = this.hxLimitService.getOriLimitByOrg(orgId);
+		if(limit==null){
+    		return "{\"flag\" : \"failure\"}";
+		}else{
+    		return "{\"flag\" : \"success\",\"info\":\""+String.valueOf(limit.getLimitCreditTotal())+"\"}";
+		}
+	}
+	
+	@RequestMapping(value="/getLatestLimit/{orgId}")
+	@ResponseBody
+	public String getLatestLimit(@PathVariable String orgId){
+		HxLimit limit = this.hxLimitService.getLatestLimitByOrg(orgId);
+		if(limit==null){
+    		return "{\"flag\" : \"failure\"}";
+		}else{
+    		return "{\"flag\" : \"success\",\"info\":\""+String.valueOf(limit.getLimitTotal())+"\"}";
+		}	}
+	
+	
+}

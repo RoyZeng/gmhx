@@ -1,0 +1,479 @@
+package com.gome.gmhx.controller.common;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URLEncoder;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.gome.gmhx.service.common.ExcelImportService;
+
+@Controller
+@RequestMapping(value = "/common/import")
+public class ExcelImportController {
+	@Resource
+	ExcelImportService excelImportService;
+	
+	@RequestMapping(value = "/importData")
+	public ModelAndView importData() throws Exception {
+		ModelAndView mav = new ModelAndView("common/excelImport");
+		return mav;
+	}
+	
+	@RequestMapping(value = "/importPositionData")
+	public ModelAndView importPositionData() throws Exception {
+		ModelAndView mav = new ModelAndView("common/excelPositionImport");
+		return mav;
+	}
+
+	@RequestMapping(value = "/downLoadTemplate")
+	public void downLoadTemplate(HttpServletRequest request,HttpServletResponse response,String templateName) throws Exception {
+		  try {
+				response.reset();
+		       String agent = request.getHeader("User-Agent");
+	            boolean isFireFox = (agent != null && agent.toLowerCase().indexOf("firefox") != -1);
+	            if (isFireFox) {
+	                response.addHeader("Content-Disposition",
+	                        "attachment; filename*=" + URLEncoder.encode("导入模板", "utf-8")+".xlsx");
+	            } else {
+	                response.addHeader("Content-Disposition",
+	                        "attachment; filename=\"" + URLEncoder.encode("导入模板", "utf-8")+".xlsx" + "\"");
+	            }
+	            response.setContentType("application/vnd.ms-excel");  
+	            IOUtils.copy(ExcelImportController.class.getClassLoader().getResourceAsStream("importTemplate/"+templateName+".xlsx"), response.getOutputStream());
+	        } catch (Exception e) {
+	            response.addHeader("Content-Disposition", "attachment; filename=\"" + URLEncoder.encode("模板", "utf-8")+".xlsx"+ "\"");
+	       }
+	}
+
+	@RequestMapping(value = "/upload", produces = "text/plain;charset=utf-8")
+	@ResponseBody
+	public String upload(HttpServletRequest request) {
+		JSONObject message = new JSONObject();
+		try{
+			MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+			MultipartFile multipartFile = multipartRequest.getFile("fileData");
+			File f = new File("d:/2.txt");
+			multipartFile.transferTo(f);
+		}catch(Exception e){
+			message.put("msg","数据导入成功！");
+			e.printStackTrace();
+		}
+		message.put("msg","数据导入成功！");
+		return message.toString();
+	}
+	
+	@RequestMapping(value = "/importHxProductDetail", produces = "text/plain;charset=utf-8")
+	@ResponseBody
+	public String importHxProductDetail(HttpServletRequest request) {
+		JSONObject message = new JSONObject();
+		try{
+			Workbook workbook = this.transformToWorkbook(request);
+			if(workbook==null){
+				message.put("msg","文件格式不正确！");
+			}else{
+				   this.excelImportService.importHxProductDetail(workbook);
+					message.put("msg","数据导入成功！");
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+			message.put("msg","数据导入失败！");
+		}
+		return message.toString();
+	}
+	
+	@RequestMapping(value = "/importBarCodeRules", produces = "text/plain;charset=utf-8")
+	@ResponseBody
+	public String importBarCodeRules(HttpServletRequest request) {
+		JSONObject message = new JSONObject();
+		try{
+			Workbook workbook = this.transformToWorkbook(request);
+			if(workbook==null){
+				message.put("msg","文件格式不正确！");
+			}else{
+				   this.excelImportService.importBarCodeRules(workbook);
+					message.put("msg","数据导入成功！");
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+			message.put("msg","数据导入失败！");
+		}
+		return message.toString();
+	}
+	
+
+	@RequestMapping(value = "/importHxFitting", produces = "text/plain;charset=utf-8")
+	@ResponseBody
+	public String importHxFitting(HttpServletRequest request) {
+		JSONObject message = new JSONObject();
+		try{
+			Workbook workbook = this.transformToWorkbook(request);
+			if(workbook==null){
+				message.put("msg","文件格式不正确！");
+			}else{
+				   this.excelImportService.importHxFitting(workbook);
+				   message.put("msg","数据导入成功！");
+			}
+		}catch(Exception e){
+			message.put("msg","数据导入失败！");
+			e.printStackTrace();
+		}
+		return message.toString();
+	}
+	
+	@RequestMapping(value = "/importHxFittingModel", produces = "text/plain;charset=utf-8")
+	@ResponseBody
+	public String importHxFittingModel(HttpServletRequest request) {
+		JSONObject message = new JSONObject();
+		try{
+			Workbook workbook = this.transformToWorkbook(request);
+			if(workbook==null){
+				message.put("msg","文件格式不正确！");
+			}else{
+				   this.excelImportService.importHxFittingModel(workbook);
+				   message.put("msg","数据导入成功！");
+			}
+		}catch(Exception e){
+			message.put("msg","数据导入失败！");
+			e.printStackTrace();
+		}
+		return message.toString();
+	}
+	
+	@RequestMapping(value = "/importHxFittingFaultCode", produces = "text/plain;charset=utf-8")
+	@ResponseBody
+	public String importHxFittingFaultCode(HttpServletRequest request) {
+		JSONObject message = new JSONObject();
+		try{
+			Workbook workbook = this.transformToWorkbook(request);
+			if(workbook==null){
+				message.put("msg","文件格式不正确！");
+			}else{
+				   this.excelImportService.importHxFittingFaultCode(workbook);
+				   message.put("msg","数据导入成功！");
+			}
+		}catch(Exception e){
+			message.put("msg","数据导入失败！");
+			e.printStackTrace();
+		}
+		return message.toString();
+	}
+	
+	@RequestMapping(value = "/importHxMaintenance", produces = "text/plain;charset=utf-8")
+	@ResponseBody
+	public String importHxMaintenance(HttpServletRequest request) {
+		JSONObject message = new JSONObject();
+		try{
+			Workbook workbook = this.transformToWorkbook(request);
+			if(workbook==null){
+				message.put("msg","文件格式不正确！");
+			}else{
+				   this.excelImportService.importHxMaintenance(workbook);
+				   message.put("msg","数据导入成功！");
+			}
+		}catch(Exception e){
+			message.put("msg","数据导入失败！");
+			e.printStackTrace();
+		}
+		return message.toString();
+	}
+	
+	@RequestMapping(value = "/importHxCodeBar", produces = "text/plain;charset=utf-8")
+	@ResponseBody
+	public String importHxCodeBar(HttpServletRequest request) {
+		JSONObject message = new JSONObject();
+		try{
+			Workbook workbook = this.transformToWorkbook(request);
+			if(workbook==null){
+				message.put("msg","文件格式不正确！");
+			}else{
+				   this.excelImportService.importHxCodeBar(workbook);
+				   message.put("msg","数据导入成功！");
+			}
+		}catch(Exception e){
+			message.put("msg","数据导入失败！");
+			e.printStackTrace();
+		}
+		return message.toString();
+	}
+	
+	@RequestMapping(value = "/importStocks", produces = "text/plain;charset=utf-8")
+	@ResponseBody
+	public String importStocks(HttpServletRequest request) {
+		JSONObject message = new JSONObject();
+		try{
+			Workbook workbook = this.transformToWorkbook(request);
+			if(workbook==null){
+				message.put("msg","文件格式不正确！");
+			}else{
+				   this.excelImportService.importStocks(workbook);
+				   message.put("msg","数据导入成功！");
+			}
+		}catch(Exception e){
+			message.put("msg","数据导入失败！");
+			e.printStackTrace();
+		}
+		return message.toString();
+	}
+	
+	@RequestMapping(value = "/importHxFree", produces = "text/plain;charset=utf-8")
+	@ResponseBody
+	public String importHxFree(HttpServletRequest request) {
+		JSONObject message = new JSONObject();
+		try{
+			Workbook workbook = this.transformToWorkbook(request);
+			if(workbook==null){
+				message.put("msg","文件格式不正确！");
+			}else{
+				   this.excelImportService.importHxFree(workbook);
+				   message.put("msg","数据导入成功！");
+			}
+		}catch(Exception e){
+			message.put("msg","数据导入失败！");
+			e.printStackTrace();
+		}
+		return message.toString();
+	}
+	
+	@RequestMapping(value = "/importHxSetupeFree", produces = "text/plain;charset=utf-8")
+	@ResponseBody
+	public String importHxSetupeFree(HttpServletRequest request) {
+		JSONObject message = new JSONObject();
+		try{
+			Workbook workbook = this.transformToWorkbook(request);
+			if(workbook==null){
+				message.put("msg","文件格式不正确！");
+			}else{
+				   this.excelImportService.importHxSetupeFree(workbook);
+				   message.put("msg","数据导入成功！");
+			}
+		}catch(Exception e){
+			message.put("msg","数据导入失败！");
+			e.printStackTrace();
+		}
+		return message.toString();
+	}
+	
+	@RequestMapping(value = "/importHxFeeMoveMachine", produces = "text/plain;charset=utf-8")
+	@ResponseBody
+	public String importHxFeeMoveMachine(HttpServletRequest request) {
+		JSONObject message = new JSONObject();
+		try{
+			Workbook workbook = this.transformToWorkbook(request);
+			if(workbook==null){
+				message.put("msg","文件格式不正确！");
+			}else{
+				   this.excelImportService.importHxFeeMoveMachine(workbook);
+				   message.put("msg","数据导入成功！");
+			}
+		}catch(Exception e){
+			message.put("msg","数据导入失败！");
+			e.printStackTrace();
+		}
+		return message.toString();
+	}
+	
+	@RequestMapping(value = "/importHxBarCode", produces = "text/plain;charset=utf-8")
+	@ResponseBody
+	public String importHxBarCode(HttpServletRequest request) {
+		JSONObject message = new JSONObject();
+		try{
+			Workbook workbook = this.transformToWorkbook(request);
+			if(workbook==null){
+				message.put("msg","文件格式不正确！");
+			}else{
+				   this.excelImportService.importHxBarCode(workbook);
+				   message.put("msg","数据导入成功！");
+			}
+		}catch(Exception e){
+			message.put("msg","数据导入失败！");
+			e.printStackTrace();
+		}
+		return message.toString();
+	}
+	
+	@RequestMapping(value = "/importBrand", produces = "text/plain;charset=utf-8")
+	@ResponseBody
+	public String importBrand(HttpServletRequest request) {
+		JSONObject message = new JSONObject();
+		try{
+			Workbook workbook = this.transformToWorkbook(request);
+			if(workbook==null){
+				message.put("msg","文件格式不正确！");
+			}else{
+				   this.excelImportService.importBrand(workbook);
+				   message.put("msg","数据导入成功！");
+			}
+		}catch(Exception e){
+			message.put("msg","数据导入失败！");
+			e.printStackTrace();
+		}
+		return message.toString();
+	}
+	
+	@RequestMapping(value = "/importHxGoodbill", produces = "text/plain;charset=utf-8")
+	@ResponseBody
+	public String importHxGoodbill(HttpServletRequest request) {
+		JSONObject message = new JSONObject();
+		try{
+			Workbook workbook = this.transformToWorkbook(request);
+			if(workbook==null){
+				message.put("msg","文件格式不正确！");
+			}else{
+				   this.excelImportService.importHxGoodbill(workbook);
+				   message.put("msg","数据导入成功！");
+			}
+		}catch(Exception e){
+			message.put("msg","数据导入失败！");
+			e.printStackTrace();
+		}
+		return message.toString();
+	}
+	
+	@RequestMapping(value = "/importHxFittingLocation", produces = "text/plain;charset=utf-8")
+	@ResponseBody
+	public String importHxFittingLocation(HttpServletRequest request) {
+		JSONObject message = new JSONObject();
+		try{
+			Workbook workbook = this.transformToWorkbook(request);
+			if(workbook==null){
+				message.put("msg","文件格式不正确！");
+			}else{
+				   this.excelImportService.importHxFittingLocation(workbook);
+				   message.put("msg","数据导入成功！");
+			}
+		}catch(Exception e){
+			message.put("msg","数据导入失败！");
+			e.printStackTrace();
+		}
+		return message.toString();
+	}
+	
+	@RequestMapping(value = "/importHxPostage", produces = "text/plain;charset=utf-8")
+	@ResponseBody
+	public String importHxPostage(HttpServletRequest request) {
+		JSONObject message = new JSONObject();
+		try{
+			Workbook workbook = this.transformToWorkbook(request);
+			if(workbook==null){
+				message.put("msg","文件格式不正确！");
+			}else{
+				   this.excelImportService.importHxPostage(workbook);
+				   message.put("msg","数据导入成功！");
+			}
+		}catch(Exception e){
+			message.put("msg","数据导入失败！");
+			e.printStackTrace();
+		}
+		return message.toString();
+	}
+	
+	@RequestMapping(value = "/importHxRole", produces = "text/plain;charset=utf-8")
+	@ResponseBody
+	public String importHxRole(HttpServletRequest request) {
+		JSONObject message = new JSONObject();
+		try{
+			Workbook workbook = this.transformToWorkbook(request);
+			if(workbook==null){
+				message.put("msg","文件格式不正确！");
+			}else{
+				   this.excelImportService.importHxRole(workbook);
+				   message.put("msg","数据导入成功！");
+			}
+		}catch(ArrayIndexOutOfBoundsException e){
+			message.put("msg","数据导入失败,所导入的数据中有角色编码与库中重复，请修改后再导入！");
+			e.printStackTrace();
+		}catch(Exception e){
+			message.put("msg","数据导入失败！");
+			e.printStackTrace();
+		}
+		return message.toString();
+	}
+	
+	@RequestMapping(value = "/importHxRoleAuthority", produces = "text/plain;charset=utf-8")
+	@ResponseBody
+	public String importHxRoleAuthority(HttpServletRequest request) {
+		JSONObject message = new JSONObject();
+		try{
+			Workbook workbook = this.transformToWorkbook(request);
+			if(workbook==null){
+				message.put("msg","文件格式不正确！");
+			}else{
+				   this.excelImportService.importHxRoleAuthority(workbook);
+				   message.put("msg","数据导入成功！");
+			}
+		}catch(Exception e){
+			message.put("msg","数据导入失败！");
+			e.printStackTrace();
+		}
+		return message.toString();
+	}
+	
+	@RequestMapping(value = "/importHxPosition", produces = "text/plain;charset=utf-8")
+	@ResponseBody
+	public String importHxPosition(HttpServletRequest request) {
+		JSONObject message = new JSONObject();
+		try{
+			Workbook workbook = this.transformToWorkbook(request);
+			if(workbook==null){
+				message.put("msg","文件格式不正确！");
+			}else{
+				   String positionOrigin=request.getParameter("positionOrigin");
+				   this.excelImportService.importHxPosition(workbook,positionOrigin);
+				   message.put("msg","数据导入成功！");
+			}
+		}catch(Exception e){
+			message.put("msg","数据导入失败！");
+			e.printStackTrace();
+		}
+		return message.toString();
+	}
+	
+	@RequestMapping(value = "/importJlSaleData", produces = "text/plain;charset=utf-8")
+	@ResponseBody
+	public String importJlSaleData(HttpServletRequest request) {
+		JSONObject message = new JSONObject();
+		try{
+			Workbook workbook = this.transformToWorkbook(request);
+			if(workbook==null){
+				message.put("msg","文件格式不正确！");
+			}else{
+				   this.excelImportService.importJlSaleData(workbook);
+				   message.put("msg","数据导入成功！");
+			}
+		}catch(Exception e){
+			message.put("msg","数据导入失败！");
+			e.printStackTrace();
+		}
+		return message.toString();
+	}
+	
+	private Workbook transformToWorkbook(HttpServletRequest request) throws IOException{
+		MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+		MultipartFile multipartFile = multipartRequest.getFile("fileData");
+		String filename = multipartFile.getOriginalFilename();
+		Workbook workbook = null;
+		if(filename.endsWith("xlsx")){
+			workbook =  new XSSFWorkbook(multipartFile.getInputStream()); 
+		}else if(filename.endsWith("xls")){
+			workbook =  new HSSFWorkbook(multipartFile.getInputStream()); 
+		}
+		return workbook;
+	}
+	
+}

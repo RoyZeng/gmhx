@@ -1,0 +1,724 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gome.gmhx.dao.orgmanage.HxExamineSettlementTicketDao" >
+  <resultMap id="BaseResultMap" type="com.gome.gmhx.entity.HxExamineSettlementTicket" >
+    <id column="settlement_id" property="settlementId" jdbcType="VARCHAR" />
+    <result column="settlement_time" property="settlementTime" jdbcType="TIMESTAMP" />
+    <result column="service_unit" property="serviceUnit" jdbcType="VARCHAR" />
+    <result column="parent_organization" property="parentOrganization" jdbcType="VARCHAR" />
+    <result column="category" property="category" jdbcType="VARCHAR" />
+    <result column="brand" property="brand" jdbcType="VARCHAR" />
+    <result column="settlement_type" property="settlementType" jdbcType="VARCHAR" />
+    <result column="settlement_fee" property="settlementFee" jdbcType="REAL" />
+    <result column="settlement_factor" property="settlementFactor" jdbcType="INTEGER" />
+    <result column="service_fee" property="serviceFee" jdbcType="REAL" />
+    <result column="reward_fee" property="rewardFee" jdbcType="REAL" />
+    <result column="reward_quantity" property="rewardQuantity" jdbcType="INTEGER" />
+    <result column="punish_fee" property="punishFee" jdbcType="REAL" />
+    <result column="punish_quantity" property="punishQuantity" jdbcType="INTEGER" />
+    <result column="other_fee" property="otherFee" jdbcType="REAL" />
+    <result column="other_quantity" property="otherQuantity" jdbcType="INTEGER" />
+    <result column="fake_deduct_factor" property="fakeDeductFactor" jdbcType="INTEGER" />
+    <result column="settlement_status" property="settlementStatus" jdbcType="VARCHAR" />
+    <result column="headquarters_check_man" property="headquartersCheckMan" jdbcType="VARCHAR" />
+    <result column="headquarters_check_time" property="headquartersCheckTime" jdbcType="TIMESTAMP" />
+    <result column="settlement_unit_confirm_man" property="settlementUnitConfirmMan" jdbcType="VARCHAR" />
+    <result column="settlement_unit_confirm_time" property="settlementUnitConfirmTime" jdbcType="TIMESTAMP" />
+    <result column="settlement_unit_comment" property="settlementUnitComment" jdbcType="VARCHAR" />
+    <result column="comment" property="comment" jdbcType="VARCHAR" />
+    <result column="create_man" property="createMan" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="alter_man" property="alterMan" jdbcType="VARCHAR" />
+    <result column="alter_time" property="alterTime" jdbcType="TIMESTAMP" />
+    <result column="process_instance_id" property="processInstanceId" jdbcType="VARCHAR" />
+    <result column="applicant" property="applicant" jdbcType="VARCHAR" />
+    <result column="apply_date" property="applyDate" jdbcType="TIMESTAMP" />
+    <result column="create_position" property="createPosition" jdbcType="VARCHAR" />
+    <result column="is_pass_check" property="isPassCheck" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    settlement_id, settlement_time, service_unit, parent_organization, brand, category, settlement_type, 
+    settlement_fee, settlement_factor, service_fee, reward_fee, reward_quantity, punish_fee, 
+    punish_quantity, other_fee, other_quantity, fake_deduct_factor, settlement_status, 
+    headquarters_check_man, headquarters_check_time, settlement_unit_confirm_man, settlement_unit_confirm_time, 
+    settlement_unit_comment, comment, create_man, create_time, alter_man, alter_time, 
+    process_instance_id, applicant, apply_date, create_position, is_pass_check
+  </sql>
+  <select id="getMaxSequence" resultType="Integer" parameterType="com.gome.gmhx.entity.HxExamineSettlementTicket">
+  	SELECT  MAX(sequence) sequence FROM hx_examine_settlement_ticket 
+	WHERE STR_TO_DATE(settlement_time,'%Y-%m') = STR_TO_DATE(#{settlementTime},'%Y-%m')
+	AND service_unit = #{serviceUnit}
+	AND settlement_type = #{settlementType}
+  </select>
+  <select id="getExamineSettlementPageList" parameterType="com.gome.common.page.Page" resultType="hashmap">
+	SELECT 
+	T.settlement_id, T.settlement_time, v1.name service_unit, v2.name parent_organization, T.brand,T.category, v3.code_value settlement_type, 
+    T.settlement_fee, T.settlement_factor, T.service_fee, T.reward_fee, T.reward_quantity, T.punish_fee, 
+    T.punish_quantity, T.other_fee, T.other_quantity, T.fake_deduct_factor, T.settlement_status, 
+    T.headquarters_check_man, T.headquarters_check_time, T.settlement_unit_confirm_man, T.settlement_unit_confirm_time, 
+    T.settlement_unit_comment, T.comment, T.create_man, T.create_time, T.alter_man, T.alter_time
+	FROM hx_examine_settlement_ticket T
+	LEFT JOIN v_organization v1 ON v1.id = T.service_unit
+	LEFT JOIN v_organization v2 ON v2.id = T.parent_organization
+	LEFT JOIN v_code v3 ON v3.code_id='st' AND T.settlement_type=v3.code_key
+	WHERE 1=1
+	<if test="param.companyCode != null and param.companyCode !=''">and T.service_unit like CONCAT('%',#{param.companyCode},'%')</if>
+	<if test="param.ids != null and param.ids !=''">and T.settlement_id in ${param.ids}</if>
+	<if test="param.settlementId != null and param.settlementId !=''">and T.settlement_id like CONCAT('%',#{param.settlementId},'%')</if>
+	<if test="param.serviceUnit != null and param.serviceUnit !=''">and T.service_unit like CONCAT('%',#{param.serviceUnit},'%')</if>
+	<if test="param.parentOrganization != null and param.parentOrganization !=''">and T.parent_organization like CONCAT('%',#{param.parentOrganization},'%')</if>
+	<if test="param.category != null and param.category !=''">and T.category like CONCAT('%',#{param.category},'%')</if>
+	<if test="param.brand != null and param.brand !=''">and T.brand like CONCAT('%',#{param.brand},'%')</if>
+	<if test="param.settlementType != null and param.settlementType !=''">and T.settlement_type like CONCAT('%',#{param.settlementType},'%')</if>
+	<if test="param.settlementFee != null and param.settlementFee !=''">and T.settlement_fee like CONCAT('%',#{param.settlementFee},'%')</if>
+	<if test="param.settlementFactor != null and param.settlementFactor !=''">and T.settlement_factor like CONCAT('%',#{param.settlementFactor},'%')</if>
+	<if test="param.serviceFee != null and param.serviceFee !=''">and T.service_fee like CONCAT('%',#{param.serviceFee},'%')</if>
+	<if test="param.rewardFee != null and param.rewardFee !=''">and T.reward_fee like CONCAT('%',#{param.rewardFee},'%')</if>
+	<if test="param.rewardQuantity != null and param.rewardQuantity !=''">and T.reward_quantity like CONCAT('%',#{param.rewardQuantity},'%')</if>
+	<if test="param.punishFee != null and param.punishFee !=''">and T.punish_fee like CONCAT('%',#{param.punishFee},'%')</if>
+	<if test="param.punishQuantity != null and param.punishQuantity !=''">and T.punish_quantity like CONCAT('%',#{param.punishQuantity},'%')</if>
+	<if test="param.otherFee != null and param.otherFee !=''">and T.other_fee like CONCAT('%',#{param.otherFee},'%')</if>
+	<if test="param.otherQuantity != null and param.otherQuantity !=''">and T.other_quantity like CONCAT('%',#{param.otherQuantity},'%')</if>
+	<if test="param.fakeDeductFactor != null and param.fakeDeductFactor !=''">and T.fake_deduct_factor like CONCAT('%',#{param.fakeDeductFactor},'%')</if>
+	<if test="param.settlementStatus != null and param.settlementStatus !=''">and T.settlement_status like CONCAT('%',#{param.settlementStatus},'%')</if>
+	<if test="param.headquartersCheckMan != null and param.headquartersCheckMan !=''">and T.headquarters_check_man like CONCAT('%',#{param.headquartersCheckMan},'%')</if>
+	<if test="param.settlementUnitConfirmMan != null and param.settlementUnitConfirmMan !=''">and T.settlement_unit_confirm_man like CONCAT('%',#{param.settlementUnitConfirmMan},'%')</if>
+	<if test="param.settlementUnitComment != null and param.settlementUnitComment !=''">and T.settlement_unit_comment like CONCAT('%',#{param.settlementUnitComment},'%')</if>
+	<if test="param.comment != null and param.comment !=''">and T.comment like CONCAT('%',#{param.comment},'%')</if>
+	<if test="param.createMan != null and param.createMan !=''">and T.create_man like CONCAT('%',#{param.createMan},'%')</if>
+	<if test="param.alterMan != null and param.alterMan !=''">and T.alter_man like CONCAT('%',#{param.alterMan},'%')</if>
+	
+	<if test="param.settlementTime_st !=null and param.settlementTime_st != '' "><![CDATA[ and T.settlement_time >=#{param.settlementTime_st} ]]></if>  
+	<if test="param.settlementTime_end !=null and param.settlementTime_end != '' "><![CDATA[ and T.settlement_time <=#{param.settlementTime_end} ]]></if>
+	<if test="param.headquartersCheckTime_st !=null and param.headquartersCheckTime_st != '' "><![CDATA[ and T.headquarters_check_time >=#{param.headquartersCheckTime_st} ]]></if>  
+	<if test="param.headquartersCheckTime_end !=null and param.headquartersCheckTime_end != '' "><![CDATA[ and T.headquarters_check_time <=#{param.headquartersCheckTime_end} ]]></if>
+	<if test="param.settlementUnitConfirmTime_st !=null and param.settlementUnitConfirmTime_st != '' "><![CDATA[ and T.settlement_unit_confirm_time >=#{param.settlementUnitConfirmTime_st} ]]></if>  
+	<if test="param.settlementUnitConfirmTime_end !=null and param.settlementUnitConfirmTime_end != '' "><![CDATA[ and T.settlement_unit_confirm_time <=#{param.settlementUnitConfirmTime_end} ]]></if>
+	<if test="param.createTime_st !=null and param.createTime_st != '' "><![CDATA[ and T.create_time >=#{param.createTime_st} ]]></if>  
+	<if test="param.createTime_end !=null and param.createTime_end != '' "><![CDATA[ and T.create_time <=#{param.createTime_end} ]]></if>
+	<if test="param.alterTime_st !=null and param.alterTime_st != '' "><![CDATA[ and T.alter_time >=#{param.alterTime_st} ]]></if>  
+	<if test="param.alterTime_end !=null and param.alterTime_end != '' "><![CDATA[ and T.alter_time <=#{param.alterTime_end} ]]></if>
+	GROUP BY T.settlement_id
+  </select>
+    <select id="getExamineSettlementById" resultMap="BaseResultMap" parameterType="java.lang.String" >
+	SELECT 
+	<include refid="Base_Column_List" />
+	FROM hx_examine_settlement_ticket
+	<!-- LEFT JOIN v_organization v1 ON v1.id = T.service_unit
+	LEFT JOIN v_organization v2 ON v2.id = T.parent_organization
+	LEFT JOIN v_code v3 ON v3.code_id='st' AND T.settlement_type=v3.code_key -->
+    where settlement_id = #{settlementId,jdbcType=VARCHAR}
+  </select>
+    <select id="getOtherFeeGridById" parameterType="java.lang.String" resultType="hashmap">
+  	select 
+  	settlement_id settlementId,reward_amount rewardAmount,reward_quantity rewardQuantity,punish_amount punishAmount,punish_quantity punishQuantity,other_fee otherFee,
+  	other_amount otherAmount,comment
+  	from hx_settlement_detail_other
+  	where settlement_id = #{settlementId,jdbcType=VARCHAR}
+  </select>
+  <select id="getSettlementFeeDetailGrid" parameterType="java.lang.String" resultType="hashmap">
+  	select 
+  	settlement_id,service_id,service_type,category,brand,machine_type,
+  	recall_type,service_fee,settlement_fee,examine_fee,management_fee,
+  	comment,create_month
+  	from hx_settlement_detail
+  	where settlement_id = #{settlementId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from hx_examine_settlement_ticket
+    where settlement_id = #{settlementId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteOthersById" parameterType="java.lang.String">
+  	delete from hx_settlement_detail_other
+    where settlement_id = #{settlementId,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from hx_examine_settlement_ticket
+    where settlement_id = #{settlementId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insertOthers" parameterType="hashmap">
+  	insert into hx_settlement_detail_other (settlement_id,reward_amount,reward_quantity,punish_amount,punish_quantity,other_fee,other_amount,comment,create_month) values 
+    <foreach collection="list" item="item" separator="," >
+    	(#{settlementId},#{item.rewardAmount},#{item.rewardQuantity},#{item.punishAmount},#{item.punishQuantity},#{item.otherFee},#{item.otherAmount},#{item.comment},#{createTime})
+    </foreach>
+  </insert>
+  <insert id="insertExamineSettlementTicket" parameterType="com.gome.gmhx.entity.HxExamineSettlementTicket" >
+    insert into hx_examine_settlement_ticket (settlement_id, settlement_time,sequence, service_unit, 
+      parent_organization, brand, category, settlement_type, 
+      settlement_fee, settlement_factor, service_fee, 
+      reward_fee, reward_quantity, punish_fee, 
+      punish_quantity, other_fee, other_quantity, 
+      fake_deduct_factor, settlement_status, headquarters_check_man, 
+      headquarters_check_time, settlement_unit_confirm_man, 
+      settlement_unit_confirm_time, settlement_unit_comment, 
+      comment, create_man, create_time, 
+      alter_man, alter_time, process_instance_id, 
+      applicant, apply_date, create_position, 
+      is_pass_check)
+    values (#{settlementId,jdbcType=VARCHAR}, #{settlementTime,jdbcType=TIMESTAMP}, #{sequence,jdbcType=INTEGER}, #{serviceUnit,jdbcType=VARCHAR},
+      #{parentOrganization,jdbcType=VARCHAR}, #{brand,jdbcType=VARCHAR},#{category,jdbcType=VARCHAR}, #{settlementType,jdbcType=VARCHAR}, 
+      #{settlementFee,jdbcType=REAL}, #{settlementFactor,jdbcType=INTEGER}, #{serviceFee,jdbcType=REAL}, 
+      #{rewardFee,jdbcType=REAL}, #{rewardQuantity,jdbcType=INTEGER}, #{punishFee,jdbcType=REAL}, 
+      #{punishQuantity,jdbcType=INTEGER}, #{otherFee,jdbcType=REAL}, #{otherQuantity,jdbcType=INTEGER}, 
+      #{fakeDeductFactor,jdbcType=INTEGER}, #{settlementStatus,jdbcType=VARCHAR}, #{headquartersCheckMan,jdbcType=VARCHAR}, 
+      #{headquartersCheckTime,jdbcType=TIMESTAMP}, #{settlementUnitConfirmMan,jdbcType=VARCHAR}, 
+      #{settlementUnitConfirmTime,jdbcType=TIMESTAMP}, #{settlementUnitComment,jdbcType=VARCHAR}, 
+      #{comment,jdbcType=VARCHAR}, #{createMan,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{alterMan,jdbcType=VARCHAR}, #{alterTime,jdbcType=TIMESTAMP}, #{processInstanceId,jdbcType=VARCHAR}, 
+      #{applicant,jdbcType=VARCHAR}, #{applyDate,jdbcType=TIMESTAMP}, #{createPosition,jdbcType=VARCHAR}, 
+      #{isPassCheck,jdbcType=BIT})
+  </insert>
+  <insert id="insertSettlementDetails" parameterType="java.util.List">
+  	insert into hx_settlement_detail (settlement_id, service_id, service_type, category,brand,machine_type,
+  	recall_type,service_fee,settlement_fee,examine_fee,management_fee,comment,create_month,is_effictive) 
+  	values 
+    <foreach collection="list" item="item" separator="," >
+    	(#{item.settlementId},#{item.serviceId},#{item.serviceType},#{item.category},#{item.brand},#{item.machineType},#{item.recallType},#{item.serviceFee},
+    	 #{item.settlementFee},#{item.examineFee},#{item.managementFee},#{item.comment},
+    	 #{item.createMonth},#{item.isEffictive})
+   </foreach>
+  </insert>
+  <insert id="insertSelective" parameterType="com.gome.gmhx.entity.HxExamineSettlementTicket" >
+    insert into hx_examine_settlement_ticket
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="settlementId != null" >
+        settlement_id,
+      </if>
+      <if test="settlementTime != null" >
+        settlement_time,
+      </if>
+      <if test="serviceUnit != null" >
+        service_unit,
+      </if>
+      <if test="parentOrganization != null" >
+        parent_organization,
+      </if>
+      <if test="brand != null" >
+        brand,
+      </if>
+      <if test="settlementType != null" >
+        settlement_type,
+      </if>
+      <if test="settlementFee != null" >
+        settlement_fee,
+      </if>
+      <if test="settlementFactor != null" >
+        settlement_factor,
+      </if>
+      <if test="serviceFee != null" >
+        service_fee,
+      </if>
+      <if test="rewardFee != null" >
+        reward_fee,
+      </if>
+      <if test="rewardQuantity != null" >
+        reward_quantity,
+      </if>
+      <if test="punishFee != null" >
+        punish_fee,
+      </if>
+      <if test="punishQuantity != null" >
+        punish_quantity,
+      </if>
+      <if test="otherFee != null" >
+        other_fee,
+      </if>
+      <if test="otherQuantity != null" >
+        other_quantity,
+      </if>
+      <if test="fakeDeductFactor != null" >
+        fake_deduct_factor,
+      </if>
+      <if test="settlementStatus != null" >
+        settlement_status,
+      </if>
+      <if test="headquartersCheckMan != null" >
+        headquarters_check_man,
+      </if>
+      <if test="headquartersCheckTime != null" >
+        headquarters_check_time,
+      </if>
+      <if test="settlementUnitConfirmMan != null" >
+        settlement_unit_confirm_man,
+      </if>
+      <if test="settlementUnitConfirmTime != null" >
+        settlement_unit_confirm_time,
+      </if>
+      <if test="settlementUnitComment != null" >
+        settlement_unit_comment,
+      </if>
+      <if test="comment != null" >
+        comment,
+      </if>
+      <if test="createMan != null" >
+        create_man,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="alterMan != null" >
+        alter_man,
+      </if>
+      <if test="alterTime != null" >
+        alter_time,
+      </if>
+      <if test="processInstanceId != null" >
+        process_instance_id,
+      </if>
+      <if test="applicant != null" >
+        applicant,
+      </if>
+      <if test="applyDate != null" >
+        apply_date,
+      </if>
+      <if test="createPosition != null" >
+        create_position,
+      </if>
+      <if test="isPassCheck != null" >
+        is_pass_check,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="settlementId != null" >
+        #{settlementId,jdbcType=VARCHAR},
+      </if>
+      <if test="settlementTime != null" >
+        #{settlementTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="serviceUnit != null" >
+        #{serviceUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="parentOrganization != null" >
+        #{parentOrganization,jdbcType=VARCHAR},
+      </if>
+      <if test="brand != null" >
+        #{brand,jdbcType=VARCHAR},
+      </if>
+      <if test="settlementType != null" >
+        #{settlementType,jdbcType=VARCHAR},
+      </if>
+      <if test="settlementFee != null" >
+        #{settlementFee,jdbcType=REAL},
+      </if>
+      <if test="settlementFactor != null" >
+        #{settlementFactor,jdbcType=INTEGER},
+      </if>
+      <if test="serviceFee != null" >
+        #{serviceFee,jdbcType=REAL},
+      </if>
+      <if test="rewardFee != null" >
+        #{rewardFee,jdbcType=REAL},
+      </if>
+      <if test="rewardQuantity != null" >
+        #{rewardQuantity,jdbcType=INTEGER},
+      </if>
+      <if test="punishFee != null" >
+        #{punishFee,jdbcType=REAL},
+      </if>
+      <if test="punishQuantity != null" >
+        #{punishQuantity,jdbcType=INTEGER},
+      </if>
+      <if test="otherFee != null" >
+        #{otherFee,jdbcType=REAL},
+      </if>
+      <if test="otherQuantity != null" >
+        #{otherQuantity,jdbcType=INTEGER},
+      </if>
+      <if test="fakeDeductFactor != null" >
+        #{fakeDeductFactor,jdbcType=INTEGER},
+      </if>
+      <if test="settlementStatus != null" >
+        #{settlementStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="headquartersCheckMan != null" >
+        #{headquartersCheckMan,jdbcType=VARCHAR},
+      </if>
+      <if test="headquartersCheckTime != null" >
+        #{headquartersCheckTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="settlementUnitConfirmMan != null" >
+        #{settlementUnitConfirmMan,jdbcType=VARCHAR},
+      </if>
+      <if test="settlementUnitConfirmTime != null" >
+        #{settlementUnitConfirmTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="settlementUnitComment != null" >
+        #{settlementUnitComment,jdbcType=VARCHAR},
+      </if>
+      <if test="comment != null" >
+        #{comment,jdbcType=VARCHAR},
+      </if>
+      <if test="createMan != null" >
+        #{createMan,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="alterMan != null" >
+        #{alterMan,jdbcType=VARCHAR},
+      </if>
+      <if test="alterTime != null" >
+        #{alterTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="processInstanceId != null" >
+        #{processInstanceId,jdbcType=VARCHAR},
+      </if>
+      <if test="applicant != null" >
+        #{applicant,jdbcType=VARCHAR},
+      </if>
+      <if test="applyDate != null" >
+        #{applyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createPosition != null" >
+        #{createPosition,jdbcType=VARCHAR},
+      </if>
+      <if test="isPassCheck != null" >
+        #{isPassCheck,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update hx_examine_settlement_ticket
+    <set >
+      <if test="record.settlementId != null" >
+        settlement_id = #{record.settlementId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.settlementTime != null" >
+        settlement_time = #{record.settlementTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.serviceUnit != null" >
+        service_unit = #{record.serviceUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="record.parentOrganization != null" >
+        parent_organization = #{record.parentOrganization,jdbcType=VARCHAR},
+      </if>
+      <if test="record.brand != null" >
+        brand = #{record.brand,jdbcType=VARCHAR},
+      </if>
+      <if test="record.settlementType != null" >
+        settlement_type = #{record.settlementType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.settlementFee != null" >
+        settlement_fee = #{record.settlementFee,jdbcType=REAL},
+      </if>
+      <if test="record.settlementFactor != null" >
+        settlement_factor = #{record.settlementFactor,jdbcType=INTEGER},
+      </if>
+      <if test="record.serviceFee != null" >
+        service_fee = #{record.serviceFee,jdbcType=REAL},
+      </if>
+      <if test="record.rewardFee != null" >
+        reward_fee = #{record.rewardFee,jdbcType=REAL},
+      </if>
+      <if test="record.rewardQuantity != null" >
+        reward_quantity = #{record.rewardQuantity,jdbcType=INTEGER},
+      </if>
+      <if test="record.punishFee != null" >
+        punish_fee = #{record.punishFee,jdbcType=REAL},
+      </if>
+      <if test="record.punishQuantity != null" >
+        punish_quantity = #{record.punishQuantity,jdbcType=INTEGER},
+      </if>
+      <if test="record.otherFee != null" >
+        other_fee = #{record.otherFee,jdbcType=REAL},
+      </if>
+      <if test="record.otherQuantity != null" >
+        other_quantity = #{record.otherQuantity,jdbcType=INTEGER},
+      </if>
+      <if test="record.fakeDeductFactor != null" >
+        fake_deduct_factor = #{record.fakeDeductFactor,jdbcType=INTEGER},
+      </if>
+      <if test="record.settlementStatus != null" >
+        settlement_status = #{record.settlementStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.headquartersCheckMan != null" >
+        headquarters_check_man = #{record.headquartersCheckMan,jdbcType=VARCHAR},
+      </if>
+      <if test="record.headquartersCheckTime != null" >
+        headquarters_check_time = #{record.headquartersCheckTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.settlementUnitConfirmMan != null" >
+        settlement_unit_confirm_man = #{record.settlementUnitConfirmMan,jdbcType=VARCHAR},
+      </if>
+      <if test="record.settlementUnitConfirmTime != null" >
+        settlement_unit_confirm_time = #{record.settlementUnitConfirmTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.settlementUnitComment != null" >
+        settlement_unit_comment = #{record.settlementUnitComment,jdbcType=VARCHAR},
+      </if>
+      <if test="record.comment != null" >
+        comment = #{record.comment,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createMan != null" >
+        create_man = #{record.createMan,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.alterMan != null" >
+        alter_man = #{record.alterMan,jdbcType=VARCHAR},
+      </if>
+      <if test="record.alterTime != null" >
+        alter_time = #{record.alterTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.processInstanceId != null" >
+        process_instance_id = #{record.processInstanceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.applicant != null" >
+        applicant = #{record.applicant,jdbcType=VARCHAR},
+      </if>
+      <if test="record.applyDate != null" >
+        apply_date = #{record.applyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createPosition != null" >
+        create_position = #{record.createPosition,jdbcType=VARCHAR},
+      </if>
+      <if test="record.isPassCheck != null" >
+        is_pass_check = #{record.isPassCheck,jdbcType=BIT},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update hx_examine_settlement_ticket
+    set settlement_id = #{record.settlementId,jdbcType=VARCHAR},
+      settlement_time = #{record.settlementTime,jdbcType=TIMESTAMP},
+      service_unit = #{record.serviceUnit,jdbcType=VARCHAR},
+      parent_organization = #{record.parentOrganization,jdbcType=VARCHAR},
+      brand = #{record.brand,jdbcType=VARCHAR},
+      settlement_type = #{record.settlementType,jdbcType=VARCHAR},
+      settlement_fee = #{record.settlementFee,jdbcType=REAL},
+      settlement_factor = #{record.settlementFactor,jdbcType=INTEGER},
+      service_fee = #{record.serviceFee,jdbcType=REAL},
+      reward_fee = #{record.rewardFee,jdbcType=REAL},
+      reward_quantity = #{record.rewardQuantity,jdbcType=INTEGER},
+      punish_fee = #{record.punishFee,jdbcType=REAL},
+      punish_quantity = #{record.punishQuantity,jdbcType=INTEGER},
+      other_fee = #{record.otherFee,jdbcType=REAL},
+      other_quantity = #{record.otherQuantity,jdbcType=INTEGER},
+      fake_deduct_factor = #{record.fakeDeductFactor,jdbcType=INTEGER},
+      settlement_status = #{record.settlementStatus,jdbcType=VARCHAR},
+      headquarters_check_man = #{record.headquartersCheckMan,jdbcType=VARCHAR},
+      headquarters_check_time = #{record.headquartersCheckTime,jdbcType=TIMESTAMP},
+      settlement_unit_confirm_man = #{record.settlementUnitConfirmMan,jdbcType=VARCHAR},
+      settlement_unit_confirm_time = #{record.settlementUnitConfirmTime,jdbcType=TIMESTAMP},
+      settlement_unit_comment = #{record.settlementUnitComment,jdbcType=VARCHAR},
+      comment = #{record.comment,jdbcType=VARCHAR},
+      create_man = #{record.createMan,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      alter_man = #{record.alterMan,jdbcType=VARCHAR},
+      alter_time = #{record.alterTime,jdbcType=TIMESTAMP},
+      process_instance_id = #{record.processInstanceId,jdbcType=VARCHAR},
+      applicant = #{record.applicant,jdbcType=VARCHAR},
+      apply_date = #{record.applyDate,jdbcType=TIMESTAMP},
+      create_position = #{record.createPosition,jdbcType=VARCHAR},
+      is_pass_check = #{record.isPassCheck,jdbcType=BIT}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateExamineSettlementTicket" parameterType="com.gome.gmhx.entity.HxExamineSettlementTicket" >
+    update hx_examine_settlement_ticket
+    <set >
+      <if test="settlementTime != null" >
+        settlement_time = #{settlementTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="serviceUnit != null" >
+        service_unit = #{serviceUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="parentOrganization != null" >
+        parent_organization = #{parentOrganization,jdbcType=VARCHAR},
+      </if>
+      <if test="category != null" >
+        category = #{category,jdbcType=VARCHAR},
+      </if>
+      <if test="brand != null" >
+        brand = #{brand,jdbcType=VARCHAR},
+      </if>
+      <if test="settlementType != null" >
+        settlement_type = #{settlementType,jdbcType=VARCHAR},
+      </if>
+      <if test="settlementFee != null" >
+        settlement_fee = #{settlementFee,jdbcType=REAL},
+      </if>
+      <if test="settlementFactor != null" >
+        settlement_factor = #{settlementFactor,jdbcType=INTEGER},
+      </if>
+      <if test="serviceFee != null" >
+        service_fee = #{serviceFee,jdbcType=REAL},
+      </if>
+      <if test="rewardFee != null" >
+        reward_fee = #{rewardFee,jdbcType=REAL},
+      </if>
+      <if test="rewardQuantity != null" >
+        reward_quantity = #{rewardQuantity,jdbcType=INTEGER},
+      </if>
+      <if test="punishFee != null" >
+        punish_fee = #{punishFee,jdbcType=REAL},
+      </if>
+      <if test="punishQuantity != null" >
+        punish_quantity = #{punishQuantity,jdbcType=INTEGER},
+      </if>
+      <if test="otherFee != null" >
+        other_fee = #{otherFee,jdbcType=REAL},
+      </if>
+      <if test="otherQuantity != null" >
+        other_quantity = #{otherQuantity,jdbcType=INTEGER},
+      </if>
+      <if test="fakeDeductFactor != null" >
+        fake_deduct_factor = #{fakeDeductFactor,jdbcType=INTEGER},
+      </if>
+      <if test="settlementStatus != null" >
+        settlement_status = #{settlementStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="headquartersCheckMan != null" >
+        headquarters_check_man = #{headquartersCheckMan,jdbcType=VARCHAR},
+      </if>
+      <if test="headquartersCheckTime != null" >
+        headquarters_check_time = #{headquartersCheckTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="settlementUnitConfirmMan != null" >
+        settlement_unit_confirm_man = #{settlementUnitConfirmMan,jdbcType=VARCHAR},
+      </if>
+      <if test="settlementUnitConfirmTime != null" >
+        settlement_unit_confirm_time = #{settlementUnitConfirmTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="settlementUnitComment != null" >
+        settlement_unit_comment = #{settlementUnitComment,jdbcType=VARCHAR},
+      </if>
+      <if test="comment != null" >
+        comment = #{comment,jdbcType=VARCHAR},
+      </if>
+      <if test="createMan != null" >
+        create_man = #{createMan,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="alterMan != null" >
+        alter_man = #{alterMan,jdbcType=VARCHAR},
+      </if>
+      <if test="alterTime != null" >
+        alter_time = #{alterTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="processInstanceId != null" >
+        process_instance_id = #{processInstanceId,jdbcType=VARCHAR},
+      </if>
+      <if test="applicant != null" >
+        applicant = #{applicant,jdbcType=VARCHAR},
+      </if>
+      <if test="applyDate != null" >
+        apply_date = #{applyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createPosition != null" >
+        create_position = #{createPosition,jdbcType=VARCHAR},
+      </if>
+      <if test="isPassCheck != null" >
+        is_pass_check = #{isPassCheck,jdbcType=BIT},
+      </if>
+    </set>
+    where settlement_id = #{settlementId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.gome.gmhx.entity.HxExamineSettlementTicket" >
+    update hx_examine_settlement_ticket
+    set settlement_time = #{settlementTime,jdbcType=TIMESTAMP},
+      service_unit = #{serviceUnit,jdbcType=VARCHAR},
+      parent_organization = #{parentOrganization,jdbcType=VARCHAR},
+      brand = #{brand,jdbcType=VARCHAR},
+      settlement_type = #{settlementType,jdbcType=VARCHAR},
+      settlement_fee = #{settlementFee,jdbcType=REAL},
+      settlement_factor = #{settlementFactor,jdbcType=INTEGER},
+      service_fee = #{serviceFee,jdbcType=REAL},
+      reward_fee = #{rewardFee,jdbcType=REAL},
+      reward_quantity = #{rewardQuantity,jdbcType=INTEGER},
+      punish_fee = #{punishFee,jdbcType=REAL},
+      punish_quantity = #{punishQuantity,jdbcType=INTEGER},
+      other_fee = #{otherFee,jdbcType=REAL},
+      other_quantity = #{otherQuantity,jdbcType=INTEGER},
+      fake_deduct_factor = #{fakeDeductFactor,jdbcType=INTEGER},
+      settlement_status = #{settlementStatus,jdbcType=VARCHAR},
+      headquarters_check_man = #{headquartersCheckMan,jdbcType=VARCHAR},
+      headquarters_check_time = #{headquartersCheckTime,jdbcType=TIMESTAMP},
+      settlement_unit_confirm_man = #{settlementUnitConfirmMan,jdbcType=VARCHAR},
+      settlement_unit_confirm_time = #{settlementUnitConfirmTime,jdbcType=TIMESTAMP},
+      settlement_unit_comment = #{settlementUnitComment,jdbcType=VARCHAR},
+      comment = #{comment,jdbcType=VARCHAR},
+      create_man = #{createMan,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      alter_man = #{alterMan,jdbcType=VARCHAR},
+      alter_time = #{alterTime,jdbcType=TIMESTAMP},
+      process_instance_id = #{processInstanceId,jdbcType=VARCHAR},
+      applicant = #{applicant,jdbcType=VARCHAR},
+      apply_date = #{applyDate,jdbcType=TIMESTAMP},
+      create_position = #{createPosition,jdbcType=VARCHAR},
+      is_pass_check = #{isPassCheck,jdbcType=BIT}
+    where settlement_id = #{settlementId,jdbcType=VARCHAR}
+  </update>
+  <sql id="MySqlDialectPage" >
+    <if test="page != null" >
+      <![CDATA[ limit  #{page.begin} , #{page.end} ]]>
+    </if>
+  </sql>
+</mapper>

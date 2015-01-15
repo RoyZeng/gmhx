@@ -1,0 +1,11 @@
+#mysql
+jdbc.driverClass=com.mysql.jdbc.Driver
+jdbc.jdbcUrl=jdbc:mysql://10.128.11.129:3306/gmhx600?characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull
+jdbc.user=root
+jdbc.password=mysql
+
+jdbc.maxActive = 2
+jdbc.maxIdle =5
+jdbc.minIdle=1
+jdbc.initialSize =3
+jdbc.maxWait =3000

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gome.gmhx.dao.basicdata.HxProductDetailDao" >
+  <resultMap id="BaseResultMap" type="com.gome.gmhx.entity.HxProductDetail" >
+    <id column="model" property="model" jdbcType="VARCHAR" />
+    <result column="classify_code" property="classifyCode" jdbcType="VARCHAR" />
+    <result column="product_code" property="productCode" jdbcType="VARCHAR" />
+    <result column="product_name" property="productName" jdbcType="VARCHAR" />
+    <result column="english_name" property="englishName" jdbcType="VARCHAR" />
+    <result column="model_classify" property="modelClassify" jdbcType="VARCHAR" />
+    <result column="product_model" property="productModel" jdbcType="VARCHAR" />
+    <result column="gome_code" property="gomeCode" jdbcType="VARCHAR" />
+    <result column="is_new" property="isNew" jdbcType="INTEGER" />
+    <result column="is_preferential" property="isPreferential" jdbcType="INTEGER" />
+    <result column="spec" property="spec" jdbcType="VARCHAR" />
+    <result column="refrigeration" property="refrigeration" jdbcType="VARCHAR" />
+    <result column="price" property="price" jdbcType="REAL" />
+    <result column="comment" property="comment" jdbcType="VARCHAR" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="brand" property="brand" jdbcType="VARCHAR" />
+    <result column="matnr" property="matnr" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, model, classify_code, product_code, product_name, english_name, model_classify,
+    product_model, gome_code, is_new, is_preferential,installation_fee, spec, refrigeration, price, 
+    comment, update_time,brand,matnr
+  </sql>
+  
+  <select id="getHxProductDetailById" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select * from hx_product_detail
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="getHxProductDetailPageList" parameterType="com.gome.common.page.Page" resultType="hashmap">
+    SELECT t.id, model, v1.code_value classify_code, t.product_code, t.product_name, t.english_name
+	, v2.code_value model_classify, v3.code_value product_model, v4.code_value gome_code, t.is_new
+	, t.is_preferential, t.spec, t.refrigeration, t.price
+	, comment, update_time,matnr, v5.code_value brand
+	FROM hx_product_detail t
+	LEFT JOIN v_code v1 on t.classify_code=v1.code_key and v1.code_id='cpfl'
+	LEFT JOIN v_code v2 on t.model_classify=v2.code_key and v2.code_id='jxlb'
+	LEFT JOIN v_code v3 on t.product_model=v3.code_key and v3.code_id='cplx'
+	LEFT JOIN v_code v4 on t.gome_code=v4.code_key and v4.code_id='gmdm'
+	LEFT JOIN v_code v5 on t.brand=v5.code_key and v5.code_id='pp'
+	WHERE 1=1
+	<if test="param.productCode != null and param.productCode != ''"> and t.product_code like CONCAT('%',#{param.productCode},'%')</if>
+	<if test="param.productName != null and param.productName != ''"> and t.product_name like CONCAT('%',#{param.productName},'%')</if>
+	<if test="param.classifyCode != null and param.classifyCode != ''"> and t.classify_code = #{param.classifyCode}</if>
+	<if test="param.model != null and param.model != ''"> and t.model like CONCAT('%',#{param.model},'%')</if>
+	<if test="param.modelClassify != null and param.modelClassify != ''"> and t.model_classify = #{param.modelClassify}</if>
+	<if test="param.productModel != null and param.productModel != ''"> and t.product_model = #{param.productModel}</if>
+	<if test="param.gomeCode != null and param.gomeCode != ''"> and t.gome_code = #{param.gomeCode}</if>
+	<if test="param.brand != null and param.brand != ''"> and t.brand = #{param.brand}</if>
+	<if test="param.isNew != null"> and t.is_new = #{param.isNew}</if>
+	<if test="param.isPreferential != null"> and t.is_preferential = #{param.isPreferential}</if>
+	<if test="param.spec != null and param.spec != ''"> and t.spec like CONCAT('%',#{param.spec},'%')</if>
+	<if test="param.ksrq != null and param.ksrq != ''">
+		<![CDATA[ and t.update_time >= #{param.ksrq}]]>
+	</if>
+	<if test="param.jsrq != null and param.jsrq != ''">
+		<![CDATA[ and t.update_time <= #{param.jsrq}]]>
+	</if>
+	<if test="param.matnr != null and param.matnr != ''"> and t.matnr = #{param.matnr}</if>
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from hx_product_detail
+    where model = #{model,jdbcType=VARCHAR}
+  </delete>
+  
+  <insert id="addHxProductDetail" parameterType="com.gome.gmhx.entity.HxProductDetail" >
+  
+    insert into hx_product_detail (id, model, classify_code, product_code, 
+      product_name, english_name, model_classify, 
+      product_model, gome_code, is_new, is_preferential,installation_fee,
+      spec, refrigeration, price, comment, update_time,brand,matnr)
+    values (#{id,jdbcType=VARCHAR}, #{model,jdbcType=VARCHAR}, #{classifyCode,jdbcType=VARCHAR}, #{productCode,jdbcType=VARCHAR}, 
+      #{productName,jdbcType=VARCHAR}, #{englishName,jdbcType=VARCHAR}, #{modelClassify,jdbcType=VARCHAR}, 
+      #{productModel,jdbcType=VARCHAR}, #{gomeCode,jdbcType=VARCHAR}, #{isNew,jdbcType=INTEGER},
+      #{isPreferential,jdbcType=INTEGER},#{installationFee,jdbcType=FLOAT},#{spec,jdbcType=VARCHAR}, #{refrigeration,jdbcType=VARCHAR}, 
+      #{price,jdbcType=REAL}, #{comment,jdbcType=VARCHAR}, #{updateTime,jdbcType=TIMESTAMP},#{brand,jdbcType=VARCHAR},#{matnr,jdbcType=VARCHAR})
+  </insert>
+
+<insert id="insertBatch" parameterType="java.util.List">
+    INSERT INTO hx_product_detail (
+    <include refid="Base_Column_List" />
+    )
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.model,jdbcType=VARCHAR}, #{item.classifyCode,jdbcType=VARCHAR}, #{item.productCode,jdbcType=VARCHAR}, 
+      #{item.productName,jdbcType=VARCHAR}, #{item.englishName,jdbcType=VARCHAR}, #{item.modelClassify,jdbcType=VARCHAR}, 
+      #{item.productModel,jdbcType=VARCHAR}, #{item.gomeCode,jdbcType=VARCHAR}, #{item.isNew,jdbcType=INTEGER},
+      #{item.isPreferential,jdbcType=INTEGER},#{item.installationFee,jdbcType=FLOAT}, #{item.spec,jdbcType=VARCHAR}, #{item.refrigeration,jdbcType=VARCHAR}, 
+      #{item.price,jdbcType=REAL}, #{item.comment,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=TIMESTAMP},#{item.brand,jdbcType=VARCHAR},#{item.matnr,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+  
+  <update id="updateHxProductDetail" parameterType="com.gome.gmhx.entity.HxProductDetail" >
+    update hx_product_detail
+    <set>
+      <if test="classifyCode != null" >
+        classify_code = #{classifyCode,jdbcType=VARCHAR},
+      </if>
+      <if test="productCode != null" >
+        product_code = #{productCode,jdbcType=VARCHAR},
+      </if>
+      <if test="productName != null" >
+        product_name = #{productName,jdbcType=VARCHAR},
+      </if>
+      <if test="englishName != null" >
+        english_name = #{englishName,jdbcType=VARCHAR},
+      </if>
+      <if test="modelClassify != null" >
+        model_classify = #{modelClassify,jdbcType=VARCHAR},
+      </if>
+      <if test="productModel != null" >
+        product_model = #{productModel,jdbcType=VARCHAR},
+      </if>
+      <if test="gomeCode != null" >
+        gome_code = #{gomeCode,jdbcType=VARCHAR},
+      </if>
+      <if test="isNew != null" >
+        is_new = #{isNew,jdbcType=INTEGER},
+      </if>
+      <if test="isPreferential != null" >
+        is_preferential = #{isPreferential,jdbcType=INTEGER},
+      </if>
+      <if test="installationFee != null" >
+        installation_fee = #{installationFee,jdbcType=REAL},
+      </if>
+      <if test="spec != null" >
+        spec = #{spec,jdbcType=VARCHAR},
+      </if>
+      <if test="refrigeration != null" >
+        refrigeration = #{refrigeration,jdbcType=VARCHAR},
+      </if>
+      <if test="price != null" >
+        price = #{price,jdbcType=REAL},
+      </if>
+      <if test="comment != null" >
+        comment = #{comment,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="brand != null" >
+        brand = #{brand,jdbcType=VARCHAR},
+      </if>
+      <if test="matnr != null" >
+        matnr = #{matnr,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+    <select id="getHxProductDetailByMode" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select * from hx_product_detail  where model = #{code,jdbcType=VARCHAR}
+  </select>
+  
+</mapper>

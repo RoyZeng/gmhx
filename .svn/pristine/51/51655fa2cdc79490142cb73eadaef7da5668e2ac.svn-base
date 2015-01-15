@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gome.entity.HxHistoryData" >
+	
+	<select id="selectHistoryTicketPage" resultType="hashmap" parameterType="com.gome.common.page.Page">
+		SELECT A.RP_CODE AS 'serviceId', D.PC_NAME AS 'machineType', N.CODE_NAME AS 'gomeCode', O.CODE_NAME AS 'brand', 
+		B.CP_MACHINE_IN_NO1 AS 'internalMachineCode1', B.CP_MACHINE_IN_NO2 AS 'internalMachineCode2', B.CP_MACHINE_OUT_NO AS 'externalMachineCode', 
+		B.CP_GOODS_BILL_CODE AS 'deliveryOrderNum', C.CUS_NAME AS 'customerName', C.CUS_FIXED_TEL AS 'telephone', 
+		C.CUS_MOBILE AS 'phone', G.ORG_NAME AS 'installUnit', B.CP_INSTALL_DATE AS 'installDate', B.CP_INVOICE_NO AS 'invoiceNum', 
+		B.CP_INVOICE_NAME AS 'buyer', B.CP_BUY_PRICE AS 'salePrice', H.ORG_NAME AS 'saleCenter', I.ORG_NAME AS 'saleMarket', 
+		B.CP_BUY_DATE AS 'buyDate', J.CODE_NAME AS 'installProvince', B.CP_INSTALL_ADD AS 'installDetailAddress', '安装' AS 'serviceType', 
+		K.ORG_NAME AS 'center', A.RP_REPAIRED_DATE AS 'serviceDate', L.CODE_NAME AS 'checkResult', 
+		A.RP_AUDIT_REASON AS 'checkFaultReason', A.RP_AUDIT_MEMO AS 'centerCheckComment', A.RP_HEAD_AUDIT_MEMO AS 'headquartersCheckComment', 
+		F.EB_BALANCE_DATE AS 'settlementTime', M.ORG_NAME AS 'createOrganizationS', A.RP_CREATE_DATE AS 'createTimeS', NULL AS 'invalidCode', 
+		NULL AS 'invalidName', NULL AS 'invalidReason', 
+		CASE A.RP_REPAIR_MODE WHEN '01' THEN '保内' WHEN '02' THEN '保外' END AS 'maintainWay', 
+		NULL AS 'partsCode', NULL AS 'partsName', NULL AS 'partsPrice', NULL AS 'partsNum', NULL AS 'oldPartsCode', 
+		NULL AS 'oldPartsName', NULL AS 'oldPartsPrice' 
+		FROM EB_REPAIR_HISTORY A 
+		LEFT OUTER JOIN EB_CUSTOMER_PRODUCT B ON A.RP_CP_ID = B.CP_ID 
+		LEFT OUTER JOIN EB_CUSTOMER C ON A.RP_CUS_ID = C.CUS_ID 
+		LEFT OUTER JOIN SYS_PRODUCT D ON D.PC_ID = B.CP_PROD_ID 
+		LEFT OUTER JOIN EB_BALANCE_DETAIL E ON A.RP_CODE = E.EBD_LIST_NO 
+		LEFT OUTER JOIN EB_BALANCE F ON E.EBD_EB_ID = F.EB_ID 
+		LEFT OUTER JOIN SYS_ORGANIZATION G ON B.CP_INSTALL_COMPANY = G.ORG_ID 
+		LEFT OUTER JOIN SYS_ORGANIZATION H ON B.CP_SOLD_CENTER = H.ORG_ID 
+		LEFT OUTER JOIN SYS_ORGANIZATION I ON B.CP_SOLD_COMPANY = I.ORG_ID 
+		LEFT OUTER JOIN CD_SX J ON B.CP_INSTALL_AREA = J.CODE_VALUE 
+		LEFT OUTER JOIN SYS_ORGANIZATION K ON A.RP_CENTER_ID = K.ORG_ID 
+		LEFT OUTER JOIN CD_AUDIT_RESULT L ON A.RP_AUDIT_RESULT = L.CODE_VALUE 
+		LEFT OUTER JOIN SYS_ORGANIZATION M ON A.RP_CREATE_ORG_ID = M.ORG_ID 
+		LEFT OUTER JOIN CD_FACTORY N ON B.CP_FACTORY = N.CODE_VALUE 
+		LEFT OUTER JOIN CD_BRAND O ON B.CP_BRAND = O.CODE_VALUE 
+		WHERE A.RP_TYPE = '02' AND B.CP_BRAND = '01' 
+		<if test="param.serviceTicket !=null and param.serviceTicket.serviceId != null and param.serviceTicket.serviceId !=''">
+			and RP_CODE like '%'+#{param.serviceTicket.serviceId}+'%'
+		</if>
+		
+		<if test="param.serviceCustomer !=null and param.serviceCustomer.customerName != null and param.serviceCustomer.customerName !=''">
+			and CUS_NAME like '%'+#{param.serviceCustomer.customerName}+'%'
+		</if>
+	</select>
+	<sql id="MySqlDialectPage">
+		<if test="page != null">
+      <![CDATA[ limit  #{page.begin} , #{page.end} ]]>
+		</if>
+	</sql>
+</mapper>

@@ -1,0 +1,207 @@
+package com.gome.gmhx.controller.servicemanage;
+
+import java.net.URLDecoder;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.gome.common.Constrants;
+import com.gome.common.bean.ViewExcel;
+import com.gome.common.page.Page;
+import com.gome.common.util.BeanMapUtils;
+import com.gome.common.util.DateUtils;
+import com.gome.common.util.DecoderUtil;
+import com.gome.common.util.JsonUtil;
+import com.gome.gmhx.entity.HxServiceLongDistance;
+import com.gome.gmhx.entity.SysUser;
+import com.gome.gmhx.service.basicdata.HxCodeService;
+import com.gome.gmhx.service.servicemanage.HxLongDistanceService;
+import com.gome.gmhx.service.sysconfig.HxOrganizationService;
+
+@Controller
+@RequestMapping(value="/longDistanceInstallApply")
+public class HxLongDistanceInstallApplyController {
+	
+	@Resource
+	HxOrganizationService hxOrganizationService;
+	
+	@Resource
+	HxLongDistanceService longDistanceService;
+	
+	@Resource
+	HxCodeService hxCodeService;
+	
+	
+	@RequestMapping(value="/longDistanceInstallApplyView")
+	public String longDistanceInstallApplyView(){
+		return "servicemanage/LongDistanceInstallApply/LongDistanceInstallApplyList";
+	}
+	
+	@RequestMapping(value="/getApplyPageList", produces = "text/plain;charset=utf-8")
+	@ResponseBody
+	public String getApplyPageList(Page page,HxServiceLongDistance hxServiceLongDistance,HttpServletRequest request,
+			@DateTimeFormat(pattern="yyyy-MM-dd")Date mod_buyDate_st,
+			@DateTimeFormat(pattern="yyyy-MM-dd")Date mod_buyDate_end,
+			@DateTimeFormat(pattern="yyyy-MM-dd")Date mod_applyDate_st,
+			@DateTimeFormat(pattern="yyyy-MM-dd")Date mod_applyDate_end
+			) throws Exception{
+		SysUser sysUser = (SysUser) request.getSession().getAttribute(Constrants.USER_INFO);
+		Map <String , Object> map =BeanMapUtils.convertBean(hxServiceLongDistance);
+		map.put("mod_buyDate_st", mod_buyDate_st);
+		map.put("mod_buyDate_end", mod_buyDate_end);
+		map.put("mod_applyDate_st", mod_applyDate_st);
+		map.put("mod_applyDate_end", mod_applyDate_end);
+		map.put("createOrganization", hxOrganizationService.getChild(sysUser.getCompanyId()));
+		page.setParam(map);
+		List<Map<String, Object>> list = longDistanceService.getApplyPageList(page);
+		return JsonUtil.writeListToDataGrid(page.getTotalResult(), list);
+	}
+	
+	@RequestMapping(value="/addview")
+	public String addView(){
+		return "servicemanage/LongDistanceInstallApply/AddLongDistanceInstallApply";
+	}
+	
+	@RequestMapping(value="saveLongDistance")
+	@ResponseBody
+	public String saveLongDistance(HttpServletRequest request,@RequestBody HxServiceLongDistance hxServiceLongDistance){
+		SysUser sysUser = (SysUser) request.getSession().getAttribute(Constrants.USER_INFO);
+		try {
+			String apllyId = longDistanceService.saveLongDistance(hxServiceLongDistance,sysUser);
+            return "{\"flag\" : \"success\",\"apllyId\" : \""+apllyId+"\"}";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "{\"flag\" : \"failure\"}";
+        }
+	}
+	
+	@RequestMapping(value="/distanceApplyView/{applyId}", produces = "text/plain;charset=utf-8")
+	public ModelAndView distanceApplyView(@PathVariable String applyId){
+		ModelAndView mav = new ModelAndView("servicemanage/LongDistanceInstallApply/DistanceApplyShow");
+		HxServiceLongDistance distanceApply = longDistanceService.getDistanceApplyProById(applyId);
+		if("1".equals(distanceApply.getIsCenterCheckAgree())){
+			distanceApply.setIsCenterCheckAgree("同意");
+		}else if("0".equals(distanceApply.getIsCenterCheckAgree())){
+			distanceApply.setIsCenterCheckAgree("不同意");
+		}
+		if("1".equals(distanceApply.getIsHeadquartersCheckAgree())){
+			distanceApply.setIsHeadquartersCheckAgree("同意");
+		}else if("0".equals(distanceApply.getIsHeadquartersCheckAgree())){
+			distanceApply.setIsHeadquartersCheckAgree("不同意");
+		}
+		mav.addObject("distanceApply", distanceApply);
+		mav.addObject("category", hxCodeService.getCategoryByModel(distanceApply.getMachineType()));
+		return mav;
+	}
+	
+	@RequestMapping(value="/updateDistanceApplyView/{applyId}", produces = "text/plain;charset=utf-8")
+	@ResponseBody
+	public ModelAndView updateDistanceApplyView(@PathVariable String applyId){
+		ModelAndView mav = new ModelAndView("servicemanage/LongDistanceInstallApply/DistanceApplyUpdate");
+		HxServiceLongDistance distanceApply = longDistanceService.getDistanceApplyProById(applyId);
+		mav.addObject("distanceApply", distanceApply);
+		return mav;
+	}
+	
+	@RequestMapping(value="updateLongDistance")
+	@ResponseBody
+	public String updateLongDistance(HttpServletRequest request,@RequestBody HxServiceLongDistance hxServiceLongDistance){
+		SysUser sysUser = (SysUser) request.getSession().getAttribute(Constrants.USER_INFO);
+		try {
+			String apllyId = longDistanceService.updateLongDistance(hxServiceLongDistance,sysUser);
+            return "{\"flag\" : \"success\",\"apllyId\" : \""+apllyId+"\"}";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "{\"flag\" : \"failure\"}";
+        }
+	}
+	
+	@RequestMapping(value="/deleteDistanceApply/{applyId}", produces = "text/plain;charset=utf-8")
+	@ResponseBody
+	public String deleteDistanceApply(@PathVariable String applyId){
+		try {
+			longDistanceService.deleteDistanceApply(applyId);
+			return "{\"flag\" : \"success\"}";
+		} catch (Exception e){
+			e.printStackTrace();
+			return "{\"flag\" : \"failure\"}";
+		}
+	}
+	
+	@RequestMapping(value="/sendDistanceApply")
+	@ResponseBody
+	public String sendDistanceApply(String applyId){
+		try{
+			longDistanceService.hxDistanceApplySend(applyId);
+			return "success";
+		}catch(Exception e){
+			e.printStackTrace();
+			return "failure";
+		}
+	}
+	
+	//---------- 远程安装费查询
+	
+	@RequestMapping(value="/longDistanceInstallQueryView")
+	public String longDistanceInstallQueryView(){
+		return "servicemanage/LongDistanceInstallApply/LongDistanceInstallQueryList";
+	}
+	
+	@RequestMapping(value="/longDistanceInstallQueryShow/{applyId}", produces = "text/plain;charset=utf-8")
+	@ResponseBody
+	public ModelAndView longDistanceInstallQueryShow(@PathVariable String applyId){
+		ModelAndView mav = new ModelAndView("servicemanage/LongDistanceInstallApply/LongDistanceInstallQueryShow");
+		HxServiceLongDistance distanceApply = longDistanceService.getDistanceApplyProById(applyId);
+		mav.addObject("distanceApply", distanceApply);
+		mav.addObject("category", hxCodeService.getCategoryByModel(distanceApply.getMachineType()));
+		return mav;
+	}
+	
+	@RequestMapping(value="/exportExcel", produces = "text/plain;charset=utf-8")
+	public ModelAndView exportExcel(Page page,HxServiceLongDistance hxServiceLongDistance,String tableField, String tableHeader, HttpServletResponse response,
+			@DateTimeFormat(pattern="yyyy-MM-dd")Date mod_buyDate_st,
+			@DateTimeFormat(pattern="yyyy-MM-dd")Date mod_buyDate_end,
+			@DateTimeFormat(pattern="yyyy-MM-dd")Date mod_applyDate_st,
+			@DateTimeFormat(pattern="yyyy-MM-dd")Date mod_applyDate_end
+			) throws Exception{
+		Map <String , Object> map =BeanMapUtils.convertBean(hxServiceLongDistance);
+		map.put("mod_buyDate_st", mod_buyDate_st);
+		map.put("mod_buyDate_end", mod_buyDate_end);
+		map.put("mod_applyDate_st", mod_applyDate_st);
+		map.put("mod_applyDate_end", mod_applyDate_end);
+		page.setParam(map);
+		List<Map<String, Object>> list = longDistanceService.getApplyPageList(page);
+		new DecoderUtil<HxServiceLongDistance>().decodeURI(hxServiceLongDistance);
+		String header = URLDecoder.decode(tableHeader, "UTF-8");
+		header = header.replaceAll("<br/>", "");
+		ViewExcel viewExcel = new ViewExcel("远程申请单导出" + DateUtils.formatDateTime(new Date(), DateUtils.FORMAT_THREE), tableField, header, list);
+		return new ModelAndView(viewExcel);
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

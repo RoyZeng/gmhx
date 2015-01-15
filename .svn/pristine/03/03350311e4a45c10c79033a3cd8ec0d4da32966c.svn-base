@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gome.gmhx.dao.orgmanage.HxNetWorkDao">
+	<resultMap id="BaseResultMap" type="com.gome.gmhx.entity.HxNetWork">
+		<result property="wdmc" column="wdmc" jdbcType="VARCHAR" />
+		<result property="azwd01" column="azwd01" jdbcType="VARCHAR" />
+		<result property="azw_azwd01" column="azw_azwd01" jdbcType="VARCHAR" />
+		<result property="gsxx01" column="gsxx01" jdbcType="VARCHAR" />
+		<result property="wdjb" column="wdjb" jdbcType="VARCHAR" />
+		<result property="ismj" column="ismj" jdbcType="VARCHAR" />
+		<result property="wdlx" column="wdlx" jdbcType="VARCHAR" />
+		<result property="wdxz" column="wdxz" jdbcType="VARCHAR" />
+		<result property="siqy" column="siqy" jdbcType="VARCHAR" />
+		<result property="dhazbj" column="dhazbj" jdbcType="VARCHAR" />
+		<result property="jxdf" column="jxdf" jdbcType="VARCHAR" />
+		<result property="ismsg" column="ismsg" jdbcType="VARCHAR" />
+		<result property="id" column="id" jdbcType="VARCHAR" />
+		<result property="update_flag" column="update_flag" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<select id="getNetWorkPageList" parameterType="com.gome.common.page.Page"
+		resultType="hashmap">
+		select t.id,t.name wdmc,t1.name gsxx01 from hx_organization_unload t
+		LEFT JOIN hx_organization_unload t1 on t.pid=t1.id
+		where ((t.interface='md005' and t.id like 'S%') or t.interface='crm001')
+		<if test="param.innerOrgs !=null and param.innerOrgs !=''">
+			AND (t.id IN (${param.innerOrgs}))
+		</if>
+		<if test="param.wdmc !=null and param.wdmc !=''">
+			and t.id like CONCAT('%',#{param.wdmc},'%')
+		</if>
+		<if test="param.gsxx01 != null and param.gsxx01 != ''">
+			and t1.id like CONCAT('%',#{param.gsxx01},'%')
+		</if>
+		<if test="param.id !=null and param.id !=''">
+			and t.id like CONCAT('%',#{param.id},'%')
+		</if>
+
+	</select>
+
+
+	<!-- 显示界面查询 -->
+	<select id="getShowById" resultMap="BaseResultMap"
+		parameterType="java.lang.String">
+		select t.id,t.name wdmc,t1.name gsxx01 from hx_organization_unload t LEFT JOIN
+		hx_organization_unload t1 on t.pid=t1.id where
+		((t.interface='md005' and t.id like 'S%') or t.interface='crm001') and t.id = #{id
+		,jdbcType=VARCHAR}
+	</select>
+
+</mapper>

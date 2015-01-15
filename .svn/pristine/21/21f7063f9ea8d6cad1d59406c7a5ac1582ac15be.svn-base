@@ -1,0 +1,25 @@
+@charset "utf-8";
+/* CSS Document */
+body,html{ height:100%; margin:0; padding:0; font-family:"微软雅黑"}
+.pagebg{ position:absolute;background-attachment:fixed; min-width:1280px;background-size:cover; background-position:center top; background-repeat:no-repeat; height:100%; width:100%; z-index:1;}
+.loginbtn{ width:350px; height:298px; left:50%; margin-left:-172px; position:absolute; top:50%; margin-top:-200px;z-index:2; background:url(../images/backstage/backstage_lg.png) no-repeat center top;}
+.loginbtn a{ background:url(../images/backstage/backstage_btn_bg.png) repeat-x; height:50px; width:240px; display:block; cursor:pointer; margin:278px auto 0 auto;}
+.loginbtn a:hover{ background:url(../images/backstage/backstage_btn_bg_1.png) repeat-x;}
+.footer{ text-align:center; position:absolute; width:100%; height:84px; bottom:0; z-index:2; font-size:12px; }
+.footer ul{ display:block; list-style:none; padding:0; margin:0 auto; width:50px; overflow:hidden; padding-bottom:30px;}
+.footer ul li{ width:17px; height:18px; float:left; cursor:pointer;}
+.footer ul li.left{ background:url(../images/backstage/footer_bg_left.png) no-repeat; margin-right:15px;}
+.footer ul li.left:hover{ background:url(../images/backstage/footer_bg_left_1.png) no-repeat;}
+.footer ul li.right{background:url(../images/backstage/footer_bg_right.png) no-repeat;}
+.footer ul li.right:hover{background:url(../images/backstage/footer_bg_right_1.png) no-repeat;}
+.footer label{ color:#fff;filter:alpha(Opacity=50);-moz-opacity:0.5;opacity: 0.5;}
+.login{ height:380px; position:absolute; width:100%; bottom:0; background:#fff; z-index:3;}
+.login .logindiv{ background:url(../images/backstage/login_icon_bg.png) no-repeat center top; width:302px; margin:-10px auto 0 auto; height:250px;}
+.loginbox ul{ margin:0; padding:62px 0 0 0; list-style:none;}
+.loginbox ul li { margin-bottom:24px;}
+.loginbox input[type="text"] { width: 288px; padding-left:12px; color: #c2c2c2; font-size: 14px; height:34px; line-height:34px; border:1px #d4d4d4 solid; }
+.loginbox input[type="text"]:focus{border:1px #b4b4b4 solid; color:#484848;}
+.loginbox input[type="password"] { width: 288px;padding-left:12px; color: #c2c2c2; font-size: 14px; height:34px; border:1px #d4d4d4 solid;line-height:34px; }
+.loginbox input[type="password"]:focus{border:1px #b4b4b4 solid; color:#484848;}
+.loginbox input[type="button"] { width: 302px; cursor: pointer; height:45px; background:#2699d5; border:0;;border-radius:3px; font-size:16px; color:#fff; font-weight:bold;}
+.loginbox input[type="button"]:hover{ background:#0078b7;}

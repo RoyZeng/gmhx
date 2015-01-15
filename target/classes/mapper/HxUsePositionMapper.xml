@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gome.gmhx.dao.sysconfig.HxUserPositionDao" >
+  <resultMap id="BaseResultMap" type="com.gome.gmhx.entity.HxUserPosition" >
+    <result column="user_login_name" property="userLoginName" jdbcType="VARCHAR" />
+    <result column="position_id" property="positionId" jdbcType="VARCHAR" />
+    <result column="from_type" property="fromType" jdbcType="INTEGER" />
+  </resultMap>
+  <resultMap id="hxPositionResult" type="com.gome.gmhx.entity.HxPosition">
+		<id column="position_code" property="positionCode" jdbcType="VARCHAR" />
+    	<result column="position_name" property="positionName" jdbcType="VARCHAR" />
+    	<result column="position_type" property="positionType" jdbcType="CHAR" />
+    	<result column="from_type" property="fromType" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    user_login_name, position_code, from_type
+  </sql>
+ 
+  <select id="getPositionTree" resultMap="hxPositionResult">
+		select t.position_code,t.position_name,t.from_type from (
+		select hp.position_code, hp.position_name,'0' as from_type from hx_position hp
+		union select distinct(ep.positioncode) as position_code, ep.positionname as position_name,'1' as from_type from emp_empposition  ep ) t
+  </select>
+ 
+  <select id="getPositionTreeData" resultMap="hxPositionResult" parameterType="com.gome.gmhx.entity.HxUserPosition">
+		SELECT t.* FROM 
+		(select hup.position_id,hup.user_login_name, hup.from_type from hx_user_position  hup
+		union select emp.position_id,emp.user_login_name,emp.from_type from hx_emp_unload emp)
+		up left join (
+		select hp.position_code, hp.position_name, '0' as from_type from hx_position hp
+		union select distinct(ep.positioncode) as position_code, ep.positionname as position_name,'1' as from_type from emp_empposition  ep ) t
+ 		on up.position_id = t.position_code
+		where up.user_login_name = #{userLoginName,jdbcType=VARCHAR}
+		and up.from_type =  #{fromType,jdbcType=VARCHAR}
+  </select>
+  
+  <insert id="addUserPosition" parameterType="com.gome.gmhx.entity.HxUserPosition" >
+    insert into hx_user_position (user_login_name, position_id,from_type)
+    values (#{userLoginName,jdbcType=VARCHAR}, #{positionId,jdbcType=VARCHAR}, #{fromType,jdbcType=VARCHAR})
+  </insert>
+  
+  <delete id="deleteCompleteByUserLoginName" parameterType="com.gome.gmhx.entity.HxUserPosition" >
+    delete from hx_user_position where 1=1
+      and user_login_name = #{userLoginName,jdbcType=VARCHAR}
+      and from_type = #{fromType,jdbcType=VARCHAR}
+  </delete>
+  
+  <delete id="deleteCompleteByPositionId" parameterType="com.gome.gmhx.entity.HxUserPosition" >
+    delete from hx_user_position where 1=1
+      and position_id = #{positionId,jdbcType=VARCHAR}
+  </delete>
+</mapper>

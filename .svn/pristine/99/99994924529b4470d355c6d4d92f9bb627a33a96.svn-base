@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gome.gmhx.dao.wsdl.EccDao">
+<resultMap id="BaseResultMap" type="com.gome.gmhx.entity.EccGoods" >
+    <id column="MATNR" property="matnr" jdbcType="VARCHAR" />
+    <result column="EAN11" property="ean11" jdbcType="VARCHAR" />
+    <result column="MAKTX" property="maktx" jdbcType="VARCHAR" />
+    <result column="GROES" property="groes" jdbcType="VARCHAR" />
+    <result column="MATKL" property="matkl" jdbcType="VARCHAR" />
+    <result column="PRDHA" property="prdha" jdbcType="VARCHAR" />
+    <result column="INHAL" property="inhal" jdbcType="VARCHAR" />
+    <result column="INHBR" property="inhbr" jdbcType="VARCHAR" />
+    <result column="TAKLV" property="taklv" jdbcType="VARCHAR" />
+    <result column="MEINS" property="meins" jdbcType="VARCHAR" />
+    <result column="MSEHL" property="msehl" jdbcType="VARCHAR" />
+    <result column="FLAG" property="flag" jdbcType="VARCHAR" />
+    <result column="SFZP" property="sfzp" jdbcType="VARCHAR" />
+    <result column="XCHPF" property="xchpf" jdbcType="VARCHAR" />
+    <result column="ZZSPSXZ" property="zzspsxz" jdbcType="VARCHAR" />
+    <result column="MTART" property="mtart" jdbcType="VARCHAR" />
+    <result column="ZZSPCD" property="zzspcd" jdbcType="VARCHAR" />
+    <result column="BRGEW" property="brgew" jdbcType="VARCHAR" />
+    <result column="HOEHE" property="hoehe" jdbcType="VARCHAR" />
+    <result column="CLASS1" property="class1" jdbcType="VARCHAR" />
+    <result column="CLASS2" property="class2" jdbcType="VARCHAR" />
+    <result column="CLASS3" property="class3" jdbcType="VARCHAR" />
+    <result column="ZZSPMD" property="zzspmd" jdbcType="VARCHAR" />
+    <result column="UPDATE_FLAG" property="updateFlag" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <select id="getGoodClassPageList" parameterType="com.gome.common.page.Page" resultMap="BaseResultMap">
+  select e.BRGEW,c1.classify_name CLASS1,c2.classify_name CLASS2,c3.classify_name CLASS3,c4.classify_name MATKL,e.EAN11,e.FLAG,e.GROES,e.HOEHE,e.INHAL,e.INHBR,e.MAKTX,
+  e.MATNR,e.MEINS,e.MSEHL,e.MTART,b.brand PRDHA,e.SFZP,e.TAKLV,e.UPDATE_FLAG,e.XCHPF,e.ZZSPCD,e.ZZSPMD,e.ZZSPSXZ
+  from ecc_goods e 
+LEFT JOIN hx_product_classify c1 on c1.classify_code=e.CLASS1 and c1.`level`='1'
+LEFT JOIN hx_product_classify c2 on c2.classify_code=e.CLASS2 and c2.`level`='2'
+LEFT JOIN hx_product_classify c3 on c3.classify_code=e.CLASS3 and c3.`level`='3'
+LEFT JOIN hx_product_classify c4 on c4.classify_code=e.MATKL and c4.`level`='4'
+LEFT JOIN hx_brand_information b on b.id=e.PRDHA
+where 1=1
+   <if test="param.class1 != null and param.class1 != ''">
+		 	and e.CLASS1=#{param.class1,jdbcType=VARCHAR}
+   </if>
+   <if test="param.class2 != null and param.class2 != ''">
+		 	and e.CLASS2=#{param.class2,jdbcType=VARCHAR}
+   </if>
+   <if test="param.class3 != null and param.class3 != ''">
+		 	and e.CLASS3=#{param.class3,jdbcType=VARCHAR}
+   </if>
+   <if test="param.matkl != null and param.matkl != ''">
+		 	and e.MATKL=#{param.matkl,jdbcType=VARCHAR}
+   </if>
+   <if test="param.prdha != null and param.prdha != ''">
+		 	and e.PRDHA=#{param.prdha,jdbcType=VARCHAR}
+   </if>
+  </select>
+
+	<update id="clearEccBrand">
+		truncate table ecc_brand
+	</update>
+	
+	<update id="clearEccGoodsCategory">
+		truncate table ecc_goods_category
+	</update>
+	
+	<update id="clearEccRegional">
+		truncate table ecc_regional
+	</update>
+	
+	<update id="clearEccRegionalSection">
+		truncate table ecc_regional_section
+	</update>
+	
+	<update id="clearEccSalesOrg">
+		truncate table ecc_sales_org
+	</update>
+	
+	<update id="clearEccSectionMapping">
+		truncate table ecc_section_mapping
+	</update>
+	
+	<update id="clearEccStore">
+		truncate table ecc_store
+	</update>
+	
+	<insert id="insertEccBrand">
+		insert into ecc_brand (PRODH, STUFE, VTEXT, UPDATE_FLAG) values
+		<foreach collection="list" item="item" separator="," >
+	    	(#{item.prodh,jdbcType=VARCHAR}, #{item.stufe,jdbcType=CHAR}, #{item.vtext,jdbcType=VARCHAR}, #{item.updateFlag,jdbcType=CHAR})
+	    </foreach>
+	</insert>
+	
+	<insert id="replaceEccGoods">
+	    replace into ecc_goods (MATNR, EAN11, MAKTX, GROES, MATKL, PRDHA, INHAL, INHBR, 
+	      TAKLV, MEINS, MSEHL, FLAG, SFZP, XCHPF, ZZSPSXZ, MTART, ZZSPCD, 
+	      BRGEW, HOEHE, CLASS1, CLASS2, CLASS3, ZZSPMD, UPDATE_FLAG) values 
+	      <foreach collection="list" item="item" separator="," >
+		      (#{item.matnr,jdbcType=VARCHAR}, #{item.ean11,jdbcType=VARCHAR}, #{item.maktx,jdbcType=VARCHAR}, #{item.groes,jdbcType=VARCHAR}, #{item.matkl,jdbcType=VARCHAR}, 
+		      #{item.prdha,jdbcType=VARCHAR}, #{item.inhal,jdbcType=VARCHAR}, #{item.inhbr,jdbcType=VARCHAR}, 
+		      #{item.taklv,jdbcType=CHAR}, #{item.meins,jdbcType=VARCHAR}, #{item.msehl,jdbcType=VARCHAR}, #{item.flag,jdbcType=VARCHAR}, 
+		      #{item.sfzp,jdbcType=CHAR}, #{item.xchpf,jdbcType=CHAR}, #{item.zzspsxz,jdbcType=VARCHAR}, #{item.mtart,jdbcType=VARCHAR}, 
+		      #{item.zzspcd,jdbcType=VARCHAR}, #{item.brgew,jdbcType=VARCHAR}, #{item.hoehe,jdbcType=VARCHAR}, 
+		      #{item.class1,jdbcType=VARCHAR}, #{item.class2,jdbcType=VARCHAR}, #{item.class3,jdbcType=VARCHAR}, 
+		      #{item.zzspmd,jdbcType=VARCHAR}, #{item.updateFlag,jdbcType=VARCHAR})
+	      </foreach>
+  </insert>
+  
+  <insert id="insertEccGoodsCategory">
+    insert into ecc_goods_category (CLASS, KSCHL, ZFLJB, 
+      ZSJFLDM, ZSFMJ, ABTNR, VTEXT, UPDATE_FLAG) values 
+      <foreach collection="list" item="item" separator="," >
+	      (#{item.class_,jdbcType=VARCHAR}, #{item.kschl,jdbcType=VARCHAR}, #{item.zfljb,jdbcType=CHAR}, 
+	      #{item.zsjfldm,jdbcType=VARCHAR}, #{item.zsfmj,jdbcType=CHAR}, #{item.abtnr,jdbcType=VARCHAR}, 
+	      #{item.vtext,jdbcType=VARCHAR}, #{item.updateFlag,jdbcType=CHAR})
+      </foreach>
+  </insert>
+  
+  <insert id="insertEccRegional">
+    insert into ecc_regional (BZIRK, BZTXT, UPDATE_FLAG) values
+    <foreach collection="list" item="item" separator="," >
+    	(#{item.bzirk,jdbcType=VARCHAR}, #{item.bztxt,jdbcType=VARCHAR}, #{item.updateFlag,jdbcType=CHAR})
+    </foreach>
+  </insert>
+  
+  <insert id="insertEccRegionalSection">
+    insert into ecc_regional_section (VKBUR, BEZEI, BZIRK, UPDATE_FLAG) values 
+    <foreach collection="list" item="item" separator="," >
+    	(#{item.vkbur,jdbcType=VARCHAR}, #{item.bezei,jdbcType=VARCHAR}, #{item.bzirk,jdbcType=VARCHAR}, #{item.updateFlag,jdbcType=CHAR})
+  	</foreach>
+  </insert>
+  
+  <insert id="insertEccSalesOrg">
+    insert into ecc_sales_org (VKORG, VTEXT, BUKRS, BUTXT, VKBUR, BEZEI, VKGRP, BEZEI2, UPDATE_FLAG) values 
+    <foreach collection="list" item="item" separator="," >
+    	(#{item.vkorg,jdbcType=VARCHAR}, #{item.vtext,jdbcType=VARCHAR}, #{item.bukrs,jdbcType=VARCHAR}, 
+	    #{item.butxt,jdbcType=VARCHAR}, #{item.vkbur,jdbcType=VARCHAR}, #{item.bezei,jdbcType=VARCHAR}, 
+	    #{item.vkgrp,jdbcType=VARCHAR}, #{item.bezei2,jdbcType=VARCHAR}, #{item.updateFlag,jdbcType=CHAR})
+	</foreach>
+  </insert>
+  
+  <insert id="insertEccSectionMapping">
+    insert into ecc_section_mapping (VKGRP, BEZEI, VKBUR, UPDATE_FLAG) values 
+    <foreach collection="list" item="item" separator="," >
+    	(#{item.vkgrp,jdbcType=VARCHAR}, #{item.bezei,jdbcType=VARCHAR}, #{item.vkbur,jdbcType=VARCHAR}, #{item.updateFlag,jdbcType=CHAR})
+  	</foreach>
+  </insert>
+  
+  <insert id="insertEccStore">
+    insert into ecc_store (VKORG, WERKS, BUKRS, NAME1, ZVKGRP, ZBEZEI, 
+      ZVKBUR, ZBEZEI2, STRAS, TELF1, UPDATE_FLAG) values 
+      <foreach collection="list" item="item" separator="," >
+	      (#{item.vkorg,jdbcType=VARCHAR}, #{item.werks,jdbcType=VARCHAR}, #{item.bukrs,jdbcType=VARCHAR}, 
+	      #{item.name1,jdbcType=VARCHAR}, #{item.zvkgrp,jdbcType=VARCHAR}, #{item.zbezei,jdbcType=VARCHAR}, 
+	      #{item.zvkbur,jdbcType=VARCHAR}, #{item.zbezei2,jdbcType=VARCHAR}, #{item.stras,jdbcType=VARCHAR}, 
+	      #{item.telf1,jdbcType=VARCHAR}, #{item.updateFlag,jdbcType=CHAR})
+	  </foreach>
+  </insert>
+  
+  <select id="getEccGoodsCategory"  resultType="hashmap"  parameterType="map">
+  		select classify_code as value,classify_name as text from hx_product_classify where level= #{classification,jdbcType=VARCHAR}
+  		 <if test="upperCode != null and upperCode != ''">
+		 	and  parent_code=#{upperCode,jdbcType=VARCHAR}
+		</if>
+  </select>
+  <select id="getEccGoodsByGoodsCode" resultType="hashmap"  parameterType="string">
+  			select GROES from ecc_goods where MATNR= #{goodsCode,jdbcType=CHAR}
+  </select>
+  
+  <select id="getFaultByCategory" resultType="hashmap">
+  	SELECT fault_code AS value,classify_name AS text FROM hx_fault_maintenance_code WHERE category = #{param,jdbcType=CHAR}
+  </select>
+  
+  <delete id="deleteEccRegionalByBzirks" parameterType="string">
+      delete from ecc_regional where BZIRK in ${ids}
+  </delete>
+  
+  <delete id="deleteEccRegionalSectionByVkburs" parameterType="string">
+      delete from ecc_regional_section where VKBUR in ${ids}
+  </delete>
+  
+   <delete id="deleteEccSalesOrgByPrimary" parameterType="java.util.List">
+       delete from ecc_sales_org where (VKORG,BUKRS,VKGRP) in
+      <foreach collection="list" item="item" separator="," open="(" close=")">
+          (#{item.vkorg,jdbcType=VARCHAR},#{item.bukrs,jdbcType=VARCHAR},#{item.vkgrp,jdbcType=VARCHAR})
+      </foreach>
+  </delete>
+  
+   <delete id="deleteEccSectionMappingByVkgrps" parameterType="string">
+      delete from ecc_section_mapping where VKGRP in ${ids}
+  </delete>
+  
+   <delete id="deleteEccStoreByWerkss" parameterType="string">
+      delete from ecc_store where WERKS in ${ids}
+  </delete>
+  
+</mapper>

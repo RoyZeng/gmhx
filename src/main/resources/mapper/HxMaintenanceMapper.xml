@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gome.gmhx.dao.basicdata.HxMaintenanceDao">
+	<resultMap id="HxMaintenance" type="com.gome.gmhx.entity.HxMaintenance">
+		<result property="category" column="category" jdbcType="VARCHAR" />
+		<result property="classifyName" column="classify_name" jdbcType="VARCHAR" />
+		<result property="classifyCode" column="classify_code" jdbcType="VARCHAR" />
+		<result property="maintenanceCosts" column="maintenance_costs" jdbcType="VARCHAR" />
+		<result property="arrangeNumber" column="arrange_number" jdbcType="VARCHAR" />
+		<result property="chose" column="chose" jdbcType="VARCHAR" />
+		<result property="validity" column="validity" jdbcType="VARCHAR" />
+		<result property="parentCode" column="parent_code" jdbcType="VARCHAR" />
+		<result property="modifier" column="modifier" jdbcType="VARCHAR" />
+		<result property="modDate" column="mod_date" jdbcType="TIMESTAMP" />
+		<result property="parentClassify" column="parent_classify" jdbcType="VARCHAR" />
+		<result property="wetEnable" column="wet_enable" jdbcType="VARCHAR" />
+		<result property="faultName" column="fault_name" jdbcType="VARCHAR" />
+		<result property="PNumber" column="p_number" jdbcType="VARCHAR" />
+		<result property="wetUnion" column="wet_union" jdbcType="VARCHAR" />
+		<result property="faultCode" column="fault_code" jdbcType="VARCHAR" />
+		<result property="note" column="note" jdbcType="VARCHAR" />
+	</resultMap>
+
+   
+    <sql id="Base_Column_List" >
+	category, maintenance_costs,chose,validity,wet_enable,
+	parent_code,fault_name,p_number, wet_union,fault_code, note
+    </sql>
+    
+    <select id="getHxMaintenanceByFaultCode" resultMap="HxMaintenance" parameterType="java.lang.String">
+    select t.maintenance_costs , t.fault_name,
+		t.fault_code,t.note,
+		v1.code_value wet_union, v2.code_value chose ,
+		v3.code_value wet_enable,v4.code_value category ,v5.code_value p_number
+		from hx_fault_maintenance_code t
+		LEFT JOIN v_code v1
+		on v1.code_id='sf' and v1.code_key=t.wet_union
+		LEFT JOIN v_code v2
+		on v2.code_id='sf' and v2.code_key=t.chose
+		LEFT JOIN v_code v3
+		on v3.code_id='sf' and v3.code_key = t.wet_enable
+		LEFT JOIN v_code v4
+		on v4.code_id='cpfl' and v4.code_key =t.category
+		LEFT JOIN v_code v5
+		on v5.code_id='ktps' and v5.code_key =t.p_number
+      where  fault_code = #{fault_code,jdbcType=VARCHAR}
+    </select>
+    
+    <select id="getHxMaintenanceNoChangeByFaultCode" resultMap="HxMaintenance" parameterType="java.lang.String">
+    select t.maintenance_costs , t.fault_name,
+		t.fault_code,t.note,t.wet_union,t.chose,
+		t.wet_enable,t.category,t.p_number
+		from hx_fault_maintenance_code t
+      where  fault_code = #{fault_code,jdbcType=VARCHAR}
+    </select>
+    
+    <select id="getAllMaintenance" resultType="map" >
+    select t.fault_code,t.fault_name from hx_fault_maintenance_code t
+      where  t.fault_code is not null and t.fault_name is not null and t.fault_code !='' and t.fault_name !=''
+    </select>
+    
+	<insert id="insertMaintenanceBatch" parameterType="java.util.List">
+    INSERT INTO hx_fault_maintenance_code (
+    <include refid="Base_Column_List" />
+    )
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+     (#{item.category,jdbcType=VARCHAR},#{item.maintenanceCosts,jdbcType=VARCHAR},
+     #{item.chose,jdbcType=VARCHAR},#{item.validity,jdbcType=VARCHAR},#{item.wetEnable,jdbcType=VARCHAR},#{item.parentCode,jdbcType=VARCHAR},
+     #{item.faultName,jdbcType=VARCHAR},#{item.PNumber,jdbcType=VARCHAR},#{item.wetUnion,jdbcType=VARCHAR},
+     #{item.faultCode,jdbcType=VARCHAR},#{item.note,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+
+	<select id="getHxMaintenanceTree" resultType="hashmap">
+		<!-- SELECT * FROM hx_fault_maintenance_code ORDER BY classify_code -->
+		select t.classify_name, t.classify_code , t.maintenance_costs ,
+		t.arrange_number, t.fault_name,t.wet_union,t.p_number,
+		t.parent_code,t.mod_date,t.parent_classify,t.wet_enable,t.fault_code,t.note,t.modifier,
+		v1.code_value category, t.category categoryId, v2.code_value chose
+		,t.chose choseId,v3.code_value validity ,t.validity validityId
+		from hx_fault_maintenance_code t
+		LEFT JOIN v_code v1
+		on v1.code_id='wxpl' and v1.code_key=t.category
+		LEFT JOIN v_code v2
+		on v2.code_id='sf' and v2.code_key=t.chose
+		LEFT JOIN v_code v3
+		on v3.code_id='sf' and v3.code_key=t.validity
+	</select>
+	
+	<select id="getMaintenancePageList" parameterType="com.gome.common.page.Page" resultType="hashmap">
+<!-- 		select t.maintenance_costs , t.fault_name,t.p_number,t.category, -->
+<!-- 		t.parent_classify,t.fault_code,t.note,t.wet_union,t.chose,t.wet_enable, -->
+<!-- 		v1.code_value wet_union1, v2.code_value chose1 , -->
+<!-- 		v3.code_value wet_enable1,v4.code_value category1 ,v5.code_value p_number1 -->
+<!-- 		from hx_fault_maintenance_code t -->
+<!-- 		LEFT JOIN v_code v1 -->
+<!-- 		on v1.code_id='sf' and v1.code_key=t.wet_union -->
+<!-- 		LEFT JOIN v_code v2 -->
+<!-- 		on v2.code_id='sf' and v2.code_key=t.chose -->
+<!-- 		LEFT JOIN v_code v3 -->
+<!-- 		on v3.code_id='sf' and v3.code_key = t.wet_enable -->
+<!-- 		LEFT JOIN v_code v4 -->
+<!-- 		on v4.code_id='wxpl' and v4.code_key =t.category -->
+<!-- 		LEFT JOIN v_code v5 -->
+<!-- 		on v5.code_id='ktps' and v5.code_key =t.p_number -->
+
+		select t.maintenance_costs , t.fault_name,
+		t.parent_classify,t.fault_code,t.note,
+		t.p_number,t.category,t.wet_union,t.chose,t.wet_enable,
+		v1.code_value wet_union1, v2.code_value chose1 ,
+		v3.code_value wet_enable1,v4.code_value category1 ,v5.code_value p_number1
+		from hx_fault_maintenance_code t
+		LEFT JOIN v_code v1
+		on v1.code_id='sf' and v1.code_key=t.wet_union
+		LEFT JOIN v_code v2
+		on v2.code_id='sf' and v2.code_key=t.chose
+		LEFT JOIN v_code v3
+		on v3.code_id='sf' and v3.code_key = t.wet_enable
+		LEFT JOIN v_code v4
+		on v4.code_id='cpfl' and v4.code_key =t.category
+		LEFT JOIN v_code v5
+		on v5.code_id='ktps' and v5.code_key =t.p_number
+		where 1=1
+		<if test="param.category != null and param.category != '' ">
+			and category like CONCAT('%',#{param.category},'%')
+		</if>
+		<if test="param.chose != null and param.chose != '' ">
+			and chose like CONCAT('%',#{param.chose},'%')
+		</if>
+		<if test="param.wetEnable != null and param.wetEnable != '' ">
+			and wet_enable like CONCAT('%',#{param.wetEnable},'%')
+		</if>
+		<if test="param.faultName != null and param.faultName != '' ">
+			and fault_name like CONCAT('%',#{param.faultName},'%')
+		</if>
+		<if test="param.PNumber != null and param.PNumber != '' ">
+			and p_number like CONCAT('%',#{param.PNumber},'%')
+		</if>
+		<if test="param.faultCode != null and param.faultCode != '' ">
+			and fault_code like CONCAT('%',#{param.faultCode},'%')
+		</if>
+		<if test="param.wetUnion != null and param.wetUnion != '' ">
+			and wet_union like CONCAT('%',#{param.wetUnion},'%')
+		</if>
+	</select>
+	
+  <!-- 导出查询 -->
+	<select id="getHxMaintenanceExport" parameterType="com.gome.gmhx.entity.HxMaintenance" resultType="hashmap">
+		select t.maintenance_costs , t.fault_name,t.p_number,t.category,
+		t.parent_classify,t.fault_code,t.note,t.wet_union,t.chose,t.wet_enable,
+		v1.code_value wet_union1, v2.code_value chose1 ,
+		v3.code_value wet_enable1,v4.code_value category1 ,v5.code_value p_number1
+		from hx_fault_maintenance_code t
+		LEFT JOIN v_code v1
+		on v1.code_id='sf' and v1.code_key=t.wet_union
+		LEFT JOIN v_code v2
+		on v2.code_id='sf' and v2.code_key=t.chose
+		LEFT JOIN v_code v3
+		on v3.code_id='sf' and v3.code_key = t.wet_enable
+		LEFT JOIN v_code v4
+		on v4.code_id='wxpl' and v4.code_key =t.category
+		LEFT JOIN v_code v5
+		on v5.code_id='ktps' and v5.code_key =t.p_number
+	</select>
+	
+   <!--   导入 -->
+   <insert id="insertHxMaintenance" parameterType="map">
+		insert into hx_fault_maintenance_code (maintenance_costs, fault_name,p_number,category,parent_classify,fault_code,note,wet_union,chose,wet_enable) values
+		<foreach collection="maint" item="maintenance" separator=",">
+			(#{maintenance.maintenanceCosts},#{maintenance.faultName},#{maintenance.PNumber},#{maintenance.parentClassify},#{maintenance.note}
+			 ,#{maintenance.wetUnion},#{maintenance.chose},#{maintenance.wetEnable})
+		</foreach>
+	</insert>
+	
+<!-- 	新建 -->
+	<insert id="createHxMaintenance" parameterType="com.gome.gmhx.entity.HxMaintenance">
+		insert into
+		hx_fault_maintenance_code
+		(category,classify_name,classify_code,maintenance_costs,arrange_number,chose,validity,parent_code)
+		values (#{category}, #{classifyName}, #{classifyCode},
+		#{maintenanceCosts},#{arrangeNumber},
+		#{chose},#{validity},#{parentCode})
+	</insert>
+	
+	<insert id="addHxMaintenance" parameterType="com.gome.gmhx.entity.HxMaintenance">
+		insert into
+		hx_fault_maintenance_code
+		(category,fault_name,fault_code,p_number,maintenance_costs,chose,wet_enable,wet_union,note)
+		values (#{category}, #{faultName}, #{faultCode},
+		#{PNumber},#{maintenanceCosts},
+		#{chose},#{wetEnable},#{wetUnion},#{note})
+	</insert>
+
+	<update id="updateHxMaintenance" parameterType="hashmap">
+		update
+		hx_fault_maintenance_code
+		set category = #{category},
+		classify_name = #{classifyName},
+		maintenance_costs = #{maintenanceCosts},
+		arrange_number = #{arrangeNumber},
+		chose = #{chose},
+		validity = #{validity},
+		parent_code = #{parentCode}
+		where classify_code = #{classifyCodeOld}
+	</update>
+	
+	<update id="modifyHxMaintenance" parameterType="com.gome.gmhx.entity.HxMaintenance">
+	 update hx_fault_maintenance_code
+	 <set>
+      <if test="category != null" >
+        category = #{category,jdbcType=VARCHAR},
+      </if>
+      <if test="faultName != null" >
+        fault_name = #{faultName,jdbcType=VARCHAR},
+      </if>
+      <if test="PNumber != null" >
+        p_number = #{PNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="maintenanceCosts != null" >
+        maintenance_costs = #{maintenanceCosts,jdbcType=VARCHAR},
+      </if>
+      <if test="chose != null" >
+        chose = #{chose,jdbcType=VARCHAR},
+      </if>
+      <if test="wetEnable != null" >
+        wet_enable = #{wetEnable,jdbcType=VARCHAR},
+      </if>
+      <if test="wetUnion != null" >
+        wet_union = #{wetUnion,jdbcType=VARCHAR},
+      </if>
+      <if test="note != null" >
+        note = #{note,jdbcType=VARCHAR},
+      </if>
+      <if test="modifier != null" >
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="modDate != null" >
+        mod_date = #{modDate,jdbcType=TIMESTAMP},
+      </if>
+      </set>
+	 where fault_code = #{faultCode,jdbcType=VARCHAR}
+	</update>
+	
+	
+</mapper>

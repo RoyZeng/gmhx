@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gome.gmhx.dao.basicdata.HxCodeDao">
+	<resultMap id="hxCodeResult" type="com.gome.gmhx.entity.HxCode">
+		<result property="codeId" column="code_id" jdbcType="VARCHAR"/>
+		<result property="codeName" column="code_name" jdbcType="VARCHAR"/>
+		<result property="codeKey" column="code_key" jdbcType="VARCHAR"/>
+		<result property="codeValue" column="code_value" jdbcType="VARCHAR"/>
+	</resultMap>
+	
+	<resultMap id="OrganizationUnloadResult" type="com.gome.gmhx.entity.HxOrganizationUnload">
+		<result property="id" column="id" jdbcType="VARCHAR"/>
+		<result property="pid" column="pid" jdbcType="VARCHAR"/>
+		<result property="name" column="name" jdbcType="VARCHAR"/>
+		<result property="pname" column="pname" jdbcType="VARCHAR"/>
+		<result property="interfaceDm" column="interface" jdbcType="VARCHAR"/>
+	</resultMap>
+	
+	<select id="getOrganizationUnloadById" resultMap="OrganizationUnloadResult" parameterType="string">
+		SELECT * FROM hx_organization_unload where id=#{id}
+	</select>
+	
+	<select id="getAll" resultMap="hxCodeResult">
+		SELECT * FROM v_code
+	</select>
+	
+	<select id="getCodeByKey" resultMap="hxCodeResult" parameterType="string">
+		SELECT * FROM v_code where code_id=#{codeKey}
+	</select>
+	
+	<select id="getHxCodePageList" parameterType="com.gome.common.page.Page" resultType="hashmap">
+		SELECT code_id codeId, code_name codeName FROM hx_code where editable = 1
+	</select>
+	
+	<select id="getHxCodeSettingByCodeId" parameterType="string" resultType="hashmap">
+		SELECT code_id codeId, code_key codeKey, code_value codeValue from hx_code_setting where code_id=#{codeId} order by code_key
+	</select>
+	
+	<select id="getOrgCombobox" resultType="hashmap">
+		select id, CONCAT(name,'(',id,')') AS name from hx_organization_unload
+	</select>
+	
+	<select id="getBrandCombobox" resultType="hashmap">
+		select id, brand AS name from hx_brand_information where is_use='1'
+	</select>
+	
+	<select id="getFittingMenu" parameterType="string" resultType="hashmap">
+		SELECT t1.fitting_auth_name name, hx_role_fitting.fitting_auth_id id
+		FROM hx_fitting_auth AS t1
+		INNER JOIN hx_role_fitting ON hx_role_fitting.fitting_auth_id = t1.fitting_auth_id
+		INNER JOIN hx_position_role ON hx_position_role.role_id = hx_role_fitting.role_id
+		where hx_position_role.position_id=#{positionId}
+	</select>
+	
+	<select id="getFittingMenuNoPosition" resultType="hashmap">
+	select fitting_auth_id id, fitting_auth_name name
+		from hx_fitting_auth 
+		where fitting_auth_id is not null
+	</select>
+	
+	<insert id="insertSetting" parameterType="com.gome.gmhx.entity.HxCode">
+		insert into hx_code_setting values(#{codeId},#{codeKey},#{codeValue})
+	</insert>
+	
+	<select id="getFbOrgCombobox" resultType="hashmap">
+		select org_code as id, org_name as name from hx_organization where is_fitting_stock='1'
+	</select>
+	
+	<select id="getWdOrgCombobox" resultType="hashmap">
+		select org_code as id, org_name as name from hx_organization where fitting_pid is not null
+	</select>
+	
+	<select id="getZbOrgCombobox" resultType="hashmap">
+		select org_code as id, org_name as name from hx_organization where org_code = 'ZGS'
+	</select>
+	
+	<select id="getPositions" resultType="hashmap" parameterType="string">
+		select t.sysPositionId as id,t.sysPositionName as name from (
+		select distinct(t.ap_account) userAccount,t.compcode companyId,
+		(select name from hx_organization_unload where id=t.compcode) companyName,
+		t1.positioncode sysPositionId,t1.positionname sysPositionName
+    	from emp_account t left join emp_empposition t1
+    	ON t.empno=t1.empno where t.ap_account=#{userAccount}
+		union all 
+		select t.user_login_name userAccount, t.user_org_id companyId,
+    	(SELECT name FROM hx_organization_unload WHERE id=t.user_org_id) companyName, t1.position_id sysPositionId,
+    	t2.position_name sysPositionName
+    	from hx_user t left join hx_user_position t1 on t.user_login_name = t1.user_login_name and t1.from_type=3
+    	LEFT JOIN hx_position t2 ON t1.position_id=t2.position_code where t.user_login_name=#{userAccount}
+		union all 
+		SELECT t.CZY01 userAccount,t.GSXX01 companyId,
+  		(SELECT name FROM hx_organization_unload WHERE id=AZWD01) companyName,
+  		t1.position_id sysPositionId,t2.position_name sysPositionName
+		FROM jl_account t LEFT JOIN hx_user_position t1 ON t1.from_type=2 AND t.CZY01=t1.user_login_name
+		LEFT JOIN hx_position t2 ON t1.position_id=t2.position_code where t.CZY01=#{userAccount}) t 
+	</select>
+	
+	<select id="getCodeValue" parameterType="map" resultType="string">
+		select code_value from v_code where code_id=#{codeId} and code_key = #{codeKey}
+	</select>
+	
+	<select id="getRoleCombobox" resultType="hashmap">
+		select role_id as id, role_name as name from hx_role 
+	</select>
+	
+	<select id="getECCombobox" resultType="hashmap">
+		SELECT VKORG code,VTEXT name FROM ecc_sales_org
+	</select>
+	
+	<select id="getStoreCombobox" resultType="hashmap">
+		SELECT T.WERKS code,T.NAME1 name FROM ecc_store T 
+		WHERE VKORG NOT LIKE 'S%'
+		<if test="_parameter != null and _parameter != ''">
+			AND VKORG = #{_parameter,jdbcType=VARCHAR}
+		</if>
+	</select>
+	
+	<select id="getWebsiteCombobox" resultType="hashmap">
+		SELECT cw.azwd01 AS code,cw.wdmc AS name FROM crm_website cw WHERE 1=1
+		<if test="_parameter !=null and _parameter !=''">azw_azwd01 = #{_param,jdbcType=VARCHAR}</if>
+		UNION 
+		SELECT ho.org_code AS code ,ho.org_name AS name FROM hx_organization ho WHERE ho.org_type='02' OR ho.org_type='03' 
+		<if test="_parameter !=null and _parameter !=''">AND org_parent_id = #{_parameter,jdbcType=VARCHAR}</if>
+		UNION 
+		SELECT es.WERKS code,es.NAME1 name FROM ecc_store es WHERE es.VKORG LIKE 'S%' 
+		<if test="_parameter !=null and _parameter !=''">AND VKORG = #{_parameter,jdbcType=VARCHAR}</if>
+	</select>
+	
+	<select id="getAftermarketCombobox" resultType="hashmap">
+		SELECT shgsdm code,shgsmc name FROM hx_custom_sale_mapping
+	</select>
+	
+	<select id="getModelCombobox" resultType="hashmap">
+		SELECT model,gome_code,classify_code category,brand FROM hx_product_detail 
+		WHERE classify_code LIKE CONCAT(#{param1,jdbcType=VARCHAR},"%")  
+		AND product_model = 
+		CASE 
+		WHEN #{param2,jdbcType=VARCHAR}="-W" THEN "03"
+		WHEN #{param2,jdbcType=VARCHAR}="-N" THEN "02"
+		WHEN #{param2,jdbcType=VARCHAR}="" THEN "01"
+		END
+	
+		<!-- SELECT D.model,D.gome_code,G.MATKL category,G.PRDHA brand FROM hx_product_detail D
+		JOIN ecc_goods G ON 
+		CASE 
+		WHEN #{param2,jdbcType=VARCHAR}="-W" THEN CONCAT("W",G.MATNR) 
+		WHEN #{param2,jdbcType=VARCHAR}="-N" THEN CONCAT("N",G.MATNR) 
+		WHEN #{param2,jdbcType=VARCHAR}="" THEN CONCAT("Z",G.MATNR)
+		END
+		= D.product_code
+		WHERE 1=1
+		<if test="param1 !=null and param1 !='' ">AND G.class2 = #{param1,jdbcType=VARCHAR}</if> -->
+		<!-- SELECT DISTINCT(model),gome_code,B.brand brand
+		FROM hx_product_detail P
+		LEFT JOIN hx_brand_information B ON P.gome_code = B.gm_code
+		WHERE P.model !=''
+		AND CASE 
+		WHEN #{param2,jdbcType=VARCHAR}="-W" THEN CONCAT("W",G.MATNR) 
+		WHEN #{param2,jdbcType=VARCHAR}="-N" THEN CONCAT("N",G.MATNR) 
+		WHEN #{param2,jdbcType=VARCHAR}="" THEN CONCAT("Z",G.MATNR)
+		END -->
+		<!-- SELECT DISTINCT(model),gome_code,B.id brand_code,B.brand brand_name
+		FROM hx_product_detail P
+		LEFT JOIN hx_brand_information B ON P.gome_code = B.gm_code
+		WHERE P.model !='' -->
+	</select>
+	
+	<select id="getServiceUnit" resultType="hashmap" parameterType="java.lang.String">
+		SELECT M.id code,M.NAME name FROM v_organization M 
+		LEFT JOIN hx_organization_unload N ON M.id = N.pid
+		WHERE N.id = #{wd,jdbcType=VARCHAR}
+		AND M.id like 'S%'
+		<!-- SELECT id code,name FROM v_organization WHERE id = (SELECT pid FROM v_organization WHERE id = #{wd,jdbcType=VARCHAR} LIMIT 1) -->
+	</select>
+	
+	<select id="getHxFittingByFittingCode" resultType="hashmap" parameterType="java.lang.String">
+		SELECT fitting_code fittingCode,fitting_name fittingName,network_price price FROM hx_fitting_detail WHERE fitting_code = #{fittingId,jdbcType=VARCHAR}
+	</select>
+	
+	<select id="getProductInfo" resultType="hashmap"  parameterType="java.lang.String">
+		SELECT G.GROES machineType,G.PRDHA brand,D.gome_code gomeCode FROM ecc_goods G
+		LEFT JOIN hx_product_detail D ON G.GROES = D.model
+		WHERE matnr = #{spbm,jdbcType=VARCHAR}
+		GROUP BY G.matnr
+		LIMIT 1 
+	</select>
+	
+	<select id="getCategoryCombobox" resultType="hashmap" parameterType="java.lang.String">
+		SELECT classify_code code,classify_name value FROM hx_product_classify 
+		WHERE classify_code LIKE 'R%' 
+		AND LEVEL = '2'
+		AND classify_code IN(
+		SELECT role_category FROM hx_role_category 
+			WHERE role_id = (
+			SELECT role_id FROM hx_position_role 
+			WHERE position_id =#{param,jdbcType=VARCHAR})
+		)
+	</select>
+	
+	<select id="getFittingBySuit" resultType="hashmap">
+		SELECT T.fitting_code fittingCode,T.fitting_name fittingName,T.price FROM(
+			SELECT D.fitting_code,D.fitting_name,D.network_price price,
+			GROUP_CONCAT(F.fault_code SEPARATOR '、') fault_code,
+			GROUP_CONCAT(M.suit_model SEPARATOR '、') suit_model 
+			FROM hx_fitting_detail D
+			LEFT JOIN hx_fitting_fault F ON F.fitting_code = D.fitting_code
+			LEFT JOIN hx_fitting_model M ON M.fitting_code = D.fitting_code
+			GROUP BY D.fitting_code)T
+		WHERE 1=1
+		<if test="param1 !=null and param1!=''">
+			AND INSTR(T.suit_model,#{param1})>0
+		</if>
+		<if test=" param2 !=null and param2!='' ">
+			AND INSTR(T.fault_code,#{param2})>0
+		</if>
+	</select>
+	
+	<select id="getRegionCombobox" resultType="hashmap">
+		SELECT code_value code,code_name text,parent FROM hx_region_code 
+	</select>
+</mapper>

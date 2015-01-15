@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gome.gmhx.dao.sysconfig.HxPositionMappingDao">
+	<resultMap id="BaseResultMap" type="com.gome.gmhx.entity.HXPositionMapping" >
+     <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="jbpm_role_code" property="jbpmRoleCode" jdbcType="VARCHAR" />
+    <result column="jbpm_role_name" property="jbpmRoleName" jdbcType="VARCHAR" />
+    <result column="position_code" property="positionCode" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, jbpm_role_code, jbpm_role_name, system_position_id
+  </sql>
+	<select id="getPositionMappingPageList" parameterType="com.gome.common.page.Page" resultMap="BaseResultMap">
+   		select distinct jbpm_role_code, jbpm_role_name
+    	from JBPM4_POSITION_MAPPING where 1=1
+		<if test="param.jbpmRoleCode != null and param.jbpmRoleCode !='' ">
+		   and jbpm_role_code like CONCAT('%',#{param.jbpmRoleCode},'%')
+		</if>
+		<if test="param.jbpmRoleName != null and param.jbpmRoleName !='' ">
+		   and jbpm_role_name like CONCAT('%',#{param.jbpmRoleName},'%')
+		</if>
+  </select>
+  
+  <insert id="addPositionMapping" parameterType="com.gome.gmhx.entity.HXPositionMapping" >
+    insert into JBPM4_POSITION_MAPPING (id, jbpm_role_code, jbpm_role_name,position_code)
+    values (#{id,jdbcType=VARCHAR}, #{jbpmRoleCode,jdbcType=VARCHAR}, #{jbpmRoleName,jdbcType=VARCHAR},#{positionCode,jdbcType=VARCHAR})
+  </insert>
+  
+  <update id="updatePositionMapping" parameterType="com.gome.gmhx.entity.HXPositionMapping">
+  update JBPM4_POSITION_MAPPING set jbpm_role_name=#{jbpmRoleName,jdbcType=VARCHAR} where jbpm_role_code=#{jbpmRoleCode,jdbcType=VARCHAR}
+  </update>
+  <delete id="deletePMByCodeName" parameterType="com.gome.gmhx.entity.HXPositionMapping">
+  delete from JBPM4_POSITION_MAPPING where jbpm_role_name=#{jbpmRoleName,jdbcType=VARCHAR} and jbpm_role_code=#{jbpmRoleCode,jdbcType=VARCHAR} and position_code is null
+  </delete>
+  
+  <update id="updatePositionId" parameterType="com.gome.gmhx.entity.HXPositionMapping">
+   update JBPM4_POSITION_MAPPING set position_code=null where jbpm_role_code=#{jbpmRoleCode,jdbcType=VARCHAR} and jbpm_role_name=#{jbpmRoleName,jdbcType=VARCHAR} and position_code=#{positionCode,jdbcType=VARCHAR}
+  </update>
+  
+  <delete id="delete" parameterType="java.lang.String">
+   delete from JBPM4_POSITION_MAPPING where jbpm_role_code=#{jbpmRoleCode,jdbcType=VARCHAR}
+  </delete>
+  
+  <delete id="deletePMByPositionId" parameterType="com.gome.gmhx.entity.HXPositionMapping">
+    delete from JBPM4_POSITION_MAPPING where jbpm_role_name=#{jbpmRoleName,jdbcType=VARCHAR} and jbpm_role_code=#{jbpmRoleCode,jdbcType=VARCHAR} and position_code=#{positionCode,jdbcType=VARCHAR}
+  </delete>
+  
+  <select id="selectPMByCodeName" parameterType="com.gome.gmhx.entity.HXPositionMapping" resultType="java.lang.Integer">
+      select count(*) from JBPM4_POSITION_MAPPING where jbpm_role_name=#{jbpmRoleName,jdbcType=VARCHAR} and jbpm_role_code=#{jbpmRoleCode,jdbcType=VARCHAR} and position_code is not null
+  </select>
+</mapper>

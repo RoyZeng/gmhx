@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process key="MP10" name="MP10" xmlns="http://jbpm.org/4.4/jpdl">
+   <start g="295,16,48,48" name="start">
+      <transition to="S4"/>
+   </start>
+   <task g="276,116,92,52" name="S4">
+   	  <assignment-handler class="com.gome.gmhx.jbpm.JbpmAuthorityService"/>   
+      <transition g="-48,9" name="T6" to="cancel"/>
+      <transition g="-21,-22" name="T3" to="end"/>
+      <transition name="T2" to="S15" g="-17,-28"/>
+   </task>
+   <end g="501,260,48,48" name="end"/>
+   <task candidate-users="${applicant}" g="283,338,92,52" name="S15">
+      <transition g="-31,-43" name="T6" to="cancel"/>
+      <transition g="-21,-22" name="T4" to="end"/>
+   </task>
+   <end-cancel g="94,275,48,48" name="cancel"/>
+</process>

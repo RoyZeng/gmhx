@@ -1,0 +1,174 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ include file="../../inc/header.jsp"%>
+<%@ include file="../../inc/resource.inc"%>
+<script language="javascript" type="text/javascript" src="${ctx}/js/My97DatePicker/WdatePicker.js"></script>
+<style type="text/css">td {white-space: nowrap;}</style>
+<script type="text/javascript">
+	$(function(){
+		$(".kongtiao").show();
+		$(".reshuiqi").hide();
+	});
+
+	function save(){
+		if($("#longDistanceForm").form('validate')){
+			var hxServiceLongDistance = $.serializeObject($('#longDistanceForm'));
+			$.ajax({
+	            type:"POST",
+	            url:"${ctx}/longDistanceInstallApply/saveLongDistance",
+	            dataType:"json",
+	            contentType:"application/json",
+	            data:JSON.stringify(hxServiceLongDistance),
+	            success:function(data){
+	            	if(data.flag == "success"){
+	            		$.messager.alert('', '保存成功!',null,function(){
+	            			var continueToAddFlag = $("#continueToAddFlag").val();
+	            			if(continueToAddFlag=="1"){//如果是继续添加则会执行页面跳转
+	            				window.location.href = "${ctx}/longDistanceInstallApply/addview";
+							}else{
+								window.location.href = "${ctx}/longDistanceInstallApply/distanceApplyView/" + data.apllyId;
+							}
+	            		});
+	            	}else{
+	            		$.messager.alert('','新增失败!');
+	            	}
+	            }
+	        });
+		}
+	}
+	
+	$.serializeObject = function(form) {
+		var o = {};
+		$.each(form.serializeArray(), function(index) {
+			if (o[this['name']]) {
+				o[this['name']] = o[this['name']] + "," + this['value'];
+			} else {
+				o[this['name']] = this['value'];
+			}
+		});
+		return o;
+	};
+	
+	function continueSave(){
+		$("#continueToAddFlag").val(1);
+		save();
+	}
+	
+	function fillForm(rec){
+		$("#gomeCode").combobox('setValue',rec.gomeCode); 
+		$("#brand").combobox('setValue',rec.brand); 
+		
+		if(rec.category.indexOf("R03")>-1){
+			$(".kongtiao").show();
+			$(".reshuiqi").hide();
+			$("#machineCode").val("");
+			$('#machineCode').validatebox({required: false});  
+			$('#internalMachineCode1').validatebox({required: true});  
+			$('#externalMachineCode').validatebox({required: true}); 
+			
+		}else{
+			$(".kongtiao").hide();
+			$(".reshuiqi").show();
+			$("#internalMachineCode1").val("");
+			$("#internalMachineCode2").val("");
+			$("#externalMachineCode").val("");
+			$('#internalMachineCode1').validatebox({required: false});  
+			$('#externalMachineCode').validatebox({required: false});  
+			$('#machineCode').validatebox({required: true});  
+		}
+	}
+	
+	function goBack(){
+		window.location.href = "${ctx}/longDistanceInstallApply/longDistanceInstallApplyView"
+	}
+	
+</script>
+<form id="longDistanceForm" method="post">
+	<input type="hidden" id="continueToAddFlag" title="继续添加标志位" value="0">
+	<div style="background-color:#95b8e7; text-align:left; color:#fff; font-weight:bold; border-bottom: 1px solid #000;">远程安装申请信息</div>
+	<table border=1 style="cellSpacing:1;cellPadding:3;width:100%;background-color:#eff5ff;border-collapse:collapse">
+		<tr>
+			<td width="20%">服务单位<font color="red">*</font></td>
+			<td width="30%"><input name="serviceUnit" type="text" class="easyui-combobox" data-options="url:'${ctx}/hxCode/getServiceUnit?wd=${user.companyId}',required:true"></td>
+			<td width="20%">里程数<font color="red">*</font></td>
+			<td width="30%"><input name="mileage" type="text"  class="easyui-validatebox span2" data-options="required:true,validType:'number'"></td>
+		</tr>
+		<tr>
+			<td>其它费</td>
+			<td width="30%"><input name="otherFee" type="text"  class="easyui-validatebox span2" data-options="validType:'number'"></td>
+			<td>用户姓名<font color="red">*</font></td>
+			<td width="30%"><input name="customerName" type="text"  class="easyui-validatebox span2" data-options="required:true"></td>
+		</tr>
+		<tr>
+			<td>用户电话 <font color="red">*</font></td>
+			<td><input name="customerPhone" type="text"  class="easyui-validatebox span2" data-options="required:true,validType:'number'"></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>用户地址<font color="red">*</font></td>
+			<td colspan="3"><textarea name="customerAddress" rows="2"  cols="80" class="easyui-validatebox span2" data-options="required:true"></textarea></td>
+		</tr>
+		<tr>
+			<td width="20%">机型<font color="red">*</font></td>
+			<td width="30%"><input name="machineType" class="easyui-combobox" data-options="required:true,valueField:'value',textField:'text',url:'${ctx}/hxCode/getModelCombobox?type=-Z&category=R',onSelect: function(rec){fillForm(rec)},panelHeight:'auto'"/></td>
+			<td width="20%">国美代码</td>
+			<td width="30%"><input id="gomeCode" class="easyui-combobox" name="gomeCode" disabled="disabled" data-options="url:'${ctx}/hxCode/getCombobox/gmdm',panelHeight:'auto', editable:false" /></td>
+		</tr>
+		<tr>
+			<td>品牌</td>
+			<td><input id="brand" name="brand" class="easyui-combobox" disabled="disabled" data-options="url:'${ctx}/hxCode/getCombobox/pp',panelHeight:'auto', editable:false"/></td>
+			<td class="reshuiqi">条码<font color="red">*</font></td>
+			<td class="reshuiqi"><input id="machineCode" name="machineCode" type="text" data-options="required:true" value="" class="easyui-validatebox span2"></td>
+			<td class="kongtiao">内机条1<font color="red">*</font></td>
+			<td class="kongtiao"><input id="internalMachineCode1" name="internalMachineCode1" type="text" data-options="required:true" value="" class="easyui-validatebox span2"></td>
+		</tr>
+		<tr class="kongtiao">
+			<td>内机条码2</td>
+			<td><input id="internalMachineCode2" name="internalMachineCode2" type="text" value=""  class="easyui-validatebox span2"></td>
+			<td>外机条码<font color="red">*</font></td>
+			<td><input id="externalMachineCode" name="externalMachineCode" type="text" value="" data-options="required:true" class="easyui-validatebox span2"></td>
+		</tr>
+		<%-- <tr>
+			<td>机型<font color="red">*</font></td>
+			<td><input name="machineType" class="easyui-combobox" data-options="url:'${ctx}/hxCode/getModelCombobox?type=-Z',onSelect: function(rec){fillForm(rec)},panelHeight:'auto'"/></td>
+			<td>国美代码</td>
+			<td width="30%"><input id="gomeCode" class="easyui-combobox" name="gomeCode" disabled="disabled" data-options="url:'${ctx}/hxCode/getCombobox/gmdm',panelHeight:'auto', editable:false" /></td>
+		</tr>
+		<tr>
+			<td>品牌</td>
+			<td><input id="brand" name="brand" class="easyui-combobox" disabled="disabled" data-options="url:'${ctx}/hxCode/getCombobox/pp',panelHeight:'auto', editable:false"/></td>
+			<td>内机条码1</td>
+			<td><input name="internalMachineCode1" type="text"   class="easyui-validatebox span2" value=""></td>
+		</tr>
+		<tr>
+			<td>内机条码2<font color="red">*</font></td>
+			<td><input name="internalMachineCode2" type="text"  class="easyui-validatebox span2" data-options="required:true"></td>
+			<td>外机条码</td>
+			<td><input name="externalMachineCode" type="text"  class="easyui-validatebox span2" value=""></td>
+		</tr> --%>
+		<tr>
+			<td>购机日期<font color="red">*</font></td>
+			<td><input id="buyDate" name="buyDate" type="text" data-options="required:true" readonly="readonly" class="easyui-validatebox span2">
+				<img onclick="WdatePicker({el:'buyDate'})" src="${ctx}/js/My97DatePicker/skin/datePicker.gif" width="16" height="22" align="absmiddle">
+			</td>
+			<td>安装工</td>
+			<td><input name="installMan" type="text"  class="easyui-validatebox span2" value=""></td>
+		</tr>
+		<tr>
+			<td>安装日期</td>
+			<td><input id="installDate" name="installDate" type="text" readonly="readonly" class="easyui-validatebox span2">
+				<img onclick="WdatePicker({el:'installDate'})" src="${ctx}/js/My97DatePicker/skin/datePicker.gif" width="16" height="22" align="absmiddle">
+			</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>备注</td>
+			<td colspan="3"><textarea name="comment" rows="2"  cols="80" class="easyui-validatebox span2"></textarea></td>
+		</tr>
+	</table>
+</form>
+<div style="text-align:right;padding:5px">
+	<a href="#" class="easyui-linkbutton" onclick="save();">保存</a>
+	<a href="#" class="easyui-linkbutton"  onclick="goBack();">返回</a>
+</div>

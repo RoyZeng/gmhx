@@ -1,0 +1,731 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gome.gmhx.dao.servicemanage.HxServiceProductDao" >
+  <resultMap id="BaseResultMap" type="com.gome.gmhx.entity.HxServiceProduct" >
+    <id column="product_id" property="productId" jdbcType="VARCHAR" />
+    <result column="customer_id" property="customerId" jdbcType="VARCHAR" />
+    <result column="install_card_num" property="installCardNum" jdbcType="DECIMAL" />
+    <result column="delivery_order_num" property="deliveryOrderNum" jdbcType="DECIMAL" />
+    <result column="install_num" property="installNum" jdbcType="DECIMAL" />
+    <result column="product_code" property="productCode" jdbcType="VARCHAR" />
+    <result column="product_name" property="productName" jdbcType="VARCHAR" />
+    <result column="machine_type" property="machineType" jdbcType="VARCHAR" />
+    <result column="gome_code" property="gomeCode" jdbcType="VARCHAR" />
+    <result column="brand" property="brand" jdbcType="VARCHAR" />
+    <result column="category" property="category" jdbcType="VARCHAR" />
+    <result column="mode" property="mode" jdbcType="VARCHAR" />
+    <result column="machine_code" property="machineCode" jdbcType="VARCHAR" />
+    <result column="internal_machine_code1" property="internalMachineCode1" jdbcType="VARCHAR" />
+    <result column="internal_machine_code2" property="internalMachineCode2" jdbcType="VARCHAR" />
+    <result column="external_machine_code" property="externalMachineCode" jdbcType="VARCHAR" />
+    <result column="ticket_num" property="ticketNum" jdbcType="DECIMAL" />
+    <result column="invoice_num" property="invoiceNum" jdbcType="VARCHAR" />
+    <result column="buyer" property="buyer" jdbcType="VARCHAR" />
+    <result column="buy_date" property="buyDate" jdbcType="TIMESTAMP" />
+    <result column="install_date" property="installDate" jdbcType="TIMESTAMP" />
+    <result column="install_unit" property="installUnit" jdbcType="VARCHAR" />
+    <result column="sale_center" property="saleCenter" jdbcType="VARCHAR" />
+    <result column="sale_market" property="saleMarket" jdbcType="VARCHAR" />
+    <result column="sale_price" property="salePrice" jdbcType="DECIMAL" />
+    <result column="is_sale" property="isSale" jdbcType="VARCHAR" />
+    <result column="warranty" property="warranty" jdbcType="TIMESTAMP" />
+    <result column="install_province" property="installProvince" jdbcType="VARCHAR" />
+    <result column="install_detail_address" property="installDetailAddress" jdbcType="VARCHAR" />
+    <result column="project_name" property="projectName" jdbcType="VARCHAR" />
+    <result column="bargain_code" property="bargainCode" jdbcType="VARCHAR" />
+    <result column="product_note" property="productNote" jdbcType="VARCHAR" />
+    <result column="create_man_p" property="createManP" jdbcType="VARCHAR" />
+    <result column="create_organization_p" property="createOrganizationP" jdbcType="VARCHAR" />
+    <result column="create_time_p" property="createTimeP" jdbcType="TIMESTAMP" />
+    <result column="alter_man_p" property="alterManP" jdbcType="VARCHAR" />
+    <result column="alter_organization_p" property="alterOrganizationP" jdbcType="VARCHAR" />
+    <result column="alter_time_p" property="alterTimeP" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    product_id, customer_id, install_card_num, delivery_order_num, install_num, product_code, 
+    product_name, machine_type, gome_code, brand, category, mode, machine_code, internal_machine_code1, 
+    internal_machine_code2, external_machine_code, ticket_num, invoice_num, buyer, buy_date, 
+    install_date, install_unit, sale_center, sale_market, sale_price, is_sale, warranty, 
+    install_province, install_detail_address, project_name, bargain_code, product_note, 
+    create_man_p, create_organization_p, create_time_p, alter_man_p, alter_organization_p, 
+    alter_time_p
+  </sql>
+  <select id="getServiceProductByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from hx_service_product
+    where product_id = #{productId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from hx_service_product
+    where product_id = #{productId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insertServiceProductList" parameterType="java.util.List">
+  	insert into hx_service_product (product_id, customer_id, install_card_num, 
+      delivery_order_num, install_num, product_code, product_name, machine_type, 
+      gome_code, brand, category, mode, machine_code, 
+      internal_machine_code1, internal_machine_code2, 
+      external_machine_code, ticket_num, invoice_num, 
+      buyer, buy_date, install_date, 
+      install_unit, sale_center, sale_market, 
+      sale_price, is_sale, warranty, 
+      install_province, install_detail_address, 
+      bargain_code, project_name,  product_note, create_man_p, 
+      create_organization_p, create_time_p, alter_man_p, 
+      alter_organization_p, alter_time_p)
+    values
+    <foreach collection="list" item="item" separator=",">
+    	(#{item.productId,jdbcType=VARCHAR}, #{item.customerId,jdbcType=VARCHAR}, #{item.installCardNum,jdbcType=DECIMAL}, 
+      #{item.deliveryOrderNum,jdbcType=DECIMAL}, #{item.installNum,jdbcType=DECIMAL}, #{item.productCode,jdbcType=VARCHAR}, #{item.productName,jdbcType=VARCHAR}, #{item.machineType,jdbcType=VARCHAR}, 
+      #{item.gomeCode,jdbcType=VARCHAR}, #{item.brand,jdbcType=VARCHAR}, #{item.category,jdbcType=VARCHAR},#{item.mode,jdbcType=VARCHAR}, #{item.machineCode,jdbcType=VARCHAR}, 
+      #{item.internalMachineCode1,jdbcType=VARCHAR}, #{item.internalMachineCode2,jdbcType=VARCHAR}, 
+      #{item.externalMachineCode,jdbcType=VARCHAR}, #{item.ticketNum,jdbcType=DECIMAL}, #{item.invoiceNum,jdbcType=VARCHAR}, 
+      #{item.buyer,jdbcType=VARCHAR}, #{item.buyDate,jdbcType=TIMESTAMP}, #{item.installDate,jdbcType=TIMESTAMP}, 
+      #{item.installUnit,jdbcType=VARCHAR}, #{item.saleCenter,jdbcType=VARCHAR}, #{item.saleMarket,jdbcType=VARCHAR}, 
+      #{item.salePrice,jdbcType=DECIMAL}, #{item.isSale,jdbcType=VARCHAR}, #{item.warranty,jdbcType=TIMESTAMP}, 
+      #{item.installProvince,jdbcType=VARCHAR}, #{item.installDetailAddress,jdbcType=VARCHAR}, 
+      #{item.bargainCode,jdbcType=VARCHAR}, #{item.projectName,jdbcType=VARCHAR}, #{item.productNote,jdbcType=VARCHAR}, #{item.createManP,jdbcType=VARCHAR}, 
+      #{item.createOrganizationP,jdbcType=VARCHAR}, #{item.createTimeP,jdbcType=TIMESTAMP}, #{item.alterManP,jdbcType=VARCHAR}, 
+      #{item.alterOrganizationP,jdbcType=VARCHAR}, #{item.alterTimeP,jdbcType=TIMESTAMP})
+    </foreach>
+  </insert>
+  <insert id="insertServiceProduct" parameterType="com.gome.gmhx.entity.HxServiceProduct" >
+    insert into hx_service_product (product_id, customer_id, install_card_num, 
+      delivery_order_num, install_num, product_code, machine_type, 
+      gome_code, brand, category,mode, machine_code, 
+      internal_machine_code1, internal_machine_code2, 
+      external_machine_code, ticket_num, invoice_num, 
+      buyer, buy_date, install_date, 
+      install_unit, sale_center, sale_market, 
+      sale_price, is_sale, warranty, 
+      install_province, install_detail_address, 
+      bargain_code, project_name,  product_note, create_man_p, 
+      create_organization_p, create_time_p, alter_man_p, 
+      alter_organization_p, alter_time_p)
+    values
+    (#{productId,jdbcType=VARCHAR}, #{customerId,jdbcType=VARCHAR}, #{installCardNum,jdbcType=DECIMAL}, 
+      #{deliveryOrderNum,jdbcType=DECIMAL}, #{installNum,jdbcType=DECIMAL}, #{productCode,jdbcType=VARCHAR}, #{machineType,jdbcType=VARCHAR}, 
+      #{gomeCode,jdbcType=VARCHAR}, #{brand,jdbcType=VARCHAR}, #{category,jdbcType=VARCHAR},#{mode,jdbcType=VARCHAR}, #{machineCode,jdbcType=VARCHAR}, 
+      #{internalMachineCode1,jdbcType=VARCHAR}, #{internalMachineCode2,jdbcType=VARCHAR}, 
+      #{externalMachineCode,jdbcType=VARCHAR}, #{ticketNum,jdbcType=DECIMAL}, #{invoiceNum,jdbcType=VARCHAR}, 
+      #{buyer,jdbcType=VARCHAR}, #{buyDate,jdbcType=TIMESTAMP}, #{installDate,jdbcType=TIMESTAMP}, 
+      #{installUnit,jdbcType=VARCHAR}, #{saleCenter,jdbcType=VARCHAR}, #{saleMarket,jdbcType=VARCHAR}, 
+      #{salePrice,jdbcType=DECIMAL}, #{isSale,jdbcType=VARCHAR}, #{warranty,jdbcType=TIMESTAMP}, 
+      #{installProvince,jdbcType=VARCHAR}, #{installDetailAddress,jdbcType=VARCHAR}, 
+      #{bargainCode,jdbcType=VARCHAR}, #{projectName,jdbcType=VARCHAR}, #{productNote,jdbcType=VARCHAR}, #{createManP,jdbcType=VARCHAR}, 
+      #{createOrganizationP,jdbcType=VARCHAR}, #{createTimeP,jdbcType=TIMESTAMP}, #{alterManP,jdbcType=VARCHAR}, 
+      #{alterOrganizationP,jdbcType=VARCHAR}, #{alterTimeP,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.gome.gmhx.entity.HxServiceProduct" >
+    insert into hx_service_product
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="productId != null" >
+        product_id,
+      </if>
+      <if test="customerId != null" >
+        customer_id,
+      </if>
+      <if test="installCardNum != null" >
+        install_card_num,
+      </if>
+      <if test="deliveryOrderNum != null" >
+        delivery_order_num,
+      </if>
+      <if test="installNum != null" >
+        install_num,
+      </if>
+      <if test="machineType != null" >
+        machine_type,
+      </if>
+      <if test="gomeCode != null" >
+        gome_code,
+      </if>
+      <if test="brand != null" >
+        brand,
+      </if>
+      <if test="machineCode != null" >
+        machine_code,
+      </if>
+      <if test="internalMachineCode1 != null" >
+        internal_machine_code1,
+      </if>
+      <if test="internalMachineCode2 != null" >
+        internal_machine_code2,
+      </if>
+      <if test="externalMachineCode != null" >
+        external_machine_code,
+      </if>
+      <if test="ticketNum != null" >
+        ticket_num,
+      </if>
+      <if test="invoiceNum != null" >
+        invoice_num,
+      </if>
+      <if test="buyer != null" >
+        buyer,
+      </if>
+      <if test="buyDate != null" >
+        buy_date,
+      </if>
+      <if test="installDate != null" >
+        install_date,
+      </if>
+      <if test="installUnit != null" >
+        install_unit,
+      </if>
+      <if test="saleCenter != null" >
+        sale_center,
+      </if>
+      <if test="saleMarket != null" >
+        sale_market,
+      </if>
+      <if test="salePrice != null" >
+        sale_price,
+      </if>
+      <if test="isSale != null" >
+        is_sale,
+      </if>
+      <if test="warranty != null" >
+        warranty,
+      </if>
+      <if test="installProvince != null" >
+        install_province,
+      </if>
+      <if test="installDetailAddress != null" >
+        install_detail_address,
+      </if>
+      <if test="bargainCode != null" >
+        bargain_code,
+      </if>
+      <if test="productNote != null" >
+        product_note,
+      </if>
+      <if test="createManP != null" >
+        create_man_p,
+      </if>
+      <if test="createOrganizationP != null" >
+        create_organization_p,
+      </if>
+      <if test="createTimeP != null" >
+        create_time_p,
+      </if>
+      <if test="alterManP != null" >
+        alter_man_p,
+      </if>
+      <if test="alterOrganizationP != null" >
+        alter_organization_p,
+      </if>
+      <if test="alterTimeP != null" >
+        alter_time_p,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="productId != null" >
+        #{productId,jdbcType=VARCHAR},
+      </if>
+      <if test="customerId != null" >
+        #{customerId,jdbcType=VARCHAR},
+      </if>
+      <if test="installCardNum != null" >
+        #{installCardNum,jdbcType=DECIMAL},
+      </if>
+      <if test="deliveryOrderNum != null" >
+        #{deliveryOrderNum,jdbcType=DECIMAL},
+      </if>
+      <if test="installNum != null" >
+        #{installNum,jdbcType=DECIMAL},
+      </if>
+      <if test="machineType != null" >
+        #{machineType,jdbcType=VARCHAR},
+      </if>
+      <if test="gomeCode != null" >
+        #{gomeCode,jdbcType=VARCHAR},
+      </if>
+      <if test="brand != null" >
+        #{brand,jdbcType=VARCHAR},
+      </if>
+      <if test="machineCode != null" >
+        #{machineCode,jdbcType=VARCHAR},
+      </if>
+      <if test="internalMachineCode1 != null" >
+        #{internalMachineCode1,jdbcType=VARCHAR},
+      </if>
+      <if test="internalMachineCode2 != null" >
+        #{internalMachineCode2,jdbcType=VARCHAR},
+      </if>
+      <if test="externalMachineCode != null" >
+        #{externalMachineCode,jdbcType=VARCHAR},
+      </if>
+      <if test="ticketNum != null" >
+        #{ticketNum,jdbcType=DECIMAL},
+      </if>
+      <if test="invoiceNum != null" >
+        #{invoiceNum,jdbcType=VARCHAR},
+      </if>
+      <if test="buyer != null" >
+        #{buyer,jdbcType=VARCHAR},
+      </if>
+      <if test="buyDate != null" >
+        #{buyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="installDate != null" >
+        #{installDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="installUnit != null" >
+        #{installUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="saleCenter != null" >
+        #{saleCenter,jdbcType=VARCHAR},
+      </if>
+      <if test="saleMarket != null" >
+        #{saleMarket,jdbcType=VARCHAR},
+      </if>
+      <if test="salePrice != null" >
+        #{salePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="isSale != null" >
+        #{isSale,jdbcType=VARCHAR},
+      </if>
+      <if test="warranty != null" >
+        #{warranty,jdbcType=TIMESTAMP},
+      </if>
+      <if test="installProvince != null" >
+        #{installProvince,jdbcType=VARCHAR},
+      </if>
+      <if test="installDetailAddress != null" >
+        #{installDetailAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="bargainCode != null" >
+        #{bargainCode,jdbcType=VARCHAR},
+      </if>
+      <if test="productNote != null" >
+        #{productNote,jdbcType=VARCHAR},
+      </if>
+      <if test="createManP != null" >
+        #{createManP,jdbcType=VARCHAR},
+      </if>
+      <if test="createOrganizationP != null" >
+        #{createOrganizationP,jdbcType=VARCHAR},
+      </if>
+      <if test="createTimeP != null" >
+        #{createTimeP,jdbcType=TIMESTAMP},
+      </if>
+      <if test="alterManP != null" >
+        #{alterManP,jdbcType=VARCHAR},
+      </if>
+      <if test="alterOrganizationP != null" >
+        #{alterOrganizationP,jdbcType=VARCHAR},
+      </if>
+      <if test="alterTimeP != null" >
+        #{alterTimeP,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update hx_service_product
+    <set >
+      <if test="record.productId != null" >
+        product_id = #{record.productId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.customerId != null" >
+        customer_id = #{record.customerId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.installCardNum != null" >
+        install_card_num = #{record.installCardNum,jdbcType=DECIMAL},
+      </if>
+      <if test="record.deliveryOrderNum != null" >
+        delivery_order_num = #{record.deliveryOrderNum,jdbcType=DECIMAL},
+      </if>
+      <if test="record.installNum != null" >
+        install_num = #{record.installNum,jdbcType=DECIMAL},
+      </if>
+      <if test="record.machineType != null" >
+        machine_type = #{record.machineType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.gomeCode != null" >
+        gome_code = #{record.gomeCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.brand != null" >
+        brand = #{record.brand,jdbcType=VARCHAR},
+      </if>
+      <if test="record.machineCode != null" >
+        machine_code = #{record.machineCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.internalMachineCode1 != null" >
+        internal_machine_code1 = #{record.internalMachineCode1,jdbcType=VARCHAR},
+      </if>
+      <if test="record.internalMachineCode2 != null" >
+        internal_machine_code2 = #{record.internalMachineCode2,jdbcType=VARCHAR},
+      </if>
+      <if test="record.externalMachineCode != null" >
+        external_machine_code = #{record.externalMachineCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.ticketNum != null" >
+        ticket_num = #{record.ticketNum,jdbcType=DECIMAL},
+      </if>
+      <if test="record.invoiceNum != null" >
+        invoice_num = #{record.invoiceNum,jdbcType=VARCHAR},
+      </if>
+      <if test="record.buyer != null" >
+        buyer = #{record.buyer,jdbcType=VARCHAR},
+      </if>
+      <if test="record.buyDate != null" >
+        buy_date = #{record.buyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.installDate != null" >
+        install_date = #{record.installDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.installUnit != null" >
+        install_unit = #{record.installUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="record.saleCenter != null" >
+        sale_center = #{record.saleCenter,jdbcType=VARCHAR},
+      </if>
+      <if test="record.saleMarket != null" >
+        sale_market = #{record.saleMarket,jdbcType=VARCHAR},
+      </if>
+      <if test="record.salePrice != null" >
+        sale_price = #{record.salePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="record.isSale != null" >
+        is_sale = #{record.isSale,jdbcType=VARCHAR},
+      </if>
+      <if test="record.warranty != null" >
+        warranty = #{record.warranty,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.installProvince != null" >
+        install_province = #{record.installProvince,jdbcType=VARCHAR},
+      </if>
+      <if test="record.installDetailAddress != null" >
+        install_detail_address = #{record.installDetailAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="record.bargainCode != null" >
+        bargain_code = #{record.bargainCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.productNote != null" >
+        product_note = #{record.productNote,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createManP != null" >
+        create_man_p = #{record.createManP,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createOrganizationP != null" >
+        create_organization_p = #{record.createOrganizationP,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTimeP != null" >
+        create_time_p = #{record.createTimeP,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.alterManP != null" >
+        alter_man_p = #{record.alterManP,jdbcType=VARCHAR},
+      </if>
+      <if test="record.alterOrganizationP != null" >
+        alter_organization_p = #{record.alterOrganizationP,jdbcType=VARCHAR},
+      </if>
+      <if test="record.alterTimeP != null" >
+        alter_time_p = #{record.alterTimeP,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update hx_service_product
+    set product_id = #{record.productId,jdbcType=VARCHAR},
+      customer_id = #{record.customerId,jdbcType=VARCHAR},
+      install_card_num = #{record.installCardNum,jdbcType=DECIMAL},
+      delivery_order_num = #{record.deliveryOrderNum,jdbcType=DECIMAL},
+      install_num = #{record.installNum,jdbcType=DECIMAL},
+      machine_type = #{record.machineType,jdbcType=VARCHAR},
+      gome_code = #{record.gomeCode,jdbcType=VARCHAR},
+      brand = #{record.brand,jdbcType=VARCHAR},
+      machine_code = #{record.machineCode,jdbcType=VARCHAR},
+      internal_machine_code1 = #{record.internalMachineCode1,jdbcType=VARCHAR},
+      internal_machine_code2 = #{record.internalMachineCode2,jdbcType=VARCHAR},
+      external_machine_code = #{record.externalMachineCode,jdbcType=VARCHAR},
+      ticket_num = #{record.ticketNum,jdbcType=DECIMAL},
+      invoice_num = #{record.invoiceNum,jdbcType=VARCHAR},
+      buyer = #{record.buyer,jdbcType=VARCHAR},
+      buy_date = #{record.buyDate,jdbcType=TIMESTAMP},
+      install_date = #{record.installDate,jdbcType=TIMESTAMP},
+      install_unit = #{record.installUnit,jdbcType=VARCHAR},
+      sale_center = #{record.saleCenter,jdbcType=VARCHAR},
+      sale_market = #{record.saleMarket,jdbcType=VARCHAR},
+      sale_price = #{record.salePrice,jdbcType=DECIMAL},
+      is_sale = #{record.isSale,jdbcType=VARCHAR},
+      warranty = #{record.warranty,jdbcType=TIMESTAMP},
+      install_province = #{record.installProvince,jdbcType=VARCHAR},
+      install_detail_address = #{record.installDetailAddress,jdbcType=VARCHAR},
+      bargain_code = #{record.bargainCode,jdbcType=VARCHAR},
+      product_note = #{record.productNote,jdbcType=VARCHAR},
+      create_man_p = #{record.createManP,jdbcType=VARCHAR},
+      create_organization_p = #{record.createOrganizationP,jdbcType=VARCHAR},
+      create_time_p = #{record.createTimeP,jdbcType=TIMESTAMP},
+      alter_man_p = #{record.alterManP,jdbcType=VARCHAR},
+      alter_organization_p = #{record.alterOrganizationP,jdbcType=VARCHAR},
+      alter_time_p = #{record.alterTimeP,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateServiceProduct" parameterType="com.gome.gmhx.entity.HxServiceProduct" >
+    update hx_service_product
+    <set >
+      <if test="customerId != null" >
+        customer_id = #{customerId,jdbcType=VARCHAR},
+      </if>
+      <if test="installCardNum != null" >
+        install_card_num = #{installCardNum,jdbcType=DECIMAL},
+      </if>
+      <if test="deliveryOrderNum != null" >
+        delivery_order_num = #{deliveryOrderNum,jdbcType=DECIMAL},
+      </if>
+      <if test="installNum != null" >
+        install_num = #{installNum,jdbcType=DECIMAL},
+      </if>
+      <if test="productCode != null">
+      	product_code = #{productCode,jdbcType=VARCHAR},
+      </if>
+      <if test="productName != null">
+      	product_name = #{productName,jdbcType=VARCHAR},
+      </if>
+      <if test="machineType != null" >
+        machine_type = #{machineType,jdbcType=VARCHAR},
+      </if>
+      <if test="gomeCode != null" >
+        gome_code = #{gomeCode,jdbcType=VARCHAR},
+      </if>
+      <if test="brand != null" >
+        brand = #{brand,jdbcType=VARCHAR},
+      </if>
+      <if test="category != null">
+      	category = #{category,jdbcType=VARCHAR},
+      </if>
+      <if test="mode != null">
+      	mode = #{mode,jdbcType=VARCHAR},
+      </if>
+      <if test="machineCode != null" >
+        machine_code = #{machineCode,jdbcType=VARCHAR},
+      </if>
+      <if test="internalMachineCode1 != null" >
+        internal_machine_code1 = #{internalMachineCode1,jdbcType=VARCHAR},
+      </if>
+      <if test="internalMachineCode2 != null" >
+        internal_machine_code2 = #{internalMachineCode2,jdbcType=VARCHAR},
+      </if>
+      <if test="externalMachineCode != null" >
+        external_machine_code = #{externalMachineCode,jdbcType=VARCHAR},
+      </if>
+      <if test="ticketNum != null" >
+        ticket_num = #{ticketNum,jdbcType=DECIMAL},
+      </if>
+      <if test="invoiceNum != null" >
+        invoice_num = #{invoiceNum,jdbcType=VARCHAR},
+      </if>
+      <if test="buyer != null" >
+        buyer = #{buyer,jdbcType=VARCHAR},
+      </if>
+      <if test="buyDate != null" >
+        buy_date = #{buyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="installDate != null" >
+        install_date = #{installDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="installUnit != null" >
+        install_unit = #{installUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="saleCenter != null" >
+        sale_center = #{saleCenter,jdbcType=VARCHAR},
+      </if>
+      <if test="saleMarket != null" >
+        sale_market = #{saleMarket,jdbcType=VARCHAR},
+      </if>
+      <if test="salePrice != null" >
+        sale_price = #{salePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="isSale != null" >
+        is_sale = #{isSale,jdbcType=VARCHAR},
+      </if>
+      <if test="warranty != null" >
+        warranty = #{warranty,jdbcType=TIMESTAMP},
+      </if>
+      <if test="installProvince != null" >
+        install_province = #{installProvince,jdbcType=VARCHAR},
+      </if>
+      <if test="installDetailAddress != null" >
+        install_detail_address = #{installDetailAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="bargainCode != null" >
+        bargain_code = #{bargainCode,jdbcType=VARCHAR},
+      </if>
+      <if test="projectName != null" >
+        project_name = #{projectName,jdbcType=VARCHAR},
+      </if>
+      <if test="productNote != null" >
+        product_note = #{productNote,jdbcType=VARCHAR},
+      </if>
+      <if test="createManP != null" >
+        create_man_p = #{createManP,jdbcType=VARCHAR},
+      </if>
+      <if test="createOrganizationP != null" >
+        create_organization_p = #{createOrganizationP,jdbcType=VARCHAR},
+      </if>
+      <if test="createTimeP != null" >
+        create_time_p = #{createTimeP,jdbcType=TIMESTAMP},
+      </if>
+      <if test="alterManP != null" >
+        alter_man_p = #{alterManP,jdbcType=VARCHAR},
+      </if>
+      <if test="alterOrganizationP != null" >
+        alter_organization_p = #{alterOrganizationP,jdbcType=VARCHAR},
+      </if>
+      <if test="alterTimeP != null" >
+        alter_time_p = #{alterTimeP,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where product_id = #{productId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.gome.gmhx.entity.HxServiceProduct" >
+    update hx_service_product
+    set customer_id = #{customerId,jdbcType=VARCHAR},
+      install_card_num = #{installCardNum,jdbcType=DECIMAL},
+      delivery_order_num = #{deliveryOrderNum,jdbcType=DECIMAL},
+      install_num = #{installNum,jdbcType=DECIMAL},
+      machine_type = #{machineType,jdbcType=VARCHAR},
+      gome_code = #{gomeCode,jdbcType=VARCHAR},
+      brand = #{brand,jdbcType=VARCHAR},
+      machine_code = #{machineCode,jdbcType=VARCHAR},
+      internal_machine_code1 = #{internalMachineCode1,jdbcType=VARCHAR},
+      internal_machine_code2 = #{internalMachineCode2,jdbcType=VARCHAR},
+      external_machine_code = #{externalMachineCode,jdbcType=VARCHAR},
+      ticket_num = #{ticketNum,jdbcType=DECIMAL},
+      invoice_num = #{invoiceNum,jdbcType=VARCHAR},
+      buyer = #{buyer,jdbcType=VARCHAR},
+      buy_date = #{buyDate,jdbcType=TIMESTAMP},
+      install_date = #{installDate,jdbcType=TIMESTAMP},
+      install_unit = #{installUnit,jdbcType=VARCHAR},
+      sale_center = #{saleCenter,jdbcType=VARCHAR},
+      sale_market = #{saleMarket,jdbcType=VARCHAR},
+      sale_price = #{salePrice,jdbcType=DECIMAL},
+      is_sale = #{isSale,jdbcType=VARCHAR},
+      warranty = #{warranty,jdbcType=TIMESTAMP},
+      install_province = #{installProvince,jdbcType=VARCHAR},
+      install_detail_address = #{installDetailAddress,jdbcType=VARCHAR},
+      bargain_code = #{bargainCode,jdbcType=VARCHAR},
+      product_note = #{productNote,jdbcType=VARCHAR},
+      create_man_p = #{createManP,jdbcType=VARCHAR},
+      create_organization_p = #{createOrganizationP,jdbcType=VARCHAR},
+      create_time_p = #{createTimeP,jdbcType=TIMESTAMP},
+      alter_man_p = #{alterManP,jdbcType=VARCHAR},
+      alter_organization_p = #{alterOrganizationP,jdbcType=VARCHAR},
+      alter_time_p = #{alterTimeP,jdbcType=TIMESTAMP}
+    where product_id = #{productId,jdbcType=VARCHAR}
+  </update>
+  <sql id="MySqlDialectPage" >
+    <if test="page != null" >
+      <![CDATA[ limit  #{page.begin} , #{page.end} ]]>
+    </if>
+  </sql>
+	<select id="getHxServiceProductByBarCode" resultType="map" parameterType="java.lang.String" >
+		SELECT t.id FROM
+	    (
+			SELECT customer_id AS id FROM  hx_service_product
+			WHERE
+				machine_code =  #{barCode,jdbcType=VARCHAR}
+				OR internal_machine_code1 =  #{barCode,jdbcType=VARCHAR}
+				OR internal_machine_code2 = #{barCode,jdbcType=VARCHAR}
+				OR external_machine_code = #{barCode,jdbcType=VARCHAR}
+			UNION
+				SELECT apply_id AS id FROM hx_service_retreat_replacement
+				WHERE
+				machine_code =  #{barCode,jdbcType=VARCHAR}
+				OR inner_code1 =  #{barCode,jdbcType=VARCHAR}
+				OR inner_code2 =  #{barCode,jdbcType=VARCHAR}
+				OR outer_code =  #{barCode,jdbcType=VARCHAR}
+				OR old_machine_code =  #{barCode,jdbcType=VARCHAR}
+				OR old_inner_code1 =  #{barCode,jdbcType=VARCHAR}
+				OR old_inner_code2 =  #{barCode,jdbcType=VARCHAR}
+				OR old_outer_code =  #{barCode,jdbcType=VARCHAR}
+		) t
+	</select>
+	
+	<select id="selectServiceProductBySaleInfo" resultMap="BaseResultMap">
+	</select>
+	
+	<select id="getProductsByBarCodes" resultMap="BaseResultMap" parameterType="java.lang.String" >
+		select 
+		<include refid="Base_Column_List" />
+		from hx_service_product
+		where 1=1 
+		and internal_machine_code1 = #{param1,jdbcType=VARCHAR}
+		<if test="param2 != null and param2!=''">
+			and internal_machine_code2 = #{param2,jdbcType=VARCHAR}
+		</if>
+		and external_machine_code = #{param3,jdbcType=VARCHAR}
+	</select>
+  
+	<select id="getProductsByBarCode" resultMap="BaseResultMap" parameterType="java.lang.String" >
+		select 
+		<include refid="Base_Column_List" />
+		from hx_service_product
+		where machine_code = #{_param,jdbcType=VARCHAR}
+	</select>
+	
+</mapper>

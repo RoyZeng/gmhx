@@ -1,0 +1,166 @@
+package com.gome.gmhx.jbpm.handler;
+
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.jbpm.api.jpdl.DecisionHandler;
+import org.jbpm.api.model.OpenExecution;
+
+import com.gome.common.util.SpringUtil;
+import com.gome.gmhx.dao.servicemanage.HxServiceProductDao;
+import com.gome.gmhx.dao.wsdl.EccDao;
+import com.gome.gmhx.entity.HxServiceProduct;
+import com.gome.gmhx.entity.HxServiceTicket;
+import com.gome.gmhx.entity.ValidateResult;
+import com.gome.gmhx.service.common.MachineReviewService;
+import com.gome.gmhx.service.servicemanage.HxServiceTicketQueryService;
+
+public class ServiceBarCodeMachineReview implements DecisionHandler {
+
+	@Override
+	public String decide(OpenExecution execution) {
+		String dataSource = (String)execution.getVariable("dataSource");
+		String key = execution.getProcessInstance().getKey();
+		// sp02安装 sp06维修
+		String serviceType = execution.getProcessDefinitionId();
+		HxServiceTicketQueryService hxServiceTicketQueryService = (HxServiceTicketQueryService) SpringUtil.getBean("hxServiceTicketQueryService");
+		HxServiceTicket serviceTicket = hxServiceTicketQueryService.getServiceTicketByServiceId(key);
+		String result = null;
+		if(serviceType.startsWith("SP02")){
+			result = this.validateInstall(serviceTicket,dataSource,key);
+		}else if(serviceType.startsWith("SP06")){
+			result = this.validateRepaire(key);
+		}
+		if(result!=null){
+			serviceTicket.setCheckResult(result);
+			hxServiceTicketQueryService.updateServiceTickeetSelective(serviceTicket);
+			return "T3";
+		}else{
+			return "T2";
+		}
+	}
+	
+	private String validateRepaire(String key){
+		MachineReviewService machineReviewService = (MachineReviewService) SpringUtil.getBean("machineReviewService");
+		return machineReviewService.hxRepairBillMachineReview(key);
+	}
+	
+	private String validateInstall(HxServiceTicket serviceTicket,String dataSource,String key){
+		HxServiceProductDao hxServiceProductDao =(HxServiceProductDao) SpringUtil.getBean("hxServiceProductDao");
+		EccDao eccDao = (EccDao) SpringUtil.getBean("eccDao");
+		MachineReviewService machineReviewService = (MachineReviewService) SpringUtil.getBean("machineReviewService");
+		HxServiceProduct serviceProduct = hxServiceProductDao.getServiceProductByPrimaryKey(serviceTicket.getProductId());
+		
+		String PPDM = serviceProduct.getBrand();
+		String JX = serviceProduct.getMachineType();
+		String PLDM = serviceProduct.getCategory();
+		String JQTM = serviceProduct.getMachineCode();
+		String NJTM = serviceProduct.getInternalMachineCode1();
+		String WJTM = serviceProduct.getExternalMachineCode();
+		String jlNum = serviceTicket.getJlServiceId();
+		
+		String checkResult;
+		if("0".equals(dataSource)){
+			if(!PLDM.startsWith("R03")||!PLDM.startsWith("r03")) NJTM = JQTM;
+			
+			if(StringUtils.isEmpty(JX)){
+				return checkResult = "机型为空！";
+			}else if(StringUtils.isEmpty(JQTM)&&StringUtils.isEmpty(NJTM)){
+				return checkResult = "条码为空！";
+			}
+			Map data =  eccDao.getEccGoodsByGoodsCode(serviceProduct.getProductCode());
+			if(data==null){
+				return checkResult = "系统中不存在此款商品！";
+			}
+			String machineType =(String) data.get("GROES");
+			//空调R03  伊莱克斯00011  三洋00018
+				if(PLDM.startsWith("R03")||PLDM.startsWith("r03")){
+					if("00011".equals(PPDM)){
+						if(StringUtils.isNotEmpty(NJTM)){
+							String msg = machineReviewService.JlOrCrmServiceBillTwiceMachineReview(machineType+"-G",NJTM,serviceProduct,jlNum,key);
+							if(StringUtils.isNotEmpty(msg)){
+								return checkResult = "内机条码，"+msg;
+							}
+						}
+						if(StringUtils.isNotEmpty(WJTM)){
+							String msg = machineReviewService.JlOrCrmServiceBillTwiceMachineReview(machineType+"-W", WJTM,serviceProduct,jlNum,key);
+							if(StringUtils.isNotEmpty(msg)){
+								return checkResult = "外机机条码，"+msg;
+							}
+						}
+						return null;
+					}else if("00018".equals(PPDM)){
+						if(StringUtils.isNotEmpty(NJTM)){
+							String msg = machineReviewService.JlOrCrmServiceBillTwiceMachineReview(machineType.replace("/GW", "/G"), NJTM,serviceProduct,jlNum,key);
+							if(StringUtils.isNotEmpty(msg)){
+								return checkResult = "内机条码，"+msg;
+							}
+						}
+						if(StringUtils.isNotEmpty(WJTM)){
+							String msg = machineReviewService.JlOrCrmServiceBillTwiceMachineReview(machineType.replace("/GW", "/W"), WJTM,serviceProduct,jlNum,key);
+							if(StringUtils.isNotEmpty(msg)){
+								return checkResult = "外机条码，"+msg;
+							}
+						}
+						return null;
+					}
+				}else{
+					if(StringUtils.isNotEmpty(NJTM)){
+						String msg = machineReviewService.JlOrCrmServiceBillTwiceMachineReview(machineType, NJTM,serviceProduct,jlNum,key);
+						if(StringUtils.isNotEmpty(msg)){
+							return checkResult = "机器条码，"+msg;
+						}
+						return  null;
+					}
+				}
+				return checkResult = "条码为空！";
+		}else{
+			Map<String, String>  map = machineReviewService.splitMachineCode(PLDM,JX,PPDM);
+			String insideType = map.get("insideCode");
+			String outsideType = map.get("outsideCode");
+			
+			//空调R03  伊莱克斯00011  三洋00018
+			if(PLDM.startsWith("R03")||PLDM.startsWith("r03")){
+				if("00011".equals(PPDM)){
+					if(StringUtils.isNotEmpty(NJTM)){
+						String msg = machineReviewService.hxServiceBillMachineReview(insideType,NJTM,key,serviceProduct);
+						if(StringUtils.isNotEmpty(msg)){
+							return checkResult = "内机条码，"+msg;
+						}
+					}
+					if(StringUtils.isNotEmpty(WJTM)){
+						String msg = machineReviewService.hxServiceBillMachineReview(outsideType,WJTM,key,serviceProduct);
+						if(StringUtils.isNotEmpty(msg)){
+							return checkResult = "外机机条码，"+msg;
+						}
+					}
+					return null;
+				}else if("00018".equals(PPDM)){
+					if(StringUtils.isNotEmpty(NJTM)){
+						String msg = machineReviewService.hxServiceBillMachineReview(insideType,NJTM,key,serviceProduct);
+						if(StringUtils.isNotEmpty(msg)){
+							return checkResult = "内机条码，"+msg;
+						}
+					}
+					if(StringUtils.isNotEmpty(WJTM)){
+						String msg = machineReviewService.hxServiceBillMachineReview(outsideType,WJTM,key,serviceProduct);
+						if(StringUtils.isNotEmpty(msg)){
+							return checkResult = "外机条码，"+msg;
+						}
+					}
+					return null;
+				}
+			}else{
+				if(StringUtils.isNotEmpty(NJTM)){
+					String msg = machineReviewService.hxServiceBillMachineReview(JX,JQTM,key,serviceProduct);
+					if(StringUtils.isNotEmpty(msg)){
+						return checkResult = "机器条码，"+msg;
+					}
+					return null;
+				}
+				return checkResult = "机器条码为空！";
+			}
+			return null;
+		}
+	}
+}

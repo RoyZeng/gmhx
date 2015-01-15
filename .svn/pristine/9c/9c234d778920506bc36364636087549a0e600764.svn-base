@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gome.gmhx.dao.servicemanage.JlCustomerProductDao">
+	<resultMap id="BaseResultMap" type="com.gome.gmhx.entity.vo.JlCustomerProductVO">
+		<result column="KHMC" property="khmc" jdbcType="VARCHAR" />
+		<result column="FPH" property="fph" jdbcType="VARCHAR" />
+		<result column="JZRQ" property="jzrq" jdbcType="TIMESTAMP" />
+		<result column="YYYDM" property="yyydm" jdbcType="VARCHAR" />
+		<result column="YYYMC" property="yyymc" jdbcType="VARCHAR" />
+		<result column="THDH" property="thdh" jdbcType="DECIMAL" />
+		<result column="XSJE" property="xsje" jdbcType="DECIMAL" />
+		<result column="SPBM" property="spbm" jdbcType="VARCHAR" />
+		<result column="SPMC" property="spmc" jdbcType="VARCHAR" />
+		<result column="DZBM01" property="dzbm01" jdbcType="VARCHAR" />
+		<result column="BMMC" property="bmmc" jdbcType="VARCHAR" />
+		<result column="SPFL01" property="spfl01" jdbcType="VARCHAR" />
+		<result column="SPFLMC" property="spflmc" jdbcType="VARCHAR" />
+		<result column="PPB01" property="ppb01" jdbcType="VARCHAR" />
+		<result column="PPBMC" property="ppbmc" jdbcType="VARCHAR" />
+		<result column="ZPBJ" property="zpbj" jdbcType="DECIMAL" />
+		<result column="ZP_THDH" property="zpThdh" jdbcType="DECIMAL" />
+		<result column="XSLX" property="xslx" jdbcType="VARCHAR" />
+		<result column="AZD01" property="azd01" jdbcType="DECIMAL" />
+		<result column="LXDZ" property="lxdz" jdbcType="VARCHAR" />
+		<result column="LXDH" property="lxdh" jdbcType="VARCHAR" />
+		<result column="QTDH" property="qtdh" jdbcType="VARCHAR" />
+		<result column="YYSJ" property="yysj" jdbcType="TIMESTAMP" />
+		<result column="PWDSJ" property="pwdsj" jdbcType="TIMESTAMP" />
+		<result column="HZRQ" property="hzrq" jdbcType="TIMESTAMP" />
+		<result column="AZWD01" property="azwd01" jdbcType="VARCHAR" />
+		<result column="WDMC" property="wdmc" jdbcType="VARCHAR" />
+		<result column="GSXX01" property="gsxx01" jdbcType="VARCHAR" />
+		<result column="GSMC" property="gsmc" jdbcType="VARCHAR" />
+		<result column="WB_GSXX01" property="wbGsxx01" jdbcType="VARCHAR" />
+		<result column="WB_GSMC" property="wbGsmc" jdbcType="VARCHAR" />
+		<result column="SJLY" property="sjly" jdbcType="DECIMAL" />
+		<result column="NJTM" property="njtm" jdbcType="VARCHAR" />
+		<result column="WJTM" property="wjtm" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List">
+			KHMC,FPH,JZRQ,YYYDM,YYYMC,THDH,XSJE,SPBM,SPMC,DZBM01,BMMC,SPFL01,SPFLMC,PPB01,PPBMC,
+			ZPBJ,ZP_THDH,XSLX,AZD01,LXDZ,LXDH,QTDH,YYSJ,PWDSJ,HZRQ,AZWD01,WDMC,GSXX01,GSMC,WB_GSXX01,
+			WB_GSMC,SJLY,NJTM,WJTM
+	</sql>
+	<select id="getCustomerProductList" resultMap="BaseResultMap" parameterType="com.gome.gmhx.entity.vo.JlCustomerProductVO">
+		select t1.khmc,t1.fph,t1.jzrq,t1.yyydm,t1.yyymc,t1.thdh,t1.xsje,t1.spbm,t1.spmc,t1.dzbm01,t1.bmmc,t1.spfl01,t1.spflmc,t1.ppb01,t1.ppbmc,t1.zpbj,t1.zp_thdh,t1.xslx,
+			t2.azd01,t2.lxdz,t2.lxdh,t2.qtdh,t2.yysj,t2.pwdsj,t2.hzrq,t2.azwd01,t2.wdmc,t2.gsxx01,t2.gsmc,t2.wb_gsxx01,t2.wb_gsmc,t2.sjly,t2.njtm,t2.wjtm	
+			FROM jl_lsxsjl_xfda t1 JOIN jl_install t2 ON t1.THDH=t2.THDH WHERE 1=1
+		<if test="khmc != null and khmc != ''" >and t1.khmc = #{khmc,jdbcType=VARCHAR}</if>
+		<if test="lxdz != null and lxdz != ''" >and t2.lxdz = #{lxdz,jdbcType=VARCHAR}</if>
+		<if test="lxdh != null and lxdh != ''" >and t2.lxdh = #{lxdh,jdbcType=VARCHAR}</if>
+		<if test="njtm != null and njtm != ''" >and t2.njtm = #{njtm,jdbcType=VARCHAR}</if>
+		<if test="wjtm != null and wjtm != ''" >and t2.wjtm = #{wjtm,jdbcType=VARCHAR}</if>
+	</select>
+	<select id="getCustomerProductById" resultMap="BaseResultMap" parameterType="java.lang.String">
+		select t1.khmc,t1.fph,t1.jzrq,t1.yyydm,t1.yyymc,t1.thdh,t1.xsje,t1.spbm,t1.spmc,t1.dzbm01,t1.bmmc,t1.spfl01,t1.spflmc,t1.ppb01,t1.ppbmc,t1.zpbj,t1.zp_thdh,t1.xslx,
+			t2.azd01,t2.lxdz,t2.lxdh,t2.qtdh,t2.yysj,t2.pwdsj,t2.hzrq,t2.azwd01,t2.wdmc,t2.gsxx01,t2.gsmc,t2.wb_gsxx01,t2.wb_gsmc,t2.sjly,t2.njtm,t2.wjtm	
+			FROM jl_lsxsjl_xfda t1 JOIN jl_install t2 ON t1.THDH=t2.THDH WHERE t2.azd01 = #{key,jdbcType=DECIMAL}
+	</select>
+</mapper>
+
+
+
+
+
+
+
+
+

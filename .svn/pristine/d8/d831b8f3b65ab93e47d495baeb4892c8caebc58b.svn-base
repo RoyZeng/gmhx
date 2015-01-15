@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gome.jbpm.material">
+	<!-- 入参为物料申请单的单号id，和要查询的岗位代码positions<List> -->
+	<!--根据物料申请单中的收货单位获得参与者 -->
+	<select id="queryParticipantsBySendCompany" resultType="com.gome.gmhx.jbpm.JbpmParticipant"
+		parameterType="map">
+		select t.userAccount,t.positionId from (
+		select hul.user_login_name as userAccount,t2.position_id as positionId
+		from hx_user_unload hul inner join (
+		select heu.user_login_name,heu.position_id,left(ee.positioncode,(length(ee.positioncode)-10)) as org_id from hx_emp_unload heu,emp_empposition ee where heu.position_id=ee.positioncode
+		union
+		select hup.user_login_name,hup.position_id,hp.org_id from hx_user_position hup,hx_position hp where hup.position_id=hp.position_code
+		) t2 on hul.user_login_name=t2.user_login_name and hul.user_active='1'  where 1=1
+		<if test="positions != null">
+			and t2.position_id in
+			<foreach item="item" index="index" collection="positions"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="id != null and id != '' ">
+			and t2.org_id = (select send_company from hx_material_manage where
+			list_number= #{id})
+		</if>
+		) t
+	</select>
+
+	<select id="queryParticipantsByReceiveCompany" resultType="com.gome.gmhx.jbpm.JbpmParticipant"
+		parameterType="map">
+		select t.userAccount,t.positionId from (
+		select hul.user_login_name as userAccount,t2.position_id as positionId
+		from hx_user_unload hul inner join (
+		select heu.user_login_name,heu.position_id,left(ee.positioncode,(length(ee.positioncode)-10)) as org_id from hx_emp_unload heu,emp_empposition ee where heu.position_id=ee.positioncode
+		union
+		select hup.user_login_name,hup.position_id,hp.org_id from hx_user_position hup,hx_position hp where hup.position_id=hp.position_code
+		) t2 on hul.user_login_name=t2.user_login_name  and hul.user_active='1'  where 1=1
+		<if test="positions != null">
+			and t2.position_id in
+			<foreach item="item" index="index" collection="positions"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="id != null and id != '' ">
+			and t2.org_id = (select receive_company from hx_material_manage where
+			list_number= #{id})
+		</if>
+		) t
+	</select>
+
+	<select id="queryHeadDeptParticipants" resultType="com.gome.gmhx.jbpm.JbpmParticipant"
+		parameterType="map">
+		select t.userAccount,t.positionId from (
+		select hul.user_login_name as userAccount,t2.position_id as positionId
+		from hx_user_unload hul inner join (
+		select heu.user_login_name,heu.position_id,left(ee.positioncode,(length(ee.positioncode)-10)) as org_id from hx_emp_unload heu,emp_empposition ee where heu.position_id=ee.positioncode
+		union
+		select hup.user_login_name,hup.position_id,hp.org_id from hx_user_position hup,hx_position hp where hup.position_id=hp.position_code
+		) t2 on hul.user_login_name=t2.user_login_name  and hul.user_active='1'  where 1=1
+		<if test="positions != null">
+			and t2.position_id in
+			<foreach item="item" index="index" collection="positions"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		) t
+	</select>
+
+
+	<select id="queryHXStockParticipantsBySendWebSite" resultType="com.gome.gmhx.jbpm.JbpmParticipant"
+		parameterType="map">
+		select t.userAccount,t.positionId from (
+		select hul.user_login_name as userAccount,t2.position_id as positionId
+		from hx_user_unload hul inner join (
+		select heu.user_login_name,heu.position_id,left(ee.positioncode,(length(ee.positioncode)-10)) as org_id from hx_emp_unload heu,emp_empposition ee where heu.position_id=ee.positioncode
+		union
+		select hup.user_login_name,hup.position_id,hp.org_id from hx_user_position hup,hx_position hp where hup.position_id=hp.position_code
+		) t2 on hul.user_login_name=t2.user_login_name  and hul.user_active='1'  where 1=1
+		<if test="positions != null">
+			and t2.position_id in
+			<foreach item="item" index="index" collection="positions"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="id != null and id != '' ">
+			and t2.org_id =(SELECT hfp.org_code FROM hx_fittingstock_part hfp
+			WHERE hfp.part_id IN (SELECT hcsm.dqgsdm
+			FROM hx_custom_sale_mapping hcsm
+			WHERE hcsm.shgsdm IN (SELECT t.gsxx01
+			FROM (SELECT cw.azwd01 AS org_code, cw.gsxx01
+			FROM crm_website cw
+			UNION
+			SELECT ho.org_code, ho.org_parent_id AS gsxx01
+			FROM hx_organization ho
+			WHERE ho.org_type = '02'
+			OR ho.org_type = '03'
+			UNION SELECT es.WERKS AS org_code, es.VKORG AS gsxx01
+			FROM ecc_store es WHERE es.VKORG LIKE 'S%'
+			) t
+			WHERE t.org_code = (select send_company from hx_material_manage where
+			list_number= #{id})))
+			)
+		</if>
+		) t
+	</select>
+</mapper>

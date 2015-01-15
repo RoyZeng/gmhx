@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gome.gmhx.dao.basicdata.HxCodeBarDao" >
+  <resultMap id="BaseResultMap" type="com.gome.gmhx.entity.HxCodeBar" >
+    <result column="id" property="id" jdbcType="VARCHAR" />
+    <result column="compare_type" property="compareType" jdbcType="VARCHAR" />
+    <result column="inner_code1" property="innerCode1" jdbcType="VARCHAR" />
+    <result column="inner_code2" property="innerCode2" jdbcType="VARCHAR" />
+    <result column="outer_code" property="outerCode" jdbcType="VARCHAR" />
+    <result column="inner_model1" property="innerModel1" jdbcType="VARCHAR" />
+    <result column="inner_model2" property="innerModel2" jdbcType="VARCHAR" />
+    <result column="outer_model" property="outerModel" jdbcType="VARCHAR" />
+    <result column="whole_model" property="wholeModel" jdbcType="VARCHAR" />
+    <result column="code_begin" property="codeBegin" jdbcType="VARCHAR" />
+    <result column="comment" property="comment" jdbcType="VARCHAR" />
+    <result column="update_time" property="updateTime" jdbcType="DATE" />
+    <result column="brand" property="brand" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, compare_type, inner_code1, inner_code2, outer_code, inner_model1, inner_model2, outer_model, 
+    whole_model, code_begin, comment, update_time,brand
+  </sql>
+  
+  <select id="getHxCodeBarById" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select * from hx_code_bar
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="getHxCodeBarPageList" parameterType="com.gome.common.page.Page" resultType="hashmap">
+    SELECT t1.id,t1.compare_type,t1.inner_code1,t1.inner_code2,t1.outer_code,t1.inner_model1,
+       t1.inner_model2,t1.outer_model,t1.whole_model,t1.code_begin,t1.update_time,
+      v5.code_value brand
+	FROM (
+		SELECT t.id, v1.code_value compare_type, t.inner_code1, t.inner_code2,
+				t.outer_code, t.inner_model1, t.inner_model2, t.outer_model, t.whole_model,
+				t.code_begin, t.update_time,t.brand
+   		FROM hx_code_bar t
+   		LEFT JOIN v_code v1 ON t.compare_type=v1.code_key AND v1.code_id='dzlx'
+   		)t1
+   	LEFT JOIN v_code v5 on t1.brand=v5.code_key and v5.code_id='pp'
+	WHERE 1=1
+	<if test="param.compareType != null and param.compareType != ''"> and t1.compare_type = #{param.compareType}</if>
+	<if test="param.innerCode1 != null and param.innerCode1 != ''"> and t1.inner_code1 like CONCAT('%',#{param.innerCode1},'%')</if>
+	<if test="param.innerCode2 != null and param.innerCode2 != ''"> and t1.inner_code2 like CONCAT('%',#{param.innerCode2},'%')</if>
+	<if test="param.outerCode != null and param.outerCode != ''"> and t1.outer_code like CONCAT('%',#{param.outerCode},'%')</if>
+	<if test="param.innerModel1 != null and param.innerModel1 != ''"> and t1.inner_model1 like CONCAT('%',#{param.innerModel1},'%')</if>
+	<if test="param.innerModel2 != null and param.innerModel2 != ''"> and t1.inner_model2 like CONCAT('%',#{param.innerModel2},'%')</if>
+	<if test="param.outerModel != null and param.outerModel != ''"> and t1.outer_model like CONCAT('%',#{param.outerModel},'%')</if>
+	<if test="param.wholeModel != null and param.wholeModel != ''"> and t1.whole_model like CONCAT('%',#{param.wholeModel},'%')</if>
+	<if test="param.codeBegin != null and param.codeBegin != ''"> and t1.code_begin like CONCAT('%',#{param.codeBegin},'%')</if>
+	<if test="param.brand != null and param.brand != ''"> and t1.brand like CONCAT('%',#{param.brand},'%')</if>
+	<if test="param.ksrq != null and param.ksrq != ''">
+		<![CDATA[ and t1.update_time >= #{param.ksrq}]]>
+	</if>
+	<if test="param.jsrq != null and param.jsrq != ''">
+		<![CDATA[ and t1.update_time <= #{param.jsrq}]]>
+	</if>
+  </select>
+  
+  <select id="validateInnerCode1" parameterType="string" resultType="int">
+  	select count(*) from hx_code_bar where inner_code1 = #{code}
+  </select>
+  
+  <select id="validateInnerCode2" parameterType="string" resultType="int">
+  	select count(*) from hx_code_bar where inner_code2 = #{code}
+  </select>
+  
+  <select id="validateOuterCode" parameterType="string" resultType="int">
+  	select count(*) from hx_code_bar where outer_code = #{code}
+  </select>
+  
+  <select id="validateModel" parameterType="string" resultType="int">
+  	select count(*) from hx_product_detail where model = #{model}
+  </select>
+  
+  <insert id="addHxCodeBar">
+  	insert into hx_code_bar (id, compare_type, inner_code1, inner_code2, 
+      outer_code, inner_model1, inner_model2, 
+      outer_model, whole_model, code_begin, 
+      comment, update_timem,brand)
+    values (#{id,jdbcType=VARCHAR}, #{compareType,jdbcType=VARCHAR}, #{innerCode1,jdbcType=VARCHAR}, #{innerCode2,jdbcType=VARCHAR}, 
+      #{outerCode,jdbcType=VARCHAR}, #{innerModel1,jdbcType=VARCHAR}, #{innerModel2,jdbcType=VARCHAR}, 
+      #{outerModel,jdbcType=VARCHAR}, #{wholeModel,jdbcType=VARCHAR}, #{codeBegin,jdbcType=VARCHAR}, 
+      #{comment,jdbcType=VARCHAR}, #{updateTime,jdbcType=DATE},#{brand,jdbcType=VARCHAR})
+  </insert>
+  
+  <insert id="insertCodeBarBatch" parameterType="java.util.List">
+  INSERT INTO hx_code_bar (
+    <include refid="Base_Column_List" />
+    )
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+     (#{item.id,jdbcType=VARCHAR}, #{item.compareType,jdbcType=VARCHAR}, #{item.innerCode1,jdbcType=VARCHAR}, #{item.innerCode2,jdbcType=VARCHAR}, 
+      #{item.outerCode,jdbcType=VARCHAR}, #{item.innerModel1,jdbcType=VARCHAR}, #{item.innerModel2,jdbcType=VARCHAR}, 
+      #{item.outerModel,jdbcType=VARCHAR}, #{item.wholeModel,jdbcType=VARCHAR}, #{item.codeBegin,jdbcType=VARCHAR}, 
+      #{item.comment,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=DATE},#{item.brand,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+  
+  <update id="updateHxCodeBar" parameterType="com.gome.gmhx.entity.HxCodeBar" >
+    update hx_code_bar
+    <set >
+      <if test="compareType != null" >
+        compare_type = #{compareType,jdbcType=VARCHAR},
+      </if>
+      <if test="innerCode1 != null" >
+        inner_code1 = #{innerCode1,jdbcType=VARCHAR},
+      </if>
+      <if test="innerCode2 != null" >
+        inner_code2 = #{innerCode2,jdbcType=VARCHAR},
+      </if>
+      <if test="outerCode != null" >
+        outer_code = #{outerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="innerModel1 != null" >
+        inner_model1 = #{innerModel1,jdbcType=VARCHAR},
+      </if>
+      <if test="innerModel2 != null" >
+        inner_model2 = #{innerModel2,jdbcType=VARCHAR},
+      </if>
+      <if test="outerModel != null" >
+        outer_model = #{outerModel,jdbcType=VARCHAR},
+      </if>
+      <if test="wholeModel != null" >
+        whole_model = #{wholeModel,jdbcType=VARCHAR},
+      </if>
+      <if test="codeBegin != null" >
+        code_begin = #{codeBegin,jdbcType=VARCHAR},
+      </if>
+      <if test="comment != null" >
+        comment = #{comment,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=DATE},
+      </if>
+      <if test="brand != null" >
+        brand = #{brand,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  	<select id="getHxCodeBarByWholeModel"  resultMap="BaseResultMap" parameterType="java.lang.String" >
+   			 select * from hx_code_bar where whole_modal = #{wholeModel,jdbcType=VARCHAR}
+    </select>
+    
+     <select id="getHxCodeBarByMachineCode"  resultMap="BaseResultMap" parameterType="java.lang.String" >
+  			  select * from hx_code_bar where whole_model = #{machineCode,jdbcType=VARCHAR}
+    </select> 
+    
+</mapper>

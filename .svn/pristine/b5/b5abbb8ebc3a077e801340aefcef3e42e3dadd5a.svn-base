@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gome.gmhx.dao.materialmanage.HxParcelReceiptDao">
+	<resultMap id="BaseResultMap" type="com.gome.gmhx.entity.HxParcelDelivery">
+		<id column="parcel_code" jdbcType="VARCHAR" property="parcelCode" />
+	    <result column="org_id" jdbcType="VARCHAR" property="orgId" />
+	    <result column="bills_code" jdbcType="VARCHAR" property="billsCode" />
+	    <result column="receive_unit" jdbcType="VARCHAR" property="receiveUnit" />
+	    <result column="carrier_unit" jdbcType="VARCHAR" property="carrierUnit" />
+	    <result column="state" jdbcType="VARCHAR" property="state" />
+	    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+	    <result column="send_date" jdbcType="TIMESTAMP" property="sendDate" />
+	    <result column="delivery_way" jdbcType="VARCHAR" property="deliveryWay" />
+	    <result column="trantransportation_expenses" jdbcType="VARCHAR" property="trantransportationExpenses" />
+	    <result column="package_number" jdbcType="VARCHAR" property="packageNumber" />
+	    <result column="package_weight" jdbcType="VARCHAR" property="packageWeight" />
+	    <result column="package_volume" jdbcType="VARCHAR" property="packageVolume" />
+	    <result column="volume_weight" jdbcType="VARCHAR" property="volumeWeight" />
+	    <result column="receive_name" jdbcType="VARCHAR" property="receiveName" />
+	    <result column="receive_phone" jdbcType="VARCHAR" property="receivePhone" />
+	    <result column="receive_post" jdbcType="VARCHAR" property="receivePost" />
+	    <result column="receive_address" jdbcType="VARCHAR" property="receiveAddress" />
+	    <result column="note" jdbcType="VARCHAR" property="note" />
+	    <result column="founders" jdbcType="VARCHAR" property="founders" />
+	    <result column="founder_date" jdbcType="TIMESTAMP" property="founderDate" />
+	    <result column="modefieds" jdbcType="VARCHAR" property="modefieds" />
+	    <result column="modefied_date" jdbcType="TIMESTAMP" property="modefiedDate" />
+	    <result column="out_date" jdbcType="DATE" property="outDate" />
+	    <result column="send_unit" jdbcType="VARCHAR" property="sendUnit" />
+	    <result column="receive_date" jdbcType="TIMESTAMP" property="receiveDate" />
+	    <result column="type" jdbcType="VARCHAR" property="type" />
+   		<result column="fitting_position_id" jdbcType="VARCHAR" property="fittingPositionId" />
+	</resultMap>
+
+	 <select id="getHxParcelReceiptPageList" parameterType="com.gome.common.page.Page" resultType="hashmap">
+		SELECT
+			DISTINCT
+			t.parcel_code,
+			t.bills_code,
+			t.carrier_unit,
+			v2. NAME send_unit,
+			t.update_date,
+			v. NAME receive_unit,
+			t.state status_hidden,
+			v1.code_value state1,
+			t.send_date
+		FROM
+			hx_parcel_delivery t
+			LEFT JOIN hx_organization_unload v ON v.id IS NOT NULL AND v.id = t.receive_unit
+			LEFT JOIN hx_organization_unload v2 ON v2.id IS NOT NULL AND v2.id = t.send_unit
+			LEFT JOIN v_code v1 ON v1.code_id = 'ybzt' AND v1.code_key = t.state
+			JOIN hx_parcel_material pm ON pm.parcel_code = t.parcel_code
+			AND list_number IN (
+				${param.list}
+			)
+			AND t.state ='02'
+		<if test="param.parcelCode != null">
+			and t.parcel_code like CONCAT('%',#{param.parcelCode},'%')
+		</if>
+		<if test="param.billsCode != null">
+			and t.bills_code like CONCAT('%',#{param.billsCode},'%')
+		</if>
+		<if test="param.receiveUnit != null">
+			and t.receive_unit like CONCAT('%',#{param.receiveUnit},'%')
+		</if>
+		<if test="param.carrierUnit != null">
+			and t.carrier_unit like CONCAT('%',#{param.carrierUnit},'%')
+		</if>
+		<if test="param.updateDate_sta !=null and param.updateDate_sta != '' ">
+		   <![CDATA[ and DATA_FORMAT(t.update_date,'%Y-%m-%d') >=#{param.updateDate_sta} ]]>
+		</if>
+		<if test="param.updateDate_end !=null and param.updateDate_end != '' ">
+		   <![CDATA[ and DATA_FORMAT(t.update_date,'%Y-%m-%d') <=#{param.updateDate_end} ]]>
+		</if>
+		<if test="param.fittingPositionId != null">
+			and t.fitting_position_id =#{param.fittingPositionId}
+		</if>
+		<if test="param.founders != null">
+			and t.founders = #{param.founders}
+		</if>
+	</select>
+	
+	<update id="updateHxParcelReceipt" parameterType="com.gome.gmhx.entity.HxParcelReceipt">
+	update hx_parcel_delivery set state='03',receive_date=now() where org_id=#{orgId};
+	</update>
+	
+	<update id="updateHxCurrentStock" parameterType="com.gome.gmhx.entity.HxParcelReceipt">
+	update hx_current_stock set stock=stock+#{number},count_way=count_way-#{number}
+	 where org_id=#{receiveUnit}
+	 and fitting_code =#{fittingCode};
+	<!--   and type=#{param.type}; 总部,分部,网点    -->
+	</update>     
+	
+	<select id="getHxParcelReceiptExport" parameterType="map" resultType="hashmap">
+       SELECT DISTINCT
+		 a.org_id, a.parcel_code, a.bills_code, a.carrier_unit, a.state,a.update_date, 
+		    a.send_date, a.delivery_way, a.trantransportation_expenses, a.package_number, a.package_weight, 
+		    a.package_volume, a.volume_weight, a.receive_name, a.receive_phone, a.receive_post, a.receive_address, 
+		    a.note, v3.user_name founders, a.founder_date, v4.user_name modefieds, a.modefied_date, a.send_number, 
+		    a.out_date, a.receive_date, a.type,
+		    v.name receive_unit, 
+		    v2.name send_unit
+		FROM
+			hx_parcel_delivery a 
+			LEFT JOIN hx_organization_unload v ON v.id IS NOT NULL AND v.id = a.receive_unit
+			LEFT JOIN hx_organization_unload v2 ON v2.id IS NOT NULL AND v2.id = a.send_unit
+			LEFT JOIN hx_user_unload v3 on v3.user_login_name = a.founders
+			LEFT JOIN hx_user_unload v4 on v4.user_login_name = a.modefieds
+			JOIN hx_parcel_material pm ON pm.parcel_code = a.parcel_code
+			AND pm.list_number IN (
+				SELECT
+					t.work_entity_id
+				FROM
+					JBPM4_TASK_TRAJECTTORY t
+				WHERE
+					t.current_activity IN ('S7', 'S8')
+			)
+		WHERE (((a.state ='02' or a.state='03') and a.send_unit= #{fittingOrgId})
+			 OR
+		 	(a.state ='03' and a.receive_unit= #{fittingOrgId}))
+
+		<if test="parcelCode!= null and parcelCode!= '' ">
+		   and a.parcel_code like CONCAT('%',#{parcelCode},'%')</if>
+	    <if test="billsCode!= null and billsCode!= '' ">
+		   and a.bills_code like CONCAT('%',#{billsCode},'%')</if>
+        <if test="sendUnit!= null and sendUnit!= '' ">
+		   and a.send_unit like CONCAT('%',#{sendUnit},'%')</if>
+	    <if test="receiveUnit!= null and receiveUnit!= '' ">
+		   and a.receive_unit like CONCAT('%',#{receiveUnit},'%')</if>
+		<if test="carrierUnit!= null and carrierUnit!= '' ">
+		   and a.carrier_unit like CONCAT('%',#{carrierUnit},'%')</if>
+		<if test="sendDate_sta !=null and sendDate_sta != '' ">
+		   <![CDATA[ and DATE_FORMAT(a.send_date, '%Y-%m-%d') >= #{sendDate_sta}]]></if>
+		<if test="sendDate_end !=null and sendDate_end != '' ">
+		   <![CDATA[ and DATE_FORMAT(a.send_date, '%Y-%m-%d') <= #{sendDate_end}]]> </if>
+		ORDER BY a.update_date DESC  
+    </select>
+	 
+    <select id="getShowById" parameterType="string" resultMap="BaseResultMap">
+      SELECT a.org_id, a.parcel_code, a.bills_code, a.carrier_unit,a.update_date, 
+    a.send_date, a.delivery_way, a.trantransportation_expenses, a.package_number, a.package_weight, 
+    a.package_volume, a.volume_weight, a.receive_name, a.receive_phone, a.receive_post, a.receive_address, 
+    a.note, a.founders, a.founder_date, a.modefieds, a.modefied_date,a.send_number, 
+    a.out_date, a.receive_date, a.type, v.name as receive_unit, v2.name as send_unit,
+    (select code_value from hx_code_setting where code_id='ybzt' and a.state=code_key )state
+   
+    from hx_parcel_delivery a 
+    LEFT JOIN hx_organization_unload v ON v.id IS NOT NULL AND v.id = a.receive_unit
+	LEFT JOIN hx_organization_unload v2 ON v2.id IS NOT NULL AND v2.id = a.send_unit
+	WHERE  parcel_code=#{parcelCode}
+    </select>
+</mapper>

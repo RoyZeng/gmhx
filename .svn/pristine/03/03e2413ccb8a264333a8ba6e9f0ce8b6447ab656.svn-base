@@ -1,0 +1,69 @@
+package com.gome.gmhx.service.sysconfig;
+
+import java.util.List;
+import java.util.Map;
+
+import com.gome.common.page.Page;
+import com.gome.gmhx.entity.HxUser;
+import com.gome.gmhx.entity.HxUserUnload;
+import com.gome.gmhx.entity.SysUser;
+
+public interface HxUserService {
+	
+	List<Map<String, Object>> getUserPageList(Page page);
+	
+	void addUser(HxUser user);
+	
+	HxUser getUserById(String orgId);
+	
+	HxUser getShowById(String loginId);
+	
+	void updateUser(HxUser user);
+
+	List<Map<String, Object>> getRolePageListByUserId(Page page);
+
+	SysUser getUserByUserLoginName(String indexLoginId);
+
+	List<Map<String, Object>> getPositionPageListByUserLoginName(Page page);
+	
+	List<Map<String, Object>> getPositionPageListByUserLoginName_gome(Page page);
+
+	List<Map<String, String>> getFittingPosition(SysUser sysUser);
+
+	List<Map<String, Object>> getPositionUserPageList(Page page);
+	
+	List<Map<String, Object>> getPositionUserPageList_gome(Page page);
+
+	void delUserUnload(HxUserUnload hxUserUnload);
+
+	List<Map<String, Object>> queryAllUserList();
+	
+	List<Map<String, Object>> getAllUserList();
+
+	void addUserUnload(HxUserUnload hxUserUnload);
+	
+	void updateUserUnload(HxUserUnload hxUserUnload);
+	
+	HxUser queryUserByUserLoginName(String userLoginName);
+	
+	List<Map<String, Object>> queryHxUserList();
+	
+	List<Map<String, Object>> getHxUserList();
+	
+	void delEmpUserUnload(HxUserUnload hxUserUnload);
+
+	List<Map<String, Object>> queryAllEmpUserList();
+	
+	List<Map<String, Object>> getAllEmpUserList();
+
+	void addEmpUserUnload(HxUserUnload hxUserUnload);
+	
+	void updateEmpUserUnload(HxUserUnload hxUserUnload);
+
+	SysUser getPositionInfoBySysUser(SysUser sysUser);
+
+	List<Map<String, Object>> getUserExport(HxUser hxUser);
+
+	Map<String, String> insertUsers(List<HxUser> users);
+	
+}

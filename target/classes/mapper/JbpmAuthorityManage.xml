@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gome.jbpm" >
+	<select id="config_query"  parameterType="map"  resultType="map">
+			select  process_role_code as roleCode,mybatis_statement_id_mapping as mybatisStatementId from  JBPM4_POSITION_CONFIG
+				where process_definition_key = #{processDefinitionKey} and process_status_code = #{currentStatus}
+	</select>
+	
+	<select id="role_query" parameterType="map" resultType="string">
+			select  position_code from JBPM4_POSITION_MAPPING where jbpm_role_code = #{roleCode}
+	</select>
+	
+</mapper>

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gome.gmhx.dao.storeinfo.HxCurrentStockDao" >
+  <resultMap id="BaseResultMap" type="com.gome.gmhx.entity.HxCurrentStock" >
+  	<id column="org_id" property="orgId" jdbcType="VARCHAR"/>
+    <id column="fitting_code" property="fittingCode" jdbcType="VARCHAR" />
+    <id column="is_new" property="isNew" jdbcType="INTEGER" />
+    <result column="stock" property="stock" jdbcType="INTEGER" />
+    <result column="count_way" property="countWay" jdbcType="INTEGER" />
+    <result column="type" property="type" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    org_id, fitting_code, stock, count_way, type, is_new
+  </sql>
+	
+  <select id="getHxCurrentStockPageList" parameterType="com.gome.common.page.Page" resultType="hashmap">
+		SELECT DISTINCT
+			org.name AS orgName,
+			stock.fitting_code AS fittingCode,
+			detail.fitting_name AS fittingName,
+			stock.stock AS stock,
+			stock.count_way AS countWay,
+			CONCAT(
+				stock.stock + stock.count_way,
+				'(',
+				stock.stock,
+				')'
+			) AS availableStock,
+			IFNULL((CASE WHEN stock.type = 1 THEN
+					detail.cost
+				WHEN stock.type = 2 THEN
+					detail.branch_price
+				WHEN stock.type = 3 THEN
+					detail.network_price
+				END),0) price,
+			detail.network_price wdPrice,
+			IFNULL((CASE WHEN stock.type = 1 THEN
+					detail.cost * stock.stock
+				WHEN stock.type = 2 THEN
+					detail.branch_price * stock.stock
+				WHEN stock.type = 3 THEN
+					detail.network_price * stock.stock
+				END),0) totalPrice
+		FROM
+			hx_current_stock stock
+		LEFT JOIN hx_fitting_detail detail ON stock.fitting_code = detail.fitting_code
+		LEFT JOIN hx_fitting_model model ON model.fitting_code = detail.fitting_code
+		LEFT JOIN hx_organization_unload org ON stock.org_id = org.id
+		WHERE 1=1 
+		<if test="param.specifiedType != null">
+			AND stock.type = #{param.specifiedType,jdbcType=VARCHAR}
+		</if>
+		<if test="param.innerOrgs != null and param.innerOrgs !=''"><!-- ''表示不需要匹配 -->
+			AND stock.org_id IN (${param.innerOrgs})
+		</if>
+		<if test="param.showAll != null and param.showAll == 'on'">
+			AND stock.stock != 0
+		</if>
+	   	<if test="param.orgName!= null and param.orgName!= '' ">
+	   		AND stock.org_id like  CONCAT('%',#{param.orgName, jdbcType=VARCHAR},'%')</if>
+	   	<if test="param.partsCode!= null and param.partsCode!= '' ">
+	   		AND detail.parts_code like  CONCAT('%',#{param.partsCode, jdbcType=VARCHAR},'%')</if>
+	   	<if test="param.suitModel!= null and param.suitModel!= '' ">
+	   		AND model.suit_model like CONCAT('%', #{param.suitModel, jdbcType=VARCHAR}, '%')</if>
+   		<if test="param.fittingCode!= null and param.fittingCode!= '' ">
+	   		AND stock.fitting_code like CONCAT('%', #{param.fittingCode, jdbcType=VARCHAR}, '%')</if>
+	   	<if test="param.fittingName!= null and param.fittingName!= '' ">
+	   		AND detail.fitting_name like CONCAT('%', #{param.fittingName, jdbcType=VARCHAR}, '%')</if>
+	   	<if test="param.isNew != null and param.isNew !=''">
+	   		AND stock.is_new = #{param.isNew, jdbcType=INTEGER}
+	   	</if>
+	</select>
+	
+	 <select id="exportBatchExcel" parameterType="map" resultType="hashmap">
+		SELECT DISTINCT
+			org.name AS orgName,
+			stock.fitting_code AS fittingCode,
+			detail.fitting_name AS fittingName,
+			stock.stock AS stock,
+			stock.count_way AS countWay,
+			CONCAT(
+				stock.stock + stock.count_way,
+				'(',
+				stock.stock,
+				')'
+			) AS availableStock,
+			IFNULL((CASE WHEN stock.type = 1 THEN
+					detail.cost
+				WHEN stock.type = 2 THEN
+					detail.branch_price
+				WHEN stock.type = 3 THEN
+					detail.network_price
+				END),0) price,
+			detail.network_price*stock.stock totalWdPrice,
+			IFNULL((CASE WHEN stock.type = 1 THEN
+					detail.cost * stock.stock
+				WHEN stock.type = 2 THEN
+					detail.branch_price * stock.stock
+				WHEN stock.type = 3 THEN
+					detail.network_price * stock.stock
+				END),0) totalPrice
+		FROM
+			hx_current_stock stock
+		LEFT JOIN hx_fitting_detail detail ON stock.fitting_code = detail.fitting_code
+		LEFT JOIN hx_fitting_model model ON model.fitting_code = detail.fitting_code
+		LEFT JOIN hx_organization_unload org ON stock.org_id = org.id
+		WHERE 1=1 
+		<if test="specifiedType != null">
+			AND stock.type = #{specifiedType,jdbcType=VARCHAR}
+		</if>
+		<if test="innerOrgs != null and innerOrgs !=''"><!-- ''表示不需要匹配 -->
+			AND stock.org_id IN (${innerOrgs})
+		</if>
+		<if test="showAll != null and showAll == 'on'">
+			AND stock.stock != 0
+		</if>
+	   	<if test="orgName!= null and orgName!= '' ">
+	   		AND stock.org_id like  CONCAT('%',#{orgName, jdbcType=VARCHAR},'%')</if>
+	   	<if test="partsCode!= null and partsCode!= '' ">
+	   		AND detail.parts_code like  CONCAT('%',#{partsCode, jdbcType=VARCHAR},'%')</if>
+	   	<if test="suitModel!= null and suitModel!= '' ">
+	   		AND model.suit_model like CONCAT('%', #{suitModel, jdbcType=VARCHAR}, '%')</if>
+   		<if test="fittingCode!= null and fittingCode!= '' ">
+	   		AND stock.fitting_code like CONCAT('%', #{fittingCode, jdbcType=VARCHAR}, '%')</if>
+	   	<if test="fittingName!= null and fittingName!= '' ">
+	   		AND detail.fitting_name like CONCAT('%', #{fittingName, jdbcType=VARCHAR}, '%')</if>
+	   	<if test="isNew != null and isNew !=''">
+	   		AND stock.is_new = #{isNew, jdbcType=INTEGER}
+	   	</if>
+	   	LIMIT #{currentResult}, #{pageCount}
+	</select>
+	
+	<select id="getCurrentStock" parameterType="com.gome.gmhx.entity.HxCurrentStock" resultMap="BaseResultMap">
+		select 
+			org_id, fitting_code, IFNULL(stock,0) stock, count_way, type, is_new
+		from hx_current_stock
+		where org_id = #{orgId} and fitting_code = #{fittingCode} and is_new = #{isNew}
+	</select>
+	<update id="updateHxCurrentStock" parameterType="com.gome.gmhx.entity.HxCurrentStock">
+    update hx_current_stock
+    <set>
+    	<if test="stock != null"> stock = #{stock,jdbcType=INTEGER},</if>
+    	<if test="countWay != null"> count_way = #{countWay,jdbcType=INTEGER},</if>
+    </set>
+    where org_id = #{orgId} and fitting_code = #{fittingCode} and is_new = #{isNew}
+  </update>
+  
+  <insert id="insertStocksBatch" parameterType="list">
+  insert into hx_current_stock (<include refid="Base_Column_List"/>)
+    values 
+    <foreach collection="list" item="item" separator=",">
+    	(#{item.orgId}, #{item.fittingCode}, #{item.stock}, #{item.countWay}, #{item.type}, #{item.isNew})
+    </foreach>
+  </insert>
+  <insert id="insertCurrentStock" parameterType="com.gome.gmhx.entity.HxCurrentStock">
+  insert into hx_current_stock (<include refid="Base_Column_List"/>)
+    values (#{orgId}, #{fittingCode}, #{stock}, #{countWay}, #{type}, #{isNew})
+  </insert>
+  <delete id="deleteStock" parameterType="com.gome.gmhx.entity.HxCurrentStock">
+ 	delete from hx_current_stock 
+        where org_id = #{orgId} and fitting_code = #{fittingCode} and is_new = #{isNew}
+
+  </delete>
+  
+</mapper>

@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gome.entity.HxHistoryData" >
+	
+	<select id="selectHistoryTicketPage" resultType="hashmap" parameterType="com.gome.common.page.Page">
+		SELECT A.RP_CODE AS 'serviceId', D.PC_NAME AS 'machineType', N.CODE_NAME AS 'gomeCode', O.CODE_NAME AS 'brand', 
+		B.CP_MACHINE_IN_NO1 AS 'internalMachineCode1', B.CP_MACHINE_IN_NO2 AS 'internalMachineCode2', B.CP_MACHINE_OUT_NO AS 'externalMachineCode', 
+		B.CP_GOODS_BILL_CODE AS 'deliveryOrderNum', C.CUS_NAME AS 'customerName', C.CUS_FIXED_TEL AS 'telephone', 
+		C.CUS_MOBILE AS 'phone', G.ORG_NAME AS 'installUnit', B.CP_INSTALL_DATE AS 'installDate', B.CP_INVOICE_NO AS 'invoiceNum', 
+		B.CP_INVOICE_NAME AS 'buyer', B.CP_BUY_PRICE AS 'salePrice', H.ORG_NAME AS 'saleCenter', I.ORG_NAME AS 'saleMarket', 
+		B.CP_BUY_DATE AS 'buyDate', J.CODE_NAME AS 'installProvince', B.CP_INSTALL_ADD AS 'installDetailAddress', '安装' AS 'serviceType', 
+		K.ORG_NAME AS 'center', A.RP_REPAIRED_DATE AS 'serviceDate', L.CODE_NAME AS 'checkResult', 
+		A.RP_AUDIT_REASON AS 'checkFaultReason', A.RP_AUDIT_MEMO AS 'centerCheckComment', A.RP_HEAD_AUDIT_MEMO AS 'headquartersCheckComment', 
+		F.EB_BALANCE_DATE AS 'settlementTime', M.ORG_NAME AS 'createOrganizationS', A.RP_CREATE_DATE AS 'createTimeS', NULL AS 'invalidCode', 
+		NULL AS 'invalidName', NULL AS 'invalidReason', 
+		CASE A.RP_REPAIR_MODE WHEN '01' THEN '保内' WHEN '02' THEN '保外' END AS 'maintainWay', 
+		NULL AS 'partsCode', NULL AS 'partsName', NULL AS 'partsPrice', NULL AS 'partsNum', NULL AS 'oldPartsCode', 
+		NULL AS 'oldPartsName', NULL AS 'oldPartsPrice' 
+		FROM EB_REPAIR_HISTORY A 
+		LEFT OUTER JOIN EB_CUSTOMER_PRODUCT B ON A.RP_CP_ID = B.CP_ID 
+		LEFT OUTER JOIN EB_CUSTOMER C ON A.RP_CUS_ID = C.CUS_ID 
+		LEFT OUTER JOIN SYS_PRODUCT D ON D.PC_ID = B.CP_PROD_ID 
+		LEFT OUTER JOIN EB_BALANCE_DETAIL E ON A.RP_CODE = E.EBD_LIST_NO 
+		LEFT OUTER JOIN EB_BALANCE F ON E.EBD_EB_ID = F.EB_ID 
+		LEFT OUTER JOIN SYS_ORGANIZATION G ON B.CP_INSTALL_COMPANY = G.ORG_ID 
+		LEFT OUTER JOIN SYS_ORGANIZATION H ON B.CP_SOLD_CENTER = H.ORG_ID 
+		LEFT OUTER JOIN SYS_ORGANIZATION I ON B.CP_SOLD_COMPANY = I.ORG_ID 
+		LEFT OUTER JOIN CD_SX J ON B.CP_INSTALL_AREA = J.CODE_VALUE 
+		LEFT OUTER JOIN SYS_ORGANIZATION K ON A.RP_CENTER_ID = K.ORG_ID 
+		LEFT OUTER JOIN CD_AUDIT_RESULT L ON A.RP_AUDIT_RESULT = L.CODE_VALUE 
+		LEFT OUTER JOIN SYS_ORGANIZATION M ON A.RP_CREATE_ORG_ID = M.ORG_ID 
+		LEFT OUTER JOIN CD_FACTORY N ON B.CP_FACTORY = N.CODE_VALUE 
+		LEFT OUTER JOIN CD_BRAND O ON B.CP_BRAND = O.CODE_VALUE 
+		WHERE A.RP_TYPE = '02' AND B.CP_BRAND = '01' 
+	
+		<!-- <if test="param.serviceType != null and param.serviceType !=''">
+			and T.service_type like CONCAT('%',#{param.serviceType},'%')
+		</if>
+		<if test="param.customerType != null and param.customerType !=''">
+			and T2.customer_type like CONCAT('%',#{param.customerType},'%')
+		</if> -->
+		<!-- <if test="param.serviceStatus != null and param.serviceStatus !=''">
+			<![CDATA[and 
+			T.service_status >= #{param.serviceStatus}]]>
+		</if> -->
+		<!-- <if test="param.createOrganization != null and param.createOrganization !=''">
+			and FIND_IN_SET(T.create_organization_s,#{param.createOrganization})
+		</if>
+		<if test="param.serviceCustomer !=null and param.serviceCustomer.customerType != null and param.serviceCustomer.customerType !=''">
+			and T2.customer_type like CONCAT('%',#{param.serviceCustomer.customerType},'%')
+		</if> -->
+		<if test="param.serviceCustomer !=null and param.serviceCustomer.customerName != null and param.serviceCustomer.customerName !=''">
+			and C.CUS_NAME like '%'+#{param.serviceCustomer.customerName }+'%'
+		</if>
+		<if test="param.serviceCustomer !=null and param.serviceCustomer.phone != null and param.serviceCustomer.phone !=''">
+			and C.CUS_MOBILE like '%'+#{param.serviceCustomer.phone }+'%'
+		</if>
+		<if test="param.serviceCustomer !=null and param.serviceCustomer.telephone != null and param.serviceCustomer.telephone !=''">
+			and C.CUS_FIXED_TEL like '%'+#{param.serviceCustomer.telephone }+'%'
+		</if>
+		<if test="param.serviceProduct !=null and param.serviceProduct.brand != null and param.serviceProduct.brand !=''">
+			and O.CODE_NAME like '%'+#{param.serviceProduct.brand }+'%'
+		</if>
+		<if test="param.serviceProduct !=null and param.serviceProduct.deliveryOrderNum != null and param.serviceProduct.deliveryOrderNum !=''">
+			and B.CP_GOODS_BILL_CODE like '%'+#{param.serviceProduct.deliveryOrderNum }+'%'
+		</if>
+		<if test="param.serviceProduct !=null and param.serviceProduct.externalMachineCode != null and param.serviceProduct.externalMachineCode !=''">
+			and B.CP_MACHINE_OUT_NO like '%'+#{param.serviceProduct.externalMachineCode }+'%'
+		</if>
+		<if test="param.serviceProduct !=null and param.serviceProduct.gomeCode != null and param.serviceProduct.gomeCode !=''">
+			and N.CODE_NAME like '%'+#{param.serviceProduct.gomeCode }+'%'
+		</if>
+		<if test="param.serviceProduct !=null and param.serviceProduct.installUnit != null and param.serviceProduct.installUnit !=''">
+			and G.ORG_NAME like '%'+#{param.serviceProduct.installUnit }+'%'
+		</if>
+		<if test="param.serviceProduct !=null and param.serviceProduct.internalMachineCode1 != null and param.serviceProduct.internalMachineCode1 !=''">
+			and B.CP_MACHINE_IN_NO1 like '%'+#{param.serviceProduct.internalMachineCode1 }+'%'
+		</if>
+		<if test="param.serviceProduct !=null and param.serviceProduct.internalMachineCode2 != null and param.serviceProduct.internalMachineCode2 !=''">
+			and B.CP_MACHINE_IN_NO2 like '%'+#{param.serviceProduct.internalMachineCode2 }+'%'
+		</if>
+		<!-- <if test="param.serviceProduct !=null and param.serviceProduct.machineCode != null and param.serviceProduct.machineCode !=''">
+			and T1.machine_code like CONCAT('%',#{param.serviceProduct.machineCode},'%')
+		</if> -->
+		<if test="param.serviceProduct !=null and param.serviceProduct.machineType != null and param.serviceProduct.machineType !=''">
+			and D.PC_NAME like '%'+#{param.serviceProduct.machineType }+'%'
+		</if>
+		<!-- <if test="param.serviceProduct !=null and param.serviceProduct.ticketNum != null and param.serviceProduct.ticketNum !=''">
+			and T1.ticket_num like CONCAT('%',#{param.serviceProduct.ticketNum},'%')
+		</if>
+		<if test="param.serviceProduct !=null and param.serviceProduct.bargainCode != null and param.serviceProduct.bargainCode !=''">
+			and T1.bargain_code like CONCAT('%',#{param.serviceProduct.bargainCode},'%')
+		</if>
+		<if test="param.serviceProduct !=null and param.serviceProduct.bargainCode != null and param.serviceProduct.bargainCode !=''">
+			and T1.bargain_code like CONCAT('%',#{param.serviceProduct.bargainCode},'%')
+		</if>
+		<if test="param.serviceProduct !=null and param.serviceProduct.isSale != null and param.serviceProduct.isSale !=''">
+			and T1.is_sale like CONCAT('%',#{param.serviceProduct.isSale},'%')
+		</if> -->
+		<if test="param.serviceProduct !=null and param.serviceProduct.buyer != null and param.serviceProduct.buyer !=''">
+			and B.CP_INVOICE_NAME like '%'+#{param.serviceProduct.buyer }+'%'
+		</if>
+		<if test="param.serviceProduct !=null and param.serviceProduct.saleCenter != null and param.serviceProduct.saleCenter !=''">
+			and H.ORG_NAME like '%'+#{param.serviceProduct.saleCenter }+'%'
+		</if>
+		<if test="param.serviceProduct !=null and param.serviceProduct.saleMarket != null and param.serviceProduct.saleMarket !=''">
+			and I.ORG_NAME like '%'+#{param.serviceProduct.saleMarket }+'%'
+		</if>
+		<if test="param.serviceProduct !=null and param.serviceProduct.installProvince != null and param.serviceProduct.installProvince !=''">
+			and J.CODE_NAME like '%'+#{param.serviceProduct.installProvince }+'%'
+		</if>
+		<if test="param.serviceProduct !=null and param.serviceProduct.installDetailAddress != null and param.serviceProduct.installDetailAddress !=''">
+			and B.CP_INSTALL_ADD like '%'+#{param.serviceProduct.installDetailAddress }+'%'
+		</if>
+		<!-- <if test="param.serviceTicket !=null and param.serviceTicket.serviceType != null and param.serviceTicket.serviceType !=''">
+			and T.service_type like CONCAT('%',#{param.serviceTicket.serviceType},'%')
+		</if> -->
+		<if test="param.serviceTicket !=null and param.serviceTicket.serviceId != null and param.serviceTicket.serviceId !=''">
+			and A.RP_CODE like '%'+#{param.serviceTicket.serviceId}+'%'
+		</if>
+		<!-- <if test="param.serviceTicket !=null and param.serviceTicket.createManS != null and param.serviceTicket.createManS !=''">
+			and T.create_man_s like CONCAT('%',#{param.serviceTicket.createManS},'%')
+		</if> -->
+		<if test="param.serviceTicket !=null and param.serviceTicket.createOrganizationS != null and param.serviceTicket.createOrganizationS !=''">
+			and M.ORG_NAME like '%'+#{param.serviceTicket.createOrganizationS }+'%'
+		</if>
+		<!-- <if test="param.serviceTicket !=null and param.serviceTicket.serviceStatus != null and param.serviceTicket.serviceStatus !=''">
+			and T.service_status like CONCAT('%',#{param.serviceTicket.serviceStatus},'%')
+		</if>
+		<if test="param.serviceTicket !=null and param.serviceTicket.isReplaceParts != null and param.serviceTicket.isReplaceParts !=''">
+			and T.is_replace_parts like CONCAT('%',#{param.serviceTicket.isReplaceParts},'%')
+		</if>
+		<if test="param.serviceTicket !=null and param.serviceTicket.manulNum != null and param.serviceTicket.manulNum !=''">
+			and T.manul_num like CONCAT('%',#{param.serviceTicket.manulNum},'%')
+		</if> -->
+		<if test="param.serviceTicket !=null and param.serviceTicket.center != null and param.serviceTicket.center !=''">
+			and K.ORG_NAME like '%'+#{param.serviceTicket.center }+'%'
+		</if>
+		<!-- <if test="param.serviceTicket !=null and param.serviceTicket.linkMan != null and param.serviceTicket.linkMan !=''">
+			and T.link_man like CONCAT('%',#{param.serviceTicket.linkMan},'%')
+		</if>
+		<if test="param.serviceTicket !=null and param.serviceTicket.linkPhone != null and param.serviceTicket.linkPhone !=''">
+			and T.link_phone like CONCAT('%',#{param.serviceTicket.linkPhone},'%')
+		</if>
+		<if test="param.serviceTicket !=null and param.serviceTicket.website != null and param.serviceTicket.website !=''">
+			and T.website like CONCAT('%',#{param.serviceTicket.website},'%')
+		</if> -->
+		<if test="param.serviceTicket !=null and param.serviceTicket.checkResult != null and param.serviceTicket.checkResult !=''">
+			and L.CODE_NAME like '%'+#{param.serviceTicket.checkResult }+'%'
+		</if>
+		<!-- <if test="param.serviceTicket !=null and param.serviceTicket.machineCheckFaultReason != null and param.serviceTicket.machineCheckFaultReason !=''">
+			and T.machine_check_fault_reason like CONCAT('%',#{param.serviceTicket.machineCheckFaultReason},'%')
+		</if> -->
+		<if test="param.serviceTicket !=null and param.serviceTicket.centerCheckComment != null and param.serviceTicket.centerCheckComment !=''">
+			and A.RP_AUDIT_MEMO like '%'+#{param.serviceTicket.centerCheckComment }+'%'
+		</if>
+		<if test="param.serviceTicket !=null and param.serviceTicket.headquartersCheckComment != null and param.serviceTicket.headquartersCheckComment !=''">
+			and A.RP_HEAD_AUDIT_MEMO like '%'+#{param.serviceTicket.headquartersCheckComment }+'%'
+		</if>
+		<!-- <if test="param.serviceTicket !=null and param.serviceTicket.recallResult != null and param.serviceTicket.recallResult !=''">
+			and T.recall_result like CONCAT('%',#{param.serviceTicket.recallResult},'%')
+		</if>
+		<if test="param.serviceTicket !=null and param.serviceTicket.distanceApplyNum != null and param.serviceTicket.distanceApplyNum !=''">
+			and T.distance_apply_num like CONCAT('%',#{param.serviceTicket.distanceApplyNum},'%')
+		</if>
+		<if test="param.serviceTicket !=null and param.serviceTicket.repairMode != null and param.serviceTicket.repairMode !=''">
+			and T.repair_mode like CONCAT('%',#{param.serviceTicket.repairMode},'%')
+		</if> -->
+	</select>
+	<select id="selectHistoryTicketById" parameterType="string" resultType="hashmap">
+		SELECT A.RP_CODE AS 'serviceId', D.PC_NAME AS 'machineType', N.CODE_NAME AS 'gomeCode', O.CODE_NAME AS 'brand', 
+		B.CP_MACHINE_IN_NO1 AS 'internalMachineCode1', B.CP_MACHINE_IN_NO2 AS 'internalMachineCode2', B.CP_MACHINE_OUT_NO AS 'externalMachineCode', 
+		B.CP_GOODS_BILL_CODE AS 'deliveryOrderNum', C.CUS_NAME AS 'customerName', C.CUS_FIXED_TEL AS 'telephone', 
+		C.CUS_MOBILE AS 'phone', G.ORG_NAME AS 'installUnit', B.CP_INSTALL_DATE AS 'installDate', B.CP_INVOICE_NO AS 'invoiceNum', 
+		B.CP_INVOICE_NAME AS 'buyer', B.CP_BUY_PRICE AS 'salePrice', H.ORG_NAME AS 'saleCenter', I.ORG_NAME AS 'saleMarket', 
+		B.CP_BUY_DATE AS 'buyDate', J.CODE_NAME AS 'installProvince', B.CP_INSTALL_ADD AS 'installDetailAddress', '安装' AS 'serviceType', 
+		K.ORG_NAME AS 'center', A.RP_REPAIRED_DATE AS 'serviceDate', L.CODE_NAME AS 'checkResult', 
+		A.RP_AUDIT_REASON AS 'checkFaultReason', A.RP_AUDIT_MEMO AS 'centerCheckComment', A.RP_HEAD_AUDIT_MEMO AS 'headquartersCheckComment', 
+		F.EB_BALANCE_DATE AS 'settlementTime', M.ORG_NAME AS 'createOrganizationS', A.RP_CREATE_DATE AS 'createTimeS', NULL AS 'invalidCode', 
+		NULL AS 'invalidName', NULL AS 'invalidReason', 
+		CASE A.RP_REPAIR_MODE WHEN '01' THEN '保内' WHEN '02' THEN '保外' END AS 'maintainWay', 
+		NULL AS 'partsCode', NULL AS 'partsName', NULL AS 'partsPrice', NULL AS 'partsNum', NULL AS 'oldPartsCode', 
+		NULL AS 'oldPartsName', NULL AS 'oldPartsPrice' 
+		FROM EB_REPAIR_HISTORY A 
+		LEFT OUTER JOIN EB_CUSTOMER_PRODUCT B ON A.RP_CP_ID = B.CP_ID 
+		LEFT OUTER JOIN EB_CUSTOMER C ON A.RP_CUS_ID = C.CUS_ID 
+		LEFT OUTER JOIN SYS_PRODUCT D ON D.PC_ID = B.CP_PROD_ID 
+		LEFT OUTER JOIN EB_BALANCE_DETAIL E ON A.RP_CODE = E.EBD_LIST_NO 
+		LEFT OUTER JOIN EB_BALANCE F ON E.EBD_EB_ID = F.EB_ID 
+		LEFT OUTER JOIN SYS_ORGANIZATION G ON B.CP_INSTALL_COMPANY = G.ORG_ID 
+		LEFT OUTER JOIN SYS_ORGANIZATION H ON B.CP_SOLD_CENTER = H.ORG_ID 
+		LEFT OUTER JOIN SYS_ORGANIZATION I ON B.CP_SOLD_COMPANY = I.ORG_ID 
+		LEFT OUTER JOIN CD_SX J ON B.CP_INSTALL_AREA = J.CODE_VALUE 
+		LEFT OUTER JOIN SYS_ORGANIZATION K ON A.RP_CENTER_ID = K.ORG_ID 
+		LEFT OUTER JOIN CD_AUDIT_RESULT L ON A.RP_AUDIT_RESULT = L.CODE_VALUE 
+		LEFT OUTER JOIN SYS_ORGANIZATION M ON A.RP_CREATE_ORG_ID = M.ORG_ID 
+		LEFT OUTER JOIN CD_FACTORY N ON B.CP_FACTORY = N.CODE_VALUE 
+		LEFT OUTER JOIN CD_BRAND O ON B.CP_BRAND = O.CODE_VALUE 
+		WHERE A.RP_TYPE = '02' AND B.CP_BRAND = '01' 
+		and A.RP_CODE = #{serviceId}
+	</select>
+	<sql id="MySqlDialectPage">
+		<if test="page != null">
+      <![CDATA[ limit  #{page.begin} , #{page.end} ]]>
+		</if>
+	</sql>
+</mapper>

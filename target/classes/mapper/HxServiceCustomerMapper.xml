@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gome.gmhx.dao.servicemanage.HxServiceCustomerDao" >
+  <resultMap id="BaseResultMap" type="com.gome.gmhx.entity.HxServiceCustomer" >
+    <id column="customer_id" property="customerId" jdbcType="VARCHAR" />
+    <result column="customer_name" property="customerName" jdbcType="VARCHAR" />
+    <result column="customer_type" property="customerType" jdbcType="VARCHAR" />
+    <result column="customer_sex" property="customerSex" jdbcType="VARCHAR" />
+    <result column="member_num" property="memberNum" jdbcType="VARCHAR" />
+    <result column="province" property="province" jdbcType="VARCHAR" />
+    <result column="area_code" property="areaCode" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="telephone" property="telephone" jdbcType="VARCHAR" />
+    <result column="e_mail" property="email" jdbcType="VARCHAR" />
+    <result column="postcode" property="postcode" jdbcType="VARCHAR" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="note" property="note" jdbcType="VARCHAR" />
+    <result column="create_man_c" property="createManC" jdbcType="VARCHAR" />
+    <result column="create_organization_c" property="createOrganizationC" jdbcType="VARCHAR" />
+    <result column="create_time_c" property="createTimeC" jdbcType="TIMESTAMP" />
+    <result column="alter_man_c" property="alterManC" jdbcType="VARCHAR" />
+    <result column="alter_organization_c" property="alterOrganizationC" jdbcType="VARCHAR" />
+    <result column="alter_time_c" property="alterTimeC" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    customer_id, customer_name, customer_type, customer_sex, member_num, province, area_code, 
+    phone, telephone, e_mail, postcode, address, note, create_man_c, create_organization_c, 
+    create_time_c, alter_man_c, alter_organization_c, alter_time_c
+  </sql>
+  <select id="getCustomerById" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from hx_service_customer
+    where customer_id = #{customerId,jdbcType=VARCHAR}
+  </select>
+  <select id="getCustomerList" parameterType="com.gome.common.page.Page" resultType="hashmap">
+  	SELECT 
+	C.customer_id,  C.customer_name,  C.customer_type,  C.customer_sex,  C.member_num,  C.province,  C.area_code,  
+	C.phone,  C.telephone,  C.e_mail,  C.postcode,  C.address,  C.note,  C.create_man_c,  C.create_organization_c,  
+	C.create_time_c,  C.alter_man_c,  C.alter_organization_c,  C.alter_time_c,
+	GROUP_CONCAT(P.machine_code SEPARATOR '、') machine_code,
+	GROUP_CONCAT(P.internal_machine_code1 SEPARATOR '、') internal_machine_code1,
+	GROUP_CONCAT(P.internal_machine_code2 SEPARATOR '、') internal_machine_code2,
+	GROUP_CONCAT(P.external_machine_code SEPARATOR '、') external_machine_code,
+	GROUP_CONCAT(P.install_num SEPARATOR '、') install_num
+	FROM hx_service_customer C
+	LEFT JOIN hx_service_product P ON C.customer_id = P.customer_id
+    where 1=1
+    <if test="param.customerName != null and param.customerName !=''">and C.customer_name like CONCAT('%',#{param.customerName},'%')</if>
+    <if test="param.phone != null and param.phone !=''">and C.phone like CONCAT('%',#{param.phone},'%')</if>
+    <if test="param.address != null and param.address !=''">and C.address like CONCAT('%',#{param.address},'%')</if>
+    <if test="param.machineCode != null and param.machineCode !=''">and machine_code like CONCAT('%',#{param.machineCode},'%') 
+    or internal_machine_code1 like CONCAT('%',#{param.machineCode},'%') 
+    or internal_machine_code2 like CONCAT('%',#{param.machineCode},'%')</if>
+    <if test="param.installNum != null and param.installNum !=''">and P.install_num like CONCAT('%',#{param.installNum},'%')</if>
+    GROUP BY C.customer_id
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from hx_service_customer
+    where customer_id = #{customerId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insertServiceCustomerList" parameterType="java.util.List">
+  	insert into hx_service_customer (customer_id, customer_name, customer_type, 
+      customer_sex, member_num, province, area_code, phone, telephone, 
+      e_mail, postcode, address, note, create_man_c, create_organization_c, 
+      create_time_c, alter_man_c, alter_organization_c, alter_time_c)
+      VALUES
+      <foreach collection="list" item="item" separator=",">
+      	(#{item.customerId,jdbcType=VARCHAR}, #{item.customerName,jdbcType=VARCHAR}, #{item.customerType,jdbcType=VARCHAR}, 
+	      #{item.customerSex,jdbcType=VARCHAR}, #{item.memberNum,jdbcType=VARCHAR}, #{item.province,jdbcType=VARCHAR}, 
+	      #{item.areaCode,jdbcType=VARCHAR}, #{item.phone,jdbcType=VARCHAR}, #{item.telephone,jdbcType=VARCHAR}, 
+	      #{item.email,jdbcType=VARCHAR}, #{item.postcode,jdbcType=VARCHAR}, #{item.address,jdbcType=VARCHAR}, 
+	      #{item.note,jdbcType=VARCHAR}, #{item.createManC,jdbcType=VARCHAR}, #{item.createOrganizationC,jdbcType=VARCHAR}, 
+	      #{item.createTimeC,jdbcType=TIMESTAMP}, #{item.alterManC,jdbcType=VARCHAR}, #{item.alterOrganizationC,jdbcType=VARCHAR}, 
+	      #{item.alterTimeC,jdbcType=TIMESTAMP})
+      </foreach>
+  </insert>
+  <insert id="insertServiceCustomer" parameterType="com.gome.gmhx.entity.HxServiceCustomer" >
+    insert into hx_service_customer (customer_id, customer_name, customer_type, 
+      customer_sex, member_num, province, 
+      area_code, phone, telephone, 
+      e_mail, postcode, address, 
+      note, create_man_c, create_organization_c, 
+      create_time_c, alter_man_c, alter_organization_c, 
+      alter_time_c)
+    values (#{customerId,jdbcType=VARCHAR}, #{customerName,jdbcType=VARCHAR}, #{customerType,jdbcType=VARCHAR}, 
+      #{customerSex,jdbcType=VARCHAR}, #{memberNum,jdbcType=VARCHAR}, #{province,jdbcType=VARCHAR}, 
+      #{areaCode,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, 
+      #{email,jdbcType=VARCHAR}, #{postcode,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, 
+      #{note,jdbcType=VARCHAR}, #{createManC,jdbcType=VARCHAR}, #{createOrganizationC,jdbcType=VARCHAR}, 
+      #{createTimeC,jdbcType=TIMESTAMP}, #{alterManC,jdbcType=VARCHAR}, #{alterOrganizationC,jdbcType=VARCHAR}, 
+      #{alterTimeC,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.gome.gmhx.entity.HxServiceCustomer" >
+    insert into hx_service_customer
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="customerId != null" >
+        customer_id,
+      </if>
+      <if test="customerName != null" >
+        customer_name,
+      </if>
+      <if test="customerType != null" >
+        customer_type,
+      </if>
+      <if test="customerSex != null" >
+        customer_sex,
+      </if>
+      <if test="memberNum != null" >
+        member_num,
+      </if>
+      <if test="province != null" >
+        province,
+      </if>
+      <if test="areaCode != null" >
+        area_code,
+      </if>
+      <if test="phone != null" >
+        phone,
+      </if>
+      <if test="telephone != null" >
+        telephone,
+      </if>
+      <if test="email != null" >
+        e_mail,
+      </if>
+      <if test="postcode != null" >
+        postcode,
+      </if>
+      <if test="address != null" >
+        address,
+      </if>
+      <if test="note != null" >
+        note,
+      </if>
+      <if test="createManC != null" >
+        create_man_c,
+      </if>
+      <if test="createOrganizationC != null" >
+        create_organization_c,
+      </if>
+      <if test="createTimeC != null" >
+        create_time_c,
+      </if>
+      <if test="alterManC != null" >
+        alter_man_c,
+      </if>
+      <if test="alterOrganizationC != null" >
+        alter_organization_c,
+      </if>
+      <if test="alterTimeC != null" >
+        alter_time_c,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="customerId != null" >
+        #{customerId,jdbcType=VARCHAR},
+      </if>
+      <if test="customerName != null" >
+        #{customerName,jdbcType=VARCHAR},
+      </if>
+      <if test="customerType != null" >
+        #{customerType,jdbcType=VARCHAR},
+      </if>
+      <if test="customerSex != null" >
+        #{customerSex,jdbcType=VARCHAR},
+      </if>
+      <if test="memberNum != null" >
+        #{memberNum,jdbcType=VARCHAR},
+      </if>
+      <if test="province != null" >
+        #{province,jdbcType=VARCHAR},
+      </if>
+      <if test="areaCode != null" >
+        #{areaCode,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="telephone != null" >
+        #{telephone,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="postcode != null" >
+        #{postcode,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="note != null" >
+        #{note,jdbcType=VARCHAR},
+      </if>
+      <if test="createManC != null" >
+        #{createManC,jdbcType=VARCHAR},
+      </if>
+      <if test="createOrganizationC != null" >
+        #{createOrganizationC,jdbcType=VARCHAR},
+      </if>
+      <if test="createTimeC != null" >
+        #{createTimeC,jdbcType=TIMESTAMP},
+      </if>
+      <if test="alterManC != null" >
+        #{alterManC,jdbcType=VARCHAR},
+      </if>
+      <if test="alterOrganizationC != null" >
+        #{alterOrganizationC,jdbcType=VARCHAR},
+      </if>
+      <if test="alterTimeC != null" >
+        #{alterTimeC,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update hx_service_customer
+    <set >
+      <if test="record.customerId != null" >
+        customer_id = #{record.customerId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.customerName != null" >
+        customer_name = #{record.customerName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.customerType != null" >
+        customer_type = #{record.customerType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.customerSex != null" >
+        customer_sex = #{record.customerSex,jdbcType=VARCHAR},
+      </if>
+      <if test="record.memberNum != null" >
+        member_num = #{record.memberNum,jdbcType=VARCHAR},
+      </if>
+      <if test="record.province != null" >
+        province = #{record.province,jdbcType=VARCHAR},
+      </if>
+      <if test="record.areaCode != null" >
+        area_code = #{record.areaCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.phone != null" >
+        phone = #{record.phone,jdbcType=VARCHAR},
+      </if>
+      <if test="record.telephone != null" >
+        telephone = #{record.telephone,jdbcType=VARCHAR},
+      </if>
+      <if test="record.email != null" >
+        e_mail = #{record.email,jdbcType=VARCHAR},
+      </if>
+      <if test="record.postcode != null" >
+        postcode = #{record.postcode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.address != null" >
+        address = #{record.address,jdbcType=VARCHAR},
+      </if>
+      <if test="record.note != null" >
+        note = #{record.note,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createManC != null" >
+        create_man_c = #{record.createManC,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createOrganizationC != null" >
+        create_organization_c = #{record.createOrganizationC,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTimeC != null" >
+        create_time_c = #{record.createTimeC,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.alterManC != null" >
+        alter_man_c = #{record.alterManC,jdbcType=VARCHAR},
+      </if>
+      <if test="record.alterOrganizationC != null" >
+        alter_organization_c = #{record.alterOrganizationC,jdbcType=VARCHAR},
+      </if>
+      <if test="record.alterTimeC != null" >
+        alter_time_c = #{record.alterTimeC,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update hx_service_customer
+    set customer_id = #{record.customerId,jdbcType=VARCHAR},
+      customer_name = #{record.customerName,jdbcType=VARCHAR},
+      customer_type = #{record.customerType,jdbcType=VARCHAR},
+      customer_sex = #{record.customerSex,jdbcType=VARCHAR},
+      member_num = #{record.memberNum,jdbcType=VARCHAR},
+      province = #{record.province,jdbcType=VARCHAR},
+      area_code = #{record.areaCode,jdbcType=VARCHAR},
+      phone = #{record.phone,jdbcType=VARCHAR},
+      telephone = #{record.telephone,jdbcType=VARCHAR},
+      e_mail = #{record.email,jdbcType=VARCHAR},
+      postcode = #{record.postcode,jdbcType=VARCHAR},
+      address = #{record.address,jdbcType=VARCHAR},
+      note = #{record.note,jdbcType=VARCHAR},
+      create_man_c = #{record.createManC,jdbcType=VARCHAR},
+      create_organization_c = #{record.createOrganizationC,jdbcType=VARCHAR},
+      create_time_c = #{record.createTimeC,jdbcType=TIMESTAMP},
+      alter_man_c = #{record.alterManC,jdbcType=VARCHAR},
+      alter_organization_c = #{record.alterOrganizationC,jdbcType=VARCHAR},
+      alter_time_c = #{record.alterTimeC,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateServiceCustomer" parameterType="com.gome.gmhx.entity.HxServiceCustomer" >
+    update hx_service_customer
+    <set >
+      <if test="customerName != null" >
+        customer_name = #{customerName,jdbcType=VARCHAR},
+      </if>
+      <if test="customerType != null" >
+        customer_type = #{customerType,jdbcType=VARCHAR},
+      </if>
+      <if test="customerSex != null" >
+        customer_sex = #{customerSex,jdbcType=VARCHAR},
+      </if>
+      <if test="memberNum != null" >
+        member_num = #{memberNum,jdbcType=VARCHAR},
+      </if>
+      <if test="province != null" >
+        province = #{province,jdbcType=VARCHAR},
+      </if>
+      <if test="areaCode != null" >
+        area_code = #{areaCode,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="telephone != null" >
+        telephone = #{telephone,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        e_mail = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="postcode != null" >
+        postcode = #{postcode,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="note != null" >
+        note = #{note,jdbcType=VARCHAR},
+      </if>
+      <if test="createManC != null" >
+        create_man_c = #{createManC,jdbcType=VARCHAR},
+      </if>
+      <if test="createOrganizationC != null" >
+        create_organization_c = #{createOrganizationC,jdbcType=VARCHAR},
+      </if>
+      <if test="createTimeC != null" >
+        create_time_c = #{createTimeC,jdbcType=TIMESTAMP},
+      </if>
+      <if test="alterManC != null" >
+        alter_man_c = #{alterManC,jdbcType=VARCHAR},
+      </if>
+      <if test="alterOrganizationC != null" >
+        alter_organization_c = #{alterOrganizationC,jdbcType=VARCHAR},
+      </if>
+      <if test="alterTimeC != null" >
+        alter_time_c = #{alterTimeC,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where customer_id = #{customerId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.gome.gmhx.entity.HxServiceCustomer" >
+    update hx_service_customer
+    set customer_name = #{customerName,jdbcType=VARCHAR},
+      customer_type = #{customerType,jdbcType=VARCHAR},
+      customer_sex = #{customerSex,jdbcType=VARCHAR},
+      member_num = #{memberNum,jdbcType=VARCHAR},
+      province = #{province,jdbcType=VARCHAR},
+      area_code = #{areaCode,jdbcType=VARCHAR},
+      phone = #{phone,jdbcType=VARCHAR},
+      telephone = #{telephone,jdbcType=VARCHAR},
+      e_mail = #{email,jdbcType=VARCHAR},
+      postcode = #{postcode,jdbcType=VARCHAR},
+      address = #{address,jdbcType=VARCHAR},
+      note = #{note,jdbcType=VARCHAR},
+      create_man_c = #{createManC,jdbcType=VARCHAR},
+      create_organization_c = #{createOrganizationC,jdbcType=VARCHAR},
+      create_time_c = #{createTimeC,jdbcType=TIMESTAMP},
+      alter_man_c = #{alterManC,jdbcType=VARCHAR},
+      alter_organization_c = #{alterOrganizationC,jdbcType=VARCHAR},
+      alter_time_c = #{alterTimeC,jdbcType=TIMESTAMP}
+    where customer_id = #{customerId,jdbcType=VARCHAR}
+  </update>
+  <sql id="MySqlDialectPage" >
+    <if test="page != null" >
+      <![CDATA[ limit  #{page.begin} , #{page.end} ]]>
+    </if>
+  </sql>
+</mapper>

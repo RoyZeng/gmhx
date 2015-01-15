@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gome.gmhx.dao.basicdata.HxFittingDao" >
+  <resultMap id="BaseResultMap" type="com.gome.gmhx.entity.HxFitting" >
+    <id column="fitting_code" property="fittingCode" jdbcType="VARCHAR" />
+    <result column="fitting_name" property="fittingName" jdbcType="VARCHAR" />
+    <result column="fitting_type" property="fittingType" jdbcType="VARCHAR" />
+    <result column="parts_code" property="partsCode" jdbcType="VARCHAR" />
+    <result column="spec" property="spec" jdbcType="VARCHAR" />
+    <result column="produce_type" property="produceType" jdbcType="VARCHAR" />
+    <result column="gome_code" property="gomeCode" jdbcType="VARCHAR" />
+    <result column="fitting_level" property="fittingLevel" jdbcType="VARCHAR" />
+    <result column="cost" property="cost" jdbcType="REAL" />
+    <result column="network_price" property="networkPrice" jdbcType="REAL" />
+    <result column="branch_price" property="branchPrice" jdbcType="REAL" />
+    <result column="user_price" property="userPrice" jdbcType="REAL" />
+    <result column="comment" property="comment" jdbcType="VARCHAR" />
+    <result column="term" property="term" jdbcType="INTEGER" />
+    <result column="is_retrieve" property="isRetrieve" jdbcType="INTEGER" />
+    <result column="is_stop" property="isStop" jdbcType="INTEGER" />
+    <result column="update_time" property="updateTime" jdbcType="DATE" />
+    <result column="brand" property="brand" jdbcType="VARCHAR" />
+    <result column="matnr" property="matnr" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <resultMap id="modelMap" type="com.gome.gmhx.entity.HxFittingModel" >
+    <result column="fitting_code" property="fittingCode" jdbcType="VARCHAR" />
+    <result column="suit_model" property="suitModel" jdbcType="VARCHAR" />
+    <result column="comment" property="comment" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <resultMap id="providerMap" type="com.gome.gmhx.entity.HxFittingProvider" >
+    <result column="provider" property="provider" jdbcType="VARCHAR" />
+    <result column="comment" property="comment" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    fitting_code, fitting_name, fitting_type, parts_code, spec, produce_type, gome_code, 
+    fitting_level, cost, network_price, branch_price, user_price, comment, term, 
+    is_retrieve, is_stop, update_time,brand
+  </sql>
+  
+  <sql id="modelMap_Column_List" >
+    fitting_code, suit_model, comment
+  </sql>
+  
+  <insert id="insertFittingDetailBatch" parameterType="java.util.List">
+  INSERT INTO hx_fitting_detail (
+    <include refid="Base_Column_List" />
+    )
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+     (#{item.fittingCode,jdbcType=VARCHAR},#{item.fittingName,jdbcType=VARCHAR},#{item.fittingType,jdbcType=VARCHAR},#{item.partsCode,jdbcType=VARCHAR},#{item.spec,jdbcType=VARCHAR},
+     #{item.produceType,jdbcType=VARCHAR},#{item.gomeCode,jdbcType=VARCHAR},#{item.fittingLevel,jdbcType=VARCHAR},#{item.cost,jdbcType=REAL},#{item.networkPrice,jdbcType=REAL},
+     #{item.branchPrice,jdbcType=REAL},#{item.userPrice,jdbcType=REAL},#{item.comment,jdbcType=VARCHAR},#{item.term,jdbcType=INTEGER},#{item.isRetrieve,jdbcType=INTEGER},
+     #{item.isStop,jdbcType=INTEGER},#{item.updateTime,jdbcType=DATE},#{item.brand,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+  
+  <insert id="insertFittingModelBatch" parameterType="java.util.List">
+  INSERT INTO hx_fitting_model (
+    <include refid="modelMap_Column_List" />
+    )
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+     (#{item.fittingCode,jdbcType=VARCHAR},#{item.suitModel,jdbcType=VARCHAR},#{item.comment,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+  
+  <insert id="insertFittingFaultCodeBatch" parameterType="java.util.List">
+  INSERT INTO hx_fitting_fault (
+    fitting_code, fault_code, comment
+    )
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+     (#{item.fittingCode,jdbcType=VARCHAR},#{item.faultCode,jdbcType=VARCHAR},#{item.comment,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+    
+  <select id="getHxFittingPageList" parameterType="com.gome.common.page.Page" resultType="hashmap">
+    SELECT  t.fitting_code, t.fitting_name, v1.code_value fitting_type, t.parts_code, t.spec, v2.code_value produce_type,
+    	v4.code_value gome_code, v3.code_value fitting_level, t.network_price, t.user_price, t.term, t.is_retrieve,
+    	t.is_stop, t.update_time, group_concat(t1.suit_model SEPARATOR '、') suit_model,v5.code_value brand
+	FROM hx_fitting_detail t
+	LEFT JOIN v_code v1 on t.fitting_type=v1.code_key and v1.code_id='cpfl'  <!-- 配件分类要挂在产品分类下 -->
+	LEFT JOIN v_code v2 on t.produce_type=v2.code_key and v2.code_id='sclx'
+	LEFT JOIN v_code v3 on t.fitting_level=v3.code_key and v3.code_id='pjjb'
+	LEFT JOIN v_code v4 on t.gome_code=v4.code_key and v4.code_id='gmdm'
+	LEFT JOIN hx_fitting_model t1 on t.fitting_code = t1.fitting_code
+	LEFT JOIN v_code v5 on t.brand=v5.code_key and v5.code_id='pp'
+	WHERE 1=1
+	<if test="param.fittingCode != null and param.fittingCode != ''"> and t.fitting_code like CONCAT('%',#{param.fittingCode},'%')</if>
+	<if test="param.fittingName != null and param.fittingName != ''"> and t.fitting_name like CONCAT('%',#{param.fittingName},'%')</if>
+	<if test="param.fittingType != null and param.fittingType != ''"> and t.fitting_type = #{param.fittingType}</if>
+	<if test="param.partsCode != null and param.partsCode != ''"> and t.parts_code like CONCAT('%',#{param.partsCode},'%')</if>
+	<if test="param.spec != null and param.spec != ''"> and t.spec like CONCAT('%',#{param.spec},'%')</if>
+	<if test="param.brand != null and param.brand != ''"> and t.brand = #{param.brand}</if>
+	<if test="param.produceType != null and param.produceType != ''"> and t.produce_type = #{param.produceType}</if>
+	<if test="param.gomeCode != null and param.gomeCode != ''"> and t.gome_code = #{param.gomeCode}</if>
+	<if test="param.fittingLevel != null and param.fittingLevel != ''"> and t.fitting_level = #{param.fittingLevel}</if>
+	<if test="param.isRetrieve != null"> and t.is_retrieve = #{param.isRetrieve}</if>
+	<if test="param.isStop != null"> and t.is_stop = #{param.isStop}</if>
+	<if test="param.suitModel != null and param.suitModel != ''"> and t1.suit_model like CONCAT('%',#{param.suitModel},'%')</if>
+	<if test="param.ksrq != null and param.ksrq != ''">
+		<![CDATA[ and t.update_time >= #{param.ksrq}]]>
+	</if>
+	<if test="param.jsrq != null and param.jsrq != ''">
+		<![CDATA[ and t.update_time <= #{param.jsrq}]]>
+	</if>
+	GROUP BY t.fitting_code
+  </select>
+  
+  <select id="getHxFittingByFittingCode" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from hx_fitting_detail
+    where fitting_code = #{fittingCode,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="getHxFittingModelByFittingCode" resultType="hashmap" parameterType="string">
+  	select suit_model suitModel, comment from hx_fitting_model where fitting_code = #{fittingCode,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="getHxFittingProviderByFittingCode" resultType="hashmap" parameterType="string">
+  	select provider, comment from hx_fitting_provider where fitting_code = #{fittingCode,jdbcType=VARCHAR}
+  </select>
+  
+   <select id="getHxFittingFaultCodeByFittingCode" resultType="hashmap" parameterType="string">
+  	select fault_code as faultCode,comment from hx_fitting_fault where fitting_code = #{fittingCode,jdbcType=VARCHAR}
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from hx_fitting_detail
+    where fitting_code = #{fittingCode,jdbcType=VARCHAR}
+  </delete>
+  <insert id="addHxFitting" parameterType="com.gome.gmhx.entity.HxFitting" >
+    insert into hx_fitting_detail (fitting_code, fitting_name, fitting_type, 
+      parts_code, spec, produce_type, 
+      gome_code, fitting_level, 
+      cost, network_price, branch_price, 
+      user_price, comment, term, 
+      is_retrieve, is_stop, update_time,brand
+      )
+    values (#{fittingCode,jdbcType=VARCHAR}, #{fittingName,jdbcType=VARCHAR}, #{fittingType,jdbcType=VARCHAR}, 
+      #{partsCode,jdbcType=VARCHAR}, #{spec,jdbcType=VARCHAR}, #{produceType,jdbcType=VARCHAR}, 
+      #{gomeCode,jdbcType=VARCHAR}, #{fittingLevel,jdbcType=VARCHAR}, 
+      #{cost,jdbcType=REAL}, #{networkPrice,jdbcType=REAL}, #{branchPrice,jdbcType=REAL}, 
+      #{userPrice,jdbcType=REAL}, #{comment,jdbcType=VARCHAR}, #{term,jdbcType=INTEGER}, 
+      #{isRetrieve,jdbcType=INTEGER}, #{isStop,jdbcType=INTEGER}, #{updateTime,jdbcType=DATE},#{brand,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="addHxFittingModel" parameterType="hashmap">
+    insert into hx_fitting_model (fitting_code, suit_model, comment) values 
+    <foreach collection="list" item="item" separator="," >
+    	(#{fittingCode},#{item.suitModel},#{item.comment})
+    </foreach>
+  </insert>
+  <insert id="addHxFittingProvider"  parameterType="hashmap">
+  	insert into hx_fitting_provider (fitting_code, provider, comment) values 
+    <foreach collection="list" item="item" separator="," >
+    	(#{fittingCode},#{item.provider},#{item.comment})
+    </foreach>
+  </insert>
+    <insert id="addHxFittingFaultCode"  parameterType="hashmap">
+  	insert into hx_fitting_fault (fitting_code, fault_code, comment) values 
+    <foreach collection="list" item="item" separator="," >
+    	(#{fittingCode},#{item.faultCode},#{item.comment})
+    </foreach>
+  </insert>
+  <update id="updateHxFitting" parameterType="com.gome.gmhx.entity.HxFitting" >
+    update hx_fitting_detail
+    set fitting_name = #{fittingName,jdbcType=VARCHAR},
+      fitting_type = #{fittingType,jdbcType=VARCHAR},
+      parts_code = #{partsCode,jdbcType=VARCHAR},
+      spec = #{spec,jdbcType=VARCHAR},
+      produce_type = #{produceType,jdbcType=VARCHAR},
+      gome_code = #{gomeCode,jdbcType=VARCHAR},
+      fitting_level = #{fittingLevel,jdbcType=VARCHAR},
+      cost = #{cost,jdbcType=REAL},
+      network_price = #{networkPrice,jdbcType=REAL},
+      branch_price = #{branchPrice,jdbcType=REAL},
+      user_price = #{userPrice,jdbcType=REAL},
+      comment = #{comment,jdbcType=VARCHAR},
+      term = #{term,jdbcType=INTEGER},
+      is_retrieve = #{isRetrieve,jdbcType=INTEGER},
+      is_stop = #{isStop,jdbcType=INTEGER},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      brand = #{brand,jdbcType=VARCHAR}
+    where fitting_code = #{fittingCode,jdbcType=VARCHAR}
+  </update>
+  
+  <delete id="deleteModelByFittingCode" parameterType="string">
+  	delete from hx_fitting_model where fitting_code=#{fittingCode}
+  </delete>
+  
+  <delete id="deleteProviderByFittingCode" parameterType="string">
+  	delete from hx_fitting_provider where fitting_code=#{fittingCode}
+  </delete>
+  
+    <delete id="deleteFaultCodeByFittingCode" parameterType="string">
+  	delete from hx_fitting_fault where fitting_code=#{fittingCode}
+  </delete>
+  
+</mapper>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml_data>
+	<current>500</current>
+	<e300>
+		<oaaccountlocator></oaaccountlocator>
+		<orgrealtionlocator>dp0.gome.com:50000</orgrealtionlocator>
+	</e300>
+	<e500>
+		<oaaccountlocator>http://10.128.16.50/HOWebApp/AppSyncService700/AppSyncService.asmx</oaaccountlocator>
+		<orgrealtionlocator>10.128.11.10:50000</orgrealtionlocator>
+	</e500>
+	<e800>
+		<oaaccountlocator>http://10.128.16.54/AppSyncService/AppSyncService.asmx</oaaccountlocator>
+		<orgrealtionlocator>10.128.22.68:80</orgrealtionlocator>
+	</e800>
+</xml_data>
